@@ -1,29 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import tailwindcss from '@tailwindcss/vite' // 1. 이거 추가
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    tailwindcss(), // Tailwind v4는 react()보다 먼저 실행되는 것이 안전합니다.
     react(),
-    tailwindcss(), // 2. 이거 추가
-=======
-import tailwindcss from '@tailwindcss/vite'
-
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
->>>>>>> Stashed changes
-=======
-import tailwindcss from '@tailwindcss/vite'
-
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
->>>>>>> Stashed changes
   ],
 })
