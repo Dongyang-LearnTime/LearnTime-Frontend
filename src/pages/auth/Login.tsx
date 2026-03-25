@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router'; 
 import { Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
-import { SocialLogin } from '../../components/section/Button/SocialLogin.tsx';
+import { SocialLogin } from './SocialLogin.tsx';
 
 export function LoginPage() {
   const navigate = useNavigate();
