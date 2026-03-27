@@ -3,7 +3,9 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, User, Lock, Check, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
 import axios from 'axios';
 
+import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated';
+import ErrorMessageBlock from './componets/ErrorMessageBlock';
 
 // 유효성 검사 정규식 설정
 const REGEX = {
@@ -16,10 +18,11 @@ export default function SignupPage() {
   useRedirectIfAuthenticated(); // 로그인 했으면 '/' 로 이동
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ email: '', userName: '', password: '', confirm: '' });
-  
-  const [loading, setLoading] = useState(false);
-  const [shows, setShows] = useState({ pw: false, confirm: false });
+  const [ formData, setFormData ] = useState({ email: '', userName: '', password: '', confirm: '' });
+  const [ signupError, setSignupError ] = useState<string>('');
+
+  const [ loading, setLoading ] = useState(false);
+  const [ shows, setShows ] = useState({ pw: false, confirm: false });
 
   const { email, userName, password, confirm } = formData;
 
@@ -43,7 +46,7 @@ export default function SignupPage() {
   const isFormValid = !!(validity.email && validity.name && validity.pw && validity.match);
 
   // 폼 제출 핸들러
-  const handleSignUp = async(e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async(e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -57,8 +60,8 @@ export default function SignupPage() {
       alert("회원 가입 성공");
       navigate("/login");
     } catch (error) {
-      console.error(`회원가입 에러 : ${error}`);
-      // 실무: error.response.data 메시지를 파싱하여 사용자에게 보여주는 로직 추가 권장
+      const errorMessage = getApiErrorUtil(error);
+      setSignupError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -72,10 +75,17 @@ export default function SignupPage() {
 
   // 입력창 동적 스타일 함수 (테두리 색상 처리)
   const getInputClass = (isValid: boolean) => `
-    w-full px-4 py-3 border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 text-sm sm:text-base
+    w-full pl-4 pr-12 py-3 /* 최적화: 우측 토글 버튼과 텍스트가 겹치지 않도록 안전 여백(pr-12) 확보 */
+    border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 text-sm sm:text-base 
     ${isValid 
       ? 'border-blue-500 focus:ring-blue-100' 
       : 'border-gray-200 focus:border-indigo-500 focus:ring-indigo-100'} 
+  `
+
+  const getPasswordInputClass = () => `
+    flex-1 pl-4 py-3
+    bg-transparent outline-none
+    text-sm sm:text-base
   `;
   
   return (
@@ -126,15 +136,45 @@ export default function SignupPage() {
 
             {/* 3. 비밀번호 입력 섹션 및 체크리스트 */}
             <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1 flex items-center gap-1.5"><Lock size={14} className="text-indigo-400"/> 비밀번호</label>
-              <div className="relative">
-                <input name="password" type={shows.pw ? 'text' : 'password'} value={password} onChange={handleChange} className={getInputClass(validity.pw)} placeholder="강력한 암호를 설정하세요" />
-                <button type="button" onClick={() => setShows(s => ({...s, pw: !s.pw}))} className="absolute right-4 top-3.5 text-gray-400">{shows.pw ? <EyeOff size={18}/> : <Eye size={18}/>}</button>
+              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1 flex items-center gap-1.5">
+                <Lock size={14} className="text-indigo-400"/> 비밀번호
+              </label>
+
+              <div className={`
+                flex items-center
+                border-2 rounded-xl
+                transition-all duration-300
+                focus-within:ring-4 text-sm sm:text-base
+                ${validity.pw 
+                  ? 'border-blue-500 focus-within:ring-blue-100'
+                  : 'border-gray-200 focus-within:border-indigo-500 focus-within:ring-indigo-100'}
+              `}>
+                
+                <input
+                  name="password"
+                  type={shows.pw ? 'text' : 'password'}
+                  value={password}
+                  onChange={handleChange}
+                  className={getPasswordInputClass()}
+                  placeholder="강력한 암호를 설정하세요"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShows(s => ({ ...s, pw: !s.pw }))}
+                  className="px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {shows.pw ? <EyeOff size={18}/> : <Eye size={18}/>}
+                </button>
               </div>
 
+              {/* 체크리스트 */}
               {password && !validity.pw && (
                 <div className="mt-3 p-3 sm:p-4 bg-indigo-50/40 rounded-2xl border border-indigo-100/50">
-                  <p className="text-[9px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2.5 ml-0.5">보안 요구사항</p>
+                  <p className="text-[9px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2.5 ml-0.5">
+                    보안 요구사항
+                  </p>
+
                   <ul className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-2">
                     {[
                       { label: '8~30자 이내', met: pwChecks.length },
@@ -143,9 +183,17 @@ export default function SignupPage() {
                       { label: '특수문자 포함', met: pwChecks.special },
                       { label: '연속 3자리 금지', met: pwChecks.consecutive }
                     ].map((check, idx) => (
-                      <li key={idx} className={`flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-semibold transition-colors duration-300 ${check.met ? 'text-blue-600' : 'text-gray-400'}`}>
-                        <div className={`rounded-full flex items-center justify-center transition-all ${check.met ? 'bg-blue-100' : 'bg-gray-100'} w-3 h-3 sm:w-3.5 sm:h-3.5`}>
-                          <Check strokeWidth={4} className={`${check.met ? 'text-blue-600' : 'text-gray-300'} w-2 sm:w-2.5 h-2 sm:h-2.5`} />
+                      <li
+                        key={idx}
+                        className={`flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-semibold transition-colors duration-300 
+                          ${check.met ? 'text-blue-600' : 'text-gray-400'}`}
+                      >
+                        <div className={`rounded-full flex items-center justify-center transition-all 
+                          ${check.met ? 'bg-blue-100' : 'bg-gray-100'} w-3 h-3 sm:w-3.5 sm:h-3.5`}>
+                          <Check
+                            strokeWidth={4}
+                            className={`${check.met ? 'text-blue-600' : 'text-gray-300'} w-2 sm:w-2.5 h-2 sm:h-2.5`}
+                          />
                         </div>
                         {check.label}
                       </li>
@@ -155,15 +203,45 @@ export default function SignupPage() {
               )}
             </div>
 
+
             {/* 4. 비밀번호 확인 섹션 */}
             <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1">비밀번호 확인</label>
-              <div className="relative">
-                <input name="confirm" type={shows.confirm ? 'text' : 'password'} value={confirm} onChange={handleChange} className={getInputClass(validity.match)} placeholder="다시 입력해 주세요" />
-                <button type="button" onClick={() => setShows(s => ({...s, confirm: !s.confirm}))} className="absolute right-4 top-3.5 text-gray-400">{shows.confirm ? <EyeOff size={18}/> : <Eye size={18}/>}</button>
+              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1">
+                비밀번호 확인
+              </label>
+
+              <div className={`
+                flex items-center
+                border-2 rounded-xl
+                transition-all duration-300
+                focus-within:ring-4 text-sm sm:text-base
+                ${validity.match 
+                  ? 'border-blue-500 focus-within:ring-blue-100'
+                  : 'border-gray-200 focus-within:border-indigo-500 focus-within:ring-indigo-100'}
+              `}>
+                
+                <input
+                  name="confirm"
+                  type={shows.confirm ? 'text' : 'password'}
+                  value={confirm}
+                  onChange={handleChange}
+                  className={getPasswordInputClass()}
+                  placeholder="다시 입력해 주세요"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShows(s => ({ ...s, confirm: !s.confirm }))}
+                  className="px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {shows.confirm ? <EyeOff size={18}/> : <Eye size={18}/>}
+                </button>
               </div>
+
               {confirm && validity.match && (
-                <p className="text-[10px] sm:text-[11px] font-bold ml-1 text-blue-600">✓ 비밀번호가 일치합니다.</p>
+                <p className="text-[10px] sm:text-[11px] font-bold ml-1 mt-1 text-blue-600">
+                  ✓ 비밀번호가 일치합니다.
+                </p>
               )}
             </div>
 
@@ -171,6 +249,12 @@ export default function SignupPage() {
             <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.01] hover:shadow-blue-200 active:scale-[0.99]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
               {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : 'Learn-Time 시작하기'}
             </button>
+
+            {/* 에러 메시지 */}
+            {signupError && (
+              <ErrorMessageBlock message={signupError} />
+            )}
+
           </form>
         </div>
       </div>
