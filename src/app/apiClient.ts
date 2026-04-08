@@ -11,13 +11,36 @@ export const axiosInstance = axios.create({
 });
 
 // Request Interceptor: 메모리의 Access Token을 Header에 주입
+// axiosInstance.interceptors.request.use(
+//   (config) => {
+//     // Zustand 스토어에서 직접 상태를 옴
+//     const token = useAuthStore.getState().accessToken;
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
+
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Zustand 스토어에서 직접 상태를 옴
     const token = useAuthStore.getState().accessToken;
+
+    // ✅ Authorization 주입
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // ✅ multipart / json 분기 처리
+    if (config.data instanceof FormData) {
+      // multipart → Content-Type 제거 (axios가 자동 설정)
+      delete config.headers["Content-Type"];
+    } else {
+      // 일반 요청 → JSON 유지
+      config.headers["Content-Type"] = "application/json";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

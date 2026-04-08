@@ -12,10 +12,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
 
   setAccessToken: (token: string) => 
-    // 엑세스 토큰 업데이트
-    set({ accessToken: token, isAuthenticated: true }),
+      set({ accessToken: token, isAuthenticated: true }), // 엑세스 토큰 업데이트
     
-    clearAuth: () => 
-    // 로그아웃 함수 
-    set({ accessToken: null, isAuthenticated: false }),
+      clearAuth: () => 
+        set({ accessToken: null, isAuthenticated: false }), // 로그아웃 함수
 }));
