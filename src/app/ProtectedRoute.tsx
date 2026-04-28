@@ -1,19 +1,53 @@
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
+import { useMemo } from 'react';
+
+import type { Role } from '../types/UserEnums';
+
+interface JwtPayload {
+    role: Role;
+    userId: number;
+    sub: string;
+    exp: number;
+}
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRole?: Role;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-    
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated); // 전역 상태 (Zustand)
+// JWT decode
+function parseJwt(token: string): JwtPayload | null {
+    try {
+        const base64Payload = token.split('.')[1];
+        const payload = atob(base64Payload);
+        return JSON.parse(payload);
+    } catch {
+        return null;
+    }
+}
 
-  // 인증 체크
-  if (!isAuthenticated) {
-    // 로그인 안 되어 있으면 리다이렉트
-    return <Navigate to="/login" replace />;
-  }
+export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
 
-  return <>{children}</>; // 인증 됐으면 자식 컴포넌트 렌더링
+    const { accessToken, isAuthenticated } = useAuthStore();
+
+    const decoded = useMemo(() => { // 메모이제이션
+        return accessToken ? parseJwt(accessToken) : null;
+    }, [accessToken]);
+
+    // 로그인 체크
+    if (!isAuthenticated || !accessToken) {
+        return <Navigate to="/login" replace />;
+    }
+
+    if (!decoded) { // 토큰 이상
+        return <Navigate to="/login" replace />;
+    }
+
+    // 권한 체크
+    if (requiredRole && decoded.role !== requiredRole) {
+        return <Navigate to="/" replace />;
+    }
+
+    return <>{children}</>;
 }

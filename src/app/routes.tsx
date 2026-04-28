@@ -25,5 +25,12 @@ export const routes = [
       <ProtectedRoute> 
         <CreateStudy />
       </ProtectedRoute>
-  }
+  },
+  // { 관리자 페이지 예상
+  //   path : "/admin",
+  //   element : 
+  //   <ProtectedRoute requiredRole={Role.ROLE_ADMIN}>
+  //     <AdminPage />
+  //   </ProtectedRoute>
+  // }
 ];

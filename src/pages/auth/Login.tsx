@@ -1,5 +1,6 @@
 import { useState, useTransition } from 'react';
 import { useNavigate, Link } from 'react-router'; 
+import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { useAuthStore } from '../../store/useAuthStore.ts';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
@@ -24,6 +25,9 @@ export default function LoginPage() {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   
   const [ isPending, startTransition ] = useTransition();
+
+  // 페이지 제목 변경
+  usePageTitle("learn-time | 로그인");
 
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();

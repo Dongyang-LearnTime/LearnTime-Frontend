@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 import { extractTocApi } from "./api/CreateStudyApi";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import TocSection from "./TocSection";
@@ -33,7 +34,6 @@ export default function CreateStudy() {
     const [ file, setFile ] = useState<File | null>(null);
     const [ fileError, setFileError ] = useState<string>('');
     const [ bookToc, setBookToc ] = useState<BookToc[]>([]);
-
     const [studyForm, setStudyForm] = useState<StudyForm>({
         bookTitle: '',
         studyTitle: '',
@@ -43,6 +43,20 @@ export default function CreateStudy() {
         restDates: []
     });
     const [tempRestDate, setTempRestDate] = useState<string>(''); 
+
+    // 클릭 여부 확인 (여러 번 요청 방지)
+    const [ isUploadingUpload, setIsUploadingUpload ] = useState<boolean>(false);
+    const [ isUploadingStudy, setIsUploadingStudy ] = useState<boolean>(false);
+
+    const MAX_TOC = 150; // 목록 최대 갯수
+    const STUDY_DAY_LIMIT = {
+        MIN: 14, // 최소 진도 일수
+        MAX: 90  // 최대 진도 일수
+    } as const;
+
+
+    // 페이지 제목 변경
+    usePageTitle("learn-time | 진도 생성");
 
     // 파일 선택
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,19 +96,26 @@ export default function CreateStudy() {
 
     // 업로드 요청
     const handleUpload = async () => {
+        if (isUploadingUpload) return; // 중복 클릭 방지
+
         if (!file) {
             alert("파일 선택하세요");
             return;
         }
 
         try {
-            const data = await extractTocApi(file); // API 호출
+            setIsUploadingUpload(true); // 요청 시작
+            
+            const data = await extractTocApi(file);
             setBookToc(data);
+
             alert("성공");
         } catch (error: unknown) {
             const errorMessage = getApiErrorUtil(error);
             setFileError(errorMessage);
             alert("실패");
+        } finally {
+            setIsUploadingUpload(false); // 요청 끝
         }
     };
 
@@ -102,11 +123,20 @@ export default function CreateStudy() {
 
     // 진도 정보 제출
     const handleStudySubmit = () => { // 제출 검증
-        if (studyDays < 14 || studyDays > 90) {
+        if (isUploadingStudy) return; // 중복 클릭 방지
+
+        if (studyDays < STUDY_DAY_LIMIT.MIN || studyDays > STUDY_DAY_LIMIT.MAX) {
             alert(`실제 진행일은 14~90일이어야 합니다. (현재: ${studyDays}일)`);
             return;
         }
     };
+
+    useEffect(() => {
+        if (bookToc.length > MAX_TOC) {
+            alert("목차는 최대 150개까지만 유지됩니다.");
+            setBookToc(bookToc.slice(0, MAX_TOC));
+        }
+    }, [bookToc]);
 
     return (
         <div>
@@ -123,7 +153,9 @@ export default function CreateStudy() {
 
             <h2>이미지 업로드 및 목차 분석</h2>
             <input type="file" accept="image/*" onChange={handleFileChange} />
-            <button onClick={handleUpload}>업로드하여 추출</button>
+            <button onClick={handleUpload} disabled={isUploadingUpload}>
+                {isUploadingUpload ? "업로드 중..." : "업로드하여 추출"}
+            </button>            
             {fileError && <p style={{ color: 'red' }}>{fileError}</p>}
 
             <hr />
@@ -132,6 +164,7 @@ export default function CreateStudy() {
             <TocSection
                 bookToc={bookToc}
                 setBookToc={setBookToc}
+                MAX_TOC={MAX_TOC}
             />
 
 
@@ -146,9 +179,10 @@ export default function CreateStudy() {
                     text-black
                     rounded
                 "
+                disabled={isUploadingStudy}
             >
-                진도 생성
-            </button>
+                {isUploadingStudy ? "생성 중..." : "진도 생성하기"}
+            </button>      
             
         </div>
     );

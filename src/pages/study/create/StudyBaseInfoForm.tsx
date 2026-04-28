@@ -87,6 +87,7 @@ export default function StudyBaseInfoForm({
                     maxLength={150}
                     value={studyForm.bookTitle}
                     onChange={handleFormChange}
+                    placeholder="입력 (최대 150자)"
                 />
             </div>
 
@@ -99,6 +100,7 @@ export default function StudyBaseInfoForm({
                     maxLength={100}
                     value={studyForm.studyTitle}
                     onChange={handleFormChange}
+                    placeholder="입력 (최대 100자)"
                 />
             </div>
 

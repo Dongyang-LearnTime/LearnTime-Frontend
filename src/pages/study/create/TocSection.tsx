@@ -3,17 +3,29 @@ import type { BookToc } from "./CreateStudy";
 interface TocSectionProps {
     bookToc: BookToc[];
     setBookToc: React.Dispatch<React.SetStateAction<BookToc[]>>;
+    MAX_TOC : number;
 }
 
 export default function TocSection({
     bookToc,
     setBookToc,
+    MAX_TOC
 }: TocSectionProps) {
 
     // --- 목차(TOC) CRUD 로직 ---
     const addToc = () => {
-        // 기존 배열 메모리 주소를 변경하기 위해 Spread 구문 사용 (불변성 유지)
-        setBookToc([...bookToc, { chapter: '', title: '', page: null }]);
+        if (bookToc.length >= MAX_TOC) {
+            alert("목차는 최대 150개까지만 가능합니다.");
+            
+            // 초과된 상태라면 강제로 잘라냄
+            setBookToc(bookToc.slice(0, MAX_TOC));
+            return;
+        }
+
+        setBookToc([
+            ...bookToc,
+            { chapter: '', title: '', page: null }
+        ]);
     };
 
     const updateToc = (index: number, field: keyof BookToc, value: string | number) => {
@@ -42,21 +54,23 @@ export default function TocSection({
                 {bookToc.length === 0 ? <p>등록된 목차가 없습니다.</p> : (
                     bookToc.map((item, index) => (
                         <div key={index} style={{ marginBottom: "10px", borderBottom: "1px dashed #eee", paddingBottom: "10px" }}>
-                            <label>챕터 (10자): </label>
+                            <label>챕터: </label>
                             <input 
                                 type="text" 
                                 maxLength={10} 
                                 value={item.chapter} 
                                 onChange={(e) => updateToc(index, "chapter", e.target.value)} 
+                                placeholder="챕터 입력 (최대 10자)"
                             />
                             
-                            <label> 제목 (100자): </label>
+                            <label> 제목: </label>
                             <input 
                                 type="text" 
                                 maxLength={100} 
                                 value={item.title} 
                                 style={{ width: "300px" }}
                                 onChange={(e) => updateToc(index, "title", e.target.value)} 
+                                placeholder="제목 입력 (최대 100자)"
                             />
                             
                             <label> 페이지: </label>
@@ -65,6 +79,7 @@ export default function TocSection({
                                 value={item.page || ""} 
                                 style={{ width: "60px" }}
                                 onChange={(e) => updateToc(index, "page", parseInt(e.target.value) || 0)} 
+                                placeholder="입력"
                             />
                             
                             <button onClick={() => removeToc(index)} style={{ marginLeft: "10px" }}>삭제</button>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, User, Lock, Check, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
 import axios from 'axios';
 
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated';
 import ErrorMessageBlock from './componets/ErrorMessageBlock';
@@ -25,6 +26,9 @@ export default function SignupPage() {
   const [ shows, setShows ] = useState({ pw: false, confirm: false });
 
   const { email, userName, password, confirm } = formData;
+
+  // 페이지 제목 변경
+  usePageTitle("learn-time | 회원가입");
 
   const validity = {
     email: REGEX.EMAIL.test(email),
