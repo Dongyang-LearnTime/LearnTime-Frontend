@@ -1,9 +1,11 @@
+import ProtectedRoute from "./ProtectedRoute";
 import Home from "../pages/Home";
 import SignupPage from "../pages/auth/Signup";
 import LoginPage from "../pages/auth/Login";
-import CreateStudy from "../pages/study/CreateStudy";
+import CreateStudy from "../pages/study/create/CreateStudy";
 
 // App.tsx에서 사용할 라우트 설정 배열
+// ProtectedRoute => 로그인 필요한 페이지에 사용
 export const routes = [
   {
     path : "/",
@@ -19,6 +21,9 @@ export const routes = [
   },
   {
     path : "/study/plan/create",
-    element : <CreateStudy />
+    element : 
+      <ProtectedRoute> 
+        <CreateStudy />
+      </ProtectedRoute>
   }
 ];

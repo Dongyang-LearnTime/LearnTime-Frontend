@@ -53,7 +53,7 @@ export default function SignupPage() {
     try {
       // 프론트엔드 유효성 검사는 UX 개선용이며, 반드시 백엔드(Spring) 계층에서 최종 검증 필요
       await axios.post('http://localhost:8080/api/auth/signup', {
-        userName,
+        userName : userName.trim(),
         email,
         password 
       });

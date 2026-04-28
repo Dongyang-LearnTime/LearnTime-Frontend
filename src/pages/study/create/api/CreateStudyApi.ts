@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../../app/apiClient";
+import { axiosInstance } from "../../../../app/apiClient";
 import imageCompression from 'browser-image-compression';
 
 // 응답 타입 (재사용 가능하게 export)
