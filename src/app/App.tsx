@@ -6,6 +6,8 @@ import { useAuthStore } from '../store/useAuthStore';
 
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthChecking = useAuthStore((state) => state.isAuthChecking);
+  const setAuthChecking = useAuthStore((state) => state.setAuthChecking);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   
   const isStarted = useRef(false);
@@ -19,6 +21,7 @@ function App() {
       // 로그인 했던 기록이 없다면 서버에 요청 안 보냄 
       const loginHint = localStorage.getItem('login_hint');
       if (!loginHint) {
+        setAuthChecking(false);
         return;
       }
 
@@ -35,11 +38,17 @@ function App() {
         if (error.response?.status === 401) {
           localStorage.removeItem('login_hint');
         }
-      } 
+      } finally {
+        setAuthChecking(false);
+      }
     };
 
       silentRefresh();
-    }, [setAccessToken]);
+    }, [setAccessToken, setAuthChecking]);
+
+  if (isAuthChecking) {
+    return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
+  }
 
   return (
     <>

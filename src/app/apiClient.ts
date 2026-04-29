@@ -11,13 +11,36 @@ export const axiosInstance = axios.create({
 });
 
 // Request Interceptor: 메모리의 Access Token을 Header에 주입
+// axiosInstance.interceptors.request.use(
+//   (config) => {
+//     // Zustand 스토어에서 직접 상태를 옴
+//     const token = useAuthStore.getState().accessToken;
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
+
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Zustand 스토어에서 직접 상태를 옴
     const token = useAuthStore.getState().accessToken;
+
+    // ✅ Authorization 주입
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // ✅ multipart / json 분기 처리
+    if (config.data instanceof FormData) {
+      // multipart → Content-Type 제거 (axios가 자동 설정)
+      delete config.headers["Content-Type"];
+    } else {
+      // 일반 요청 → JSON 유지
+      config.headers["Content-Type"] = "application/json";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -41,6 +64,11 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const { config, response } = error;
     const originalRequest = config;
+
+    // [추가된 로직] 로그인 API 요청 시 발생한 에러는 인터셉터를 거치지 않고 즉시 호출부(LoginPage)로 반환
+    if (originalRequest.url?.includes('/api/auth/login')) {
+      return Promise.reject(error);
+    }
 
     // 401 Unauthorized이고, 재시도한 적이 없는 요청인 경우
     if (response?.status === 401 && !originalRequest._retry) {

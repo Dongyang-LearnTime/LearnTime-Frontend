@@ -1,11 +1,14 @@
 import { useState, useTransition } from 'react';
 import { useNavigate, Link } from 'react-router'; 
+import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { useAuthStore } from '../../store/useAuthStore.ts';
-import { Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated.ts';
 import { axiosInstance } from '../../app/apiClient.ts';
+import { getApiErrorUtil } from '../../utils/getApiErrorUtil.ts';
 import SocialLogin from './SocialLogin.tsx';
+import ErrorMessageBlock from './componets/ErrorMessageBlock.tsx';
 
 
 export default function LoginPage() {
@@ -22,6 +25,9 @@ export default function LoginPage() {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   
   const [ isPending, startTransition ] = useTransition();
+
+  // 페이지 제목 변경
+  usePageTitle("learn-time | 로그인");
 
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,12 +49,9 @@ export default function LoginPage() {
         navigate('/'); // 임시 링크, 수정 가능 
       });
       
-    } catch (error: any) {
-      if (error.response?.status === 400 || error.response?.status === 404) {
-         setLoginError('이메일 또는 비밀번호가 올바르지 않습니다.');
-      } else {
-         setLoginError('서버와 통신 중 문제가 발생했습니다.');
-      }
+    } catch (error: unknown) {
+      const errorMessage = getApiErrorUtil(error);
+      setLoginError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -130,10 +133,7 @@ export default function LoginPage() {
 
             {/* 에러 메시지 */}
             {loginError && (
-              <div className="flex items-center gap-2 p-3 sm:p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 animate-in fade-in slide-in-from-top-1">
-                <AlertCircle size={16} className="shrink-0" />
-                <p className="text-xs sm:text-sm font-medium">{loginError}</p>
-              </div>
+              <ErrorMessageBlock message={loginError} />
             )}
 
             {/* 로그인 실행 버튼 */}
