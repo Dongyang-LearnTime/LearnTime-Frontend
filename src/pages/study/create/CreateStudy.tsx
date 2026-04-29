@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from 'react-router'; 
+
 import { usePageTitle } from "../../../hooks/usePageTitle";
-import { extractTocApi } from "./api/CreateStudyApi";
+import { extractTocApi, createStudyPlanApi } from "../api/CreateStudyApi";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import TocSection from "./TocSection";
 import StudyBaseInfoForm from "./StudyBaseInfoForm";
@@ -31,10 +33,11 @@ export const dayMap: Record<string, number> = {
 };
 
 export default function CreateStudy() {
+    const navigate = useNavigate();
+
     const [ file, setFile ] = useState<File | null>(null);
-    const [ fileError, setFileError ] = useState<string>('');
     const [ bookToc, setBookToc ] = useState<BookToc[]>([]);
-    const [studyForm, setStudyForm] = useState<StudyForm>({
+    const [ studyForm, setStudyForm ] = useState<StudyForm>({
         bookTitle: '',
         studyTitle: '',
         startDate: '',
@@ -43,6 +46,10 @@ export default function CreateStudy() {
         restDates: []
     });
     const [tempRestDate, setTempRestDate] = useState<string>(''); 
+
+    // 에러 메시지
+    const [ fileError, setFileError ] = useState<string>('');
+    const [ planError, setPlanError ] = useState<string>('');
 
     // 클릭 여부 확인 (여러 번 요청 방지)
     const [ isUploadingUpload, setIsUploadingUpload ] = useState<boolean>(false);
@@ -113,7 +120,6 @@ export default function CreateStudy() {
         } catch (error: unknown) {
             const errorMessage = getApiErrorUtil(error);
             setFileError(errorMessage);
-            alert("실패");
         } finally {
             setIsUploadingUpload(false); // 요청 끝
         }
@@ -122,12 +128,36 @@ export default function CreateStudy() {
     const studyDays = useMemo(() => calculateStudyDays(), [studyForm]); // 총 진도 일수
 
     // 진도 정보 제출
-    const handleStudySubmit = () => { // 제출 검증
+    const handleStudyPlanSubmit = async () => { // 제출 검증
         if (isUploadingStudy) return; // 중복 클릭 방지
+
+        // 목차 목록 유효성 검사 (비어 있는지)
+        const isValidToc = bookToc.some(toc => 
+            toc.chapter.trim() !== '' &&
+            toc.title.trim() !== ''
+        );
 
         if (studyDays < STUDY_DAY_LIMIT.MIN || studyDays > STUDY_DAY_LIMIT.MAX) {
             alert(`실제 진행일은 14~90일이어야 합니다. (현재: ${studyDays}일)`);
             return;
+        }
+
+        if (!isValidToc) {
+            alert('유효한 목차가 없습니다.');
+            return;
+        }
+
+        try {
+            setIsUploadingStudy(true); // 요청 시작
+            await createStudyPlanApi(studyForm, bookToc);
+            alert("생성 완료");
+            navigate('/'); // 공부 페이지 생성 완료 시 링크 수정
+        
+        } catch (error: unknown) {
+            const errorMessage = getApiErrorUtil(error);
+            setPlanError(errorMessage);
+        } finally {
+            setIsUploadingStudy(false); // 요청 끝
         }
     };
 
@@ -169,7 +199,7 @@ export default function CreateStudy() {
 
 
             <button
-                onClick={handleStudySubmit}
+                onClick={handleStudyPlanSubmit}
                 type="submit"
                 className="
                     mt-6
@@ -183,6 +213,7 @@ export default function CreateStudy() {
             >
                 {isUploadingStudy ? "생성 중..." : "진도 생성하기"}
             </button>      
+            {planError && <p style={{ color: 'red' }}>{planError}</p>}
             
         </div>
     );

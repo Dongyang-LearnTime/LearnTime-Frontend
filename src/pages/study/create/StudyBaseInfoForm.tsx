@@ -151,6 +151,7 @@ export default function StudyBaseInfoForm({
                     type="date"
                     value={tempRestDate}
                     min={today}
+                    max={studyForm.endDate}
                     onChange={(e) => setTempRestDate(e.target.value)}
                 />
 
@@ -186,10 +187,6 @@ export default function StudyBaseInfoForm({
                     </span>
                 )}
             </p>
-
-            <button type="submit">
-                생성
-            </button>
         </form>
     );
 }
