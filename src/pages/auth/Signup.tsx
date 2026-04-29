@@ -25,6 +25,8 @@ export default function SignupPage() {
   const [ loading, setLoading ] = useState(false);
   const [ shows, setShows ] = useState({ pw: false, confirm: false });
 
+  const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
+
   const { email, userName, password, confirm } = formData;
 
   // 페이지 제목 변경
@@ -75,6 +77,10 @@ export default function SignupPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const checkCapsLock = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    setIsCapsLockOn(e.getModifierState('CapsLock'));
   };
 
   // 입력창 동적 스타일 함수 (테두리 색상 처리)
@@ -159,6 +165,8 @@ export default function SignupPage() {
                   type={shows.pw ? 'text' : 'password'}
                   value={password}
                   onChange={handleChange}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
                   className={getPasswordInputClass()}
                   placeholder="강력한 암호를 설정하세요"
                 />
@@ -229,6 +237,8 @@ export default function SignupPage() {
                   type={shows.confirm ? 'text' : 'password'}
                   value={confirm}
                   onChange={handleChange}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
                   className={getPasswordInputClass()}
                   placeholder="다시 입력해 주세요"
                 />
@@ -255,9 +265,17 @@ export default function SignupPage() {
             </button>
 
             {/* 에러 메시지 */}
-            {signupError && (
-              <ErrorMessageBlock message={signupError} />
+            {(signupError || isCapsLockOn) && (
+              <div className="space-y-2">
+                {signupError && (
+                  <ErrorMessageBlock message={signupError} />
+                )}
+                {isCapsLockOn && (
+                  <ErrorMessageBlock message="Caps Lock이 켜져 있습니다." />
+                )}
+              </div>
             )}
+
 
           </form>
         </div>

@@ -25,6 +25,7 @@ export default function LoginPage() {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   
   const [ isPending, startTransition ] = useTransition();
+  const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
 
   // 페이지 제목 변경
   usePageTitle("learn-time | 로그인");
@@ -55,6 +56,10 @@ export default function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const checkCapsLock = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    setIsCapsLockOn(e.getModifierState('CapsLock'));
   };
 
   // 공통 입력창 스타일
@@ -109,6 +114,8 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
                   placeholder="비밀번호를 입력하세요"
                   className={inputStyle}
                 />
@@ -132,8 +139,15 @@ export default function LoginPage() {
             </div> */}
 
             {/* 에러 메시지 */}
-            {loginError && (
-              <ErrorMessageBlock message={loginError} />
+            {(loginError || isCapsLockOn) && (
+              <div className="space-y-2">
+                {loginError && (
+                  <ErrorMessageBlock message={loginError} />
+                )}
+                {isCapsLockOn && (
+                  <ErrorMessageBlock message="Caps Lock이 켜져 있습니다." />
+                )}
+              </div>
             )}
 
             {/* 로그인 실행 버튼 */}
