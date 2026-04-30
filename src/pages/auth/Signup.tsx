@@ -6,7 +6,10 @@ import axios from 'axios';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated';
+import TermsAgreementSection from './componets/TermsAgreementSection';
 import ErrorMessageBlock from './componets/ErrorMessageBlock';
+
+import type { Terms } from '../../types/UserEnums';
 
 // 유효성 검사 정규식 설정
 const REGEX = {
@@ -20,13 +23,18 @@ export default function SignupPage() {
   const navigate = useNavigate();
 
   const [ formData, setFormData ] = useState({ email: '', userName: '', password: '', confirm: '' });
+  const [ termsAgreements, setTermsAgreements ] = useState<Record<Terms, boolean>>({
+    SERVICE_USE: false,
+    PRIVACY_POLICY: false,
+    BODY_DATA_COLLECT: false,
+  });
+
   const [ signupError, setSignupError ] = useState<string>('');
 
   const [ loading, setLoading ] = useState(false);
   const [ shows, setShows ] = useState({ pw: false, confirm: false });
-
   const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
-
+  
   const { email, userName, password, confirm } = formData;
 
   // 페이지 제목 변경
@@ -56,12 +64,22 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
 
+    // 약관 동의 여부
+    const isRequiredTermsAgreed = termsAgreements.SERVICE_USE && termsAgreements.PRIVACY_POLICY;
+
+    if (!isRequiredTermsAgreed) {
+      setSignupError("필수 약관에 동의해야 가입이 가능합니다.");
+      setLoading(false);
+      return;
+    }
+
     try {
       // 프론트엔드 유효성 검사는 UX 개선용이며, 반드시 백엔드(Spring) 계층에서 최종 검증 필요
       await axios.post('http://localhost:8080/api/auth/signup', {
         userName : userName.trim(),
         email,
-        password 
+        password,
+        termsAgreements
       });
       alert("회원 가입 성공");
       navigate("/login");
@@ -258,6 +276,17 @@ export default function SignupPage() {
                 </p>
               )}
             </div>
+
+            {/* 약관 창 */}
+            <TermsAgreementSection
+              termsAgreements={termsAgreements}
+              onChange={(term, checked) => {
+                setTermsAgreements(prev => ({
+                  ...prev,
+                  [term]: checked
+                }));
+              }}
+            />
 
             {/* 제출 버튼 */}
             <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.01] hover:shadow-blue-200 active:scale-[0.99]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>

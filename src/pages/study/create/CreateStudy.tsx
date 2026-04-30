@@ -101,7 +101,7 @@ export default function CreateStudy() {
     // 백엔드제출 함수
     // =========================
 
-    // 업로드 요청
+    // 사진 업로드
     const handleUpload = async () => {
         if (isUploadingUpload) return; // 중복 클릭 방지
 
@@ -114,6 +114,7 @@ export default function CreateStudy() {
             setIsUploadingUpload(true); // 요청 시작
             
             const data = await extractTocApi(file);
+            setBookToc([]);
             setBookToc(data);
 
             alert("성공");
