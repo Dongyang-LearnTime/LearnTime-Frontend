@@ -3,6 +3,7 @@ import Home from "../pages/Home";
 import SignupPage from "../pages/auth/Signup";
 import LoginPage from "../pages/auth/Login";
 import CreateStudy from "../pages/study/create/CreateStudy";
+import StudyNotes from "../pages/study/notes/StudyNotes";
 
 // App.tsx에서 사용할 라우트 설정 배열
 // ProtectedRoute => 로그인 필요한 페이지에 사용
@@ -26,6 +27,13 @@ export const routes = [
         <CreateStudy />
       </ProtectedRoute>
   },
+  {
+    path : "/study/notes/:id",
+    element : 
+    <ProtectedRoute> 
+      <StudyNotes />
+    </ProtectedRoute>
+  }
   // { 관리자 페이지 예상
   //   path : "/admin",
   //   element : 

@@ -33,7 +33,6 @@ function App() {
         );
 
         setAccessToken(response.data.accessToken);
-        console.log("되는 중");
       } catch (error: any) {
         if (error.response?.status === 401) {
           localStorage.removeItem('login_hint');

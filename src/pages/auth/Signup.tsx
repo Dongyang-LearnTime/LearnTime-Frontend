@@ -34,7 +34,7 @@ export default function SignupPage() {
   const [ loading, setLoading ] = useState(false);
   const [ shows, setShows ] = useState({ pw: false, confirm: false });
   const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
-  
+
   const { email, userName, password, confirm } = formData;
 
   // 페이지 제목 변경
@@ -304,7 +304,6 @@ export default function SignupPage() {
                 )}
               </div>
             )}
-
 
           </form>
         </div>
