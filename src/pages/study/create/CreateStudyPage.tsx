@@ -32,7 +32,7 @@ export const dayMap: Record<string, number> = {
     SATURDAY: 6
 };
 
-export default function CreateStudy() {
+export default function CreateStudyPage() {
     const navigate = useNavigate();
 
     const [ file, setFile ] = useState<File | null>(null);

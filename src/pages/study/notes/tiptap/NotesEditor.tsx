@@ -1,13 +1,10 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Save, BookOpen, Command, AlertCircle } from 'lucide-react';
 
-import { submitStudyNotesApi } from '../api/StudyNotesApi';
-import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import { MenuBar } from './MenuBar';
-import '../../../styles/StudyNotes.css';
+import '../../../../styles/NotesEditor.css';
 
 // 단축키 목록
 const SHORTCUT_GUIDE = [
@@ -18,13 +15,22 @@ const SHORTCUT_GUIDE = [
   { keys: 'Ctrl+Shift+8', label: '기호 목록' },
 ];
 
-export default function StudyNotes() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+export interface NotesEditorProps {
+  initialTitle?: string;
+  initialContent?: string;
+  onSubmit: (title: string, content: string) => Promise<void>;
+  submitButtonText: string;
+}
 
-  const [title, setTitle] = useState<string>('');
+export function NotesEditor({
+  initialTitle = '',
+  initialContent = '',
+  onSubmit,
+  submitButtonText,
+}: NotesEditorProps) {
+  const [title, setTitle] = useState<string>(initialTitle);
   const [notesError, setNotesError] = useState<string>('');
-  const [isEmpty, setIsEmpty] = useState<boolean>(true);
+  const [isEmpty, setIsEmpty] = useState<boolean>(!initialContent);
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
   const editor = useEditor({
@@ -35,7 +41,7 @@ export default function StudyNotes() {
         },
       }),
     ],
-    content: '',
+    content: initialContent,
     onUpdate: ({ editor }) => {
       setIsEmpty(editor.isEmpty);
     },
@@ -52,6 +58,17 @@ export default function StudyNotes() {
     },
   });
 
+  // initialContent가 나중에 로딩될 경우 대비 (수정 페이지)
+  useEffect(() => {
+    if (editor && initialContent !== editor.getHTML()) {
+      editor.commands.setContent(initialContent);
+    }
+  }, [initialContent, editor]);
+
+  useEffect(() => {
+    setTitle(initialTitle);
+  }, [initialTitle]);
+
   const handleSave = async () => {
     if (!title.trim()) {
       setNotesError('노트 제목을 입력해주세요.');
@@ -61,19 +78,11 @@ export default function StudyNotes() {
     setNotesError('');
 
     if (editor) {
-      const dataToSave = {
-        studyId: id,
-        title,
-        content: editor.getHTML(),
-      };
-
       try {
-        await submitStudyNotesApi(dataToSave);
-        alert('저장 완료');
-        navigate('/'); // 임시 링크
-      } catch (error: unknown) {
-        const errorMessage = getApiErrorUtil(error);
-        setNotesError(errorMessage);
+        await onSubmit(title, editor.getHTML());
+      } catch (error: any) {
+        // 에러 메세지가 넘어오면 세팅, 아니면 기본 메세지
+        setNotesError(error?.message || '저장 중 오류가 발생했습니다.');
       }
     }
   };
@@ -119,7 +128,7 @@ export default function StudyNotes() {
             className="flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-sm shrink-0 w-full md:w-auto bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200/50 hover:shadow-lg active:scale-[0.98]"
           >
             <Save size={20} />
-            노트 저장
+            {submitButtonText}
           </button>
         </div>
 

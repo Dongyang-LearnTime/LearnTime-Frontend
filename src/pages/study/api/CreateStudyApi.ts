@@ -1,9 +1,9 @@
 import { axiosInstance } from "../../../app/apiClient";
 import imageCompression from 'browser-image-compression';
-import type { StudyForm, BookToc } from "../create/CreateStudy";
+import type { StudyForm, BookToc } from "../create/CreateStudyPage";
 
 export const extractTocApi = async (file: File): Promise<BookToc[]> => {
-  const FORM_DATA_NAME : string = "image";
+  const FORM_DATA_NAME: string = "image";
 
   const options = {
     maxSizeMB: 0.5,
@@ -23,18 +23,18 @@ export const extractTocApi = async (file: File): Promise<BookToc[]> => {
   return response.data;
 };
 
-export const createStudyPlanApi = async (studyForm : StudyForm, bookToc : BookToc[]) : Promise<void> => {
+export const createStudyPlanApi = async (studyForm: StudyForm, bookToc: BookToc[]): Promise<void> => {
 
   await axiosInstance.post(
     "/api/study/generate",
     {
-      bookTitle : studyForm.bookTitle,
-      studyTitle : studyForm.studyTitle,
-      startDate : studyForm.startDate,
-      endDate : studyForm.endDate,
-      restDays : studyForm.restDays,
-      restDates : studyForm.restDates,
-      tocList : bookToc
+      bookTitle: studyForm.bookTitle,
+      studyTitle: studyForm.studyTitle,
+      startDate: studyForm.startDate,
+      endDate: studyForm.endDate,
+      restDays: studyForm.restDays,
+      restDates: studyForm.restDates,
+      tocList: bookToc
     }
   );
 

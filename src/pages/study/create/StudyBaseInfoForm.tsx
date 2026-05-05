@@ -1,5 +1,5 @@
-import { dayMap } from "./CreateStudy";
-import type { StudyForm } from "./CreateStudy";
+import { dayMap } from "./CreateStudyPage";
+import type { StudyForm } from "./CreateStudyPage";
 
 interface StudyBaseInfoFormProps {
     studyForm: StudyForm;
