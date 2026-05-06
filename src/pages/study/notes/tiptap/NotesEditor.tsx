@@ -32,6 +32,7 @@ export function NotesEditor({
   const [notesError, setNotesError] = useState<string>('');
   const [isEmpty, setIsEmpty] = useState<boolean>(!initialContent);
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false); // 변경사항 여부 추적
 
   const editor = useEditor({
     extensions: [
@@ -44,6 +45,7 @@ export function NotesEditor({
     content: initialContent,
     onUpdate: ({ editor }) => {
       setIsEmpty(editor.isEmpty);
+      setIsDirty(true); // 에디터 내용 변경 시 dirty 상태로 변경
     },
     onFocus: () => {
       setIsFocused(true);
@@ -69,6 +71,17 @@ export function NotesEditor({
     setTitle(initialTitle);
   }, [initialTitle]);
 
+  // 창 닫기, 새로고침 등 페이지 이탈 시도 시 브라우저 경고창 띄우기
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
   const handleSave = async () => {
     if (!title.trim()) {
       setNotesError('노트 제목을 입력해주세요.');
@@ -79,8 +92,10 @@ export function NotesEditor({
 
     if (editor) {
       try {
+        setIsDirty(false); // 저장 시도 중에는 이탈 방지 해제 (이동을 위해)
         await onSubmit(title, editor.getHTML());
       } catch (error: any) {
+        setIsDirty(true); // 실패 시 다시 이탈 방지 활성화
         // 에러 메세지가 넘어오면 세팅, 아니면 기본 메세지
         setNotesError(error?.message || '저장 중 오류가 발생했습니다.');
       }
@@ -105,6 +120,7 @@ export function NotesEditor({
                     const newValue = e.target.value;
                     if (newValue.length <= 100) {
                       setTitle(newValue);
+                      setIsDirty(true); // 제목 변경 시 dirty 상태로 변경
                       if (notesError) setNotesError(''); // 입력 시 에러 초기화
                     }
                   }}

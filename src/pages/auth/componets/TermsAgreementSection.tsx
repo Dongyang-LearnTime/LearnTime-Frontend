@@ -1,4 +1,4 @@
-import type { Terms } from "../../../types/UserEnums";
+import type { Terms } from "../../../types/userEnums";
 import { TERMS_CONTENTS } from "./constants/termsData"; // 데이터 임포트
 
 interface Props {

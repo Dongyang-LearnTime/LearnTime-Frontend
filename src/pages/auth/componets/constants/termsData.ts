@@ -1,4 +1,4 @@
-import type { Terms } from "../../../../types/UserEnums";
+import type { Terms } from "../../../../types/userEnums";
 
 
 interface TermContent {

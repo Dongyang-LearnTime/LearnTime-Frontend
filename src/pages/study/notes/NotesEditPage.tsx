@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NotesEditor } from './tiptap/NotesEditor';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getStudyNoteDetailApi, updateStudyNoteApi } from '../api/StudyNotesApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 
@@ -11,6 +12,9 @@ export default function NotesEditPage() {
   const [initialTitle, setInitialTitle] = useState('');
   const [initialContent, setInitialContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  // 페이지 제목 변경
+  usePageTitle("learn-time | 필기 수정");
 
   // 수정 페이지 진입 시 기존 데이터 불러오기
   useEffect(() => {

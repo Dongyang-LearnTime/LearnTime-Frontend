@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getStudyNoteDetailApi, deleteStudyNoteApi } from '../api/StudyNotesApi';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
+import { formatDateUtil } from '../../../utils/formatDateUtil';
 import '../../../styles/NotesEditor.css';
 import DOMPurify from 'dompurify';
 
@@ -14,6 +16,9 @@ export default function NotesDetailPage() {
   const [ noteDetail, setNoteDetail ] = useState<StudyNoteDetail | null>(null);
   const [ error, setError ] = useState<string>('');
   const [ isLoading, setIsLoading ] = useState<boolean>(true);
+
+  // 페이지 제목 변경
+  usePageTitle("learn-time | 필기 상세 보기");
 
   useEffect(() => {
     const fetchNoteDetail = async () => {
@@ -59,10 +64,11 @@ export default function NotesDetailPage() {
     <article>
       <header>
         <h1>{noteDetail.title}</h1>
-        <div>
-          <span>생성일: {noteDetail.createdAt}</span>
-          <br />
-          <span>수정일: {noteDetail.updatedAt}</span>
+        <div className="flex flex-col gap-1 mt-2 text-sm text-slate-500">
+          <span>생성: {formatDateUtil(noteDetail.createdAt)}</span>
+          {noteDetail.updatedAt && noteDetail.updatedAt !== noteDetail.createdAt && (
+            <span>수정: {formatDateUtil(noteDetail.updatedAt)}</span>
+          )}
         </div>
         {/* <div>
           <span>공부필기 ID: {noteDetail.noteId}</span>
@@ -88,7 +94,7 @@ export default function NotesDetailPage() {
           {/* 임시 */}
           <button
             className="px-3 py-1.5 bg-white border border-slate-300 text-indigo-600 text-sm rounded hover:bg-indigo-50 transition-colors"
-            onClick={() => {}}
+            onClick={() => navigate(`/study/quiz/1`)}
           >
             퀴즈 생성
           </button>

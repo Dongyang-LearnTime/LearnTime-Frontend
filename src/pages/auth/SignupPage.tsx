@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, User, Lock, Check, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
 import axios from 'axios';
@@ -9,7 +9,7 @@ import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticat
 import TermsAgreementSection from './componets/TermsAgreementSection';
 import ErrorMessageBlock from './componets/ErrorMessageBlock';
 
-import type { Terms } from '../../types/UserEnums';
+import type { Terms } from '../../types/userEnums';
 
 // 유효성 검사 정규식 설정
 const REGEX = {
@@ -101,6 +101,9 @@ export default function SignupPage() {
     setIsCapsLockOn(e.getModifierState('CapsLock'));
   };
 
+  // 비밀번호 입력창 포커스 이탈 시 CapsLock 경고 숨김
+  const resetCapsLock = () => setIsCapsLockOn(false);
+
   // 입력창 동적 스타일 함수 (테두리 색상 처리)
   const getInputClass = (isValid: boolean) => `
     w-full pl-4 pr-12 py-3 /* 최적화: 우측 토글 버튼과 텍스트가 겹치지 않도록 안전 여백(pr-12) 확보 */
@@ -185,6 +188,7 @@ export default function SignupPage() {
                   onChange={handleChange}
                   onKeyDown={checkCapsLock}
                   onKeyUp={checkCapsLock}
+                  onBlur={resetCapsLock}
                   className={getPasswordInputClass()}
                   placeholder="강력한 암호를 설정하세요"
                 />
@@ -257,6 +261,7 @@ export default function SignupPage() {
                   onChange={handleChange}
                   onKeyDown={checkCapsLock}
                   onKeyUp={checkCapsLock}
+                  onBlur={resetCapsLock}
                   className={getPasswordInputClass()}
                   placeholder="다시 입력해 주세요"
                 />
@@ -288,12 +293,7 @@ export default function SignupPage() {
               }}
             />
 
-            {/* 제출 버튼 */}
-            <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.01] hover:shadow-blue-200 active:scale-[0.99]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
-              {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : 'Learn-Time 시작하기'}
-            </button>
-
-            {/* 에러 메시지 */}
+            {/* 에러 메시지 (LoginPage와 동일하게 버튼 위에 배치) */}
             {(signupError || isCapsLockOn) && (
               <div className="space-y-2">
                 {signupError && (
@@ -304,6 +304,11 @@ export default function SignupPage() {
                 )}
               </div>
             )}
+
+            {/* 제출 버튼 */}
+            <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.01] hover:shadow-blue-200 active:scale-[0.99]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+              {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : 'Learn-Time 시작하기'}
+            </button>
 
           </form>
         </div>

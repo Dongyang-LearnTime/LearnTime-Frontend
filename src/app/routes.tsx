@@ -6,6 +6,9 @@ import CreateStudyPage from "../pages/study/create/CreateStudyPage";
 import NotesWritePage from "../pages/study/notes/NotesWritePage";
 import NotesEditPage from "../pages/study/notes/NotesEditPage";
 import NotesDetailPage from "../pages/study/notes/NotesDetailPage";
+import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
+import QuizResultPage from "../pages/study/quiz/QuizResultPage";
+
 
 // App.tsx에서 사용할 라우트 설정 배열
 // ProtectedRoute => 로그인 필요한 페이지에 사용
@@ -48,6 +51,20 @@ export const routes = [
     element:
       <ProtectedRoute>
         <NotesEditPage />
+      </ProtectedRoute>
+  },
+  {
+    path: "/study/quiz/:quizId",
+    element:
+      <ProtectedRoute>
+        <QuizSolvePage />
+      </ProtectedRoute>
+  },
+  {
+    path: "/study/quiz/history/:quizHistoryId",
+    element:
+      <ProtectedRoute>
+        <QuizResultPage />
       </ProtectedRoute>
   }
   // { 관리자 페이지 예상

@@ -2,10 +2,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { submitStudyNotesApi } from '../api/StudyNotesApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import { NotesEditor } from './tiptap/NotesEditor';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function NotesWritePage() {
   const { studyId } = useParams<{ studyId: string }>();
   const navigate = useNavigate();
+
+  // 페이지 제목 변경
+  usePageTitle("learn-time | 필기 작성");
 
   const handleCreateSubmit = async (title: string, content: string) => {
     try {
