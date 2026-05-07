@@ -29,6 +29,7 @@ export default function QuizSolvePage() {
   const [ error, setError] = useState<string>('');
   const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
   const [ answers, setAnswers ] = useState<Record<number, string>>({});   // 사용자의 답안을 저장하는 상태 (객체 형태: { 질문ID: 선택한답안 })
+  const [ isDirty, setIsDirty ] = useState<boolean>(false); // 페이지 이탈 방지 상태
 
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export default function QuizSolvePage() {
       setIsLoading(true);
       const data = await getQuizDetailApi(quizId);
       setQuizData(data);
+      setIsDirty(true); // 퀴즈 데이터 로딩 완료 시점부터 이탈 방지 활성화
     } catch (err) {
       setError('퀴즈 데이터를 불러오는 중 오류가 발생했습니다.');
       console.error(err);
@@ -70,12 +72,14 @@ export default function QuizSolvePage() {
     try {
       setError('');
       setIsSubmitting(true);
+      setIsDirty(false); // 성공적인 제출 시도 중에는 이탈 방지 해제
 
       const quizHistoryId = await submitQuizApi(submissionData);
       alert("퀴즈 제출이 완료되었습니다!");
       navigate(`/study/quiz/history/${quizHistoryId}`); 
     } catch (err) {
       setError("제출 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setIsDirty(true); // 에러 발생 시 다시 이탈 방지 활성화
       console.error(err);
     } finally {
       setIsSubmitting(false);
@@ -85,6 +89,17 @@ export default function QuizSolvePage() {
   useEffect(() => {
     fetchQuizDetail();
   }, [quizId]);
+
+  // 창 닫기, 새로고침 등 페이지 이탈 시도 시 브라우저 경고창 띄우기
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
 
 
   // 답안 선택 핸들러

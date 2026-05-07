@@ -8,6 +8,7 @@ import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated';
 import TermsAgreementSection from './componets/TermsAgreementSection';
 import ErrorMessageBlock from './componets/ErrorMessageBlock';
+import AuthInput from './componets/AuthInput';
 
 import type { Terms } from '../../types/userEnums';
 
@@ -34,6 +35,10 @@ export default function SignupPage() {
   const [ loading, setLoading ] = useState(false);
   const [ shows, setShows ] = useState({ pw: false, confirm: false });
   const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
+  
+  const [ duplicateChecks, setDuplicateChecks ] = useState({ email: false, userName: false });
+  const [ isChecking, setIsChecking ] = useState({ email: false, userName: false });
+  const [ fieldErrors, setFieldErrors ] = useState({ email: '', userName: '' });
 
   const { email, userName, password, confirm } = formData;
 
@@ -56,8 +61,15 @@ export default function SignupPage() {
     consecutive: password.length > 0 && !(/(.)\1\1/.test(password))
   };
 
-  // 폼 제출 가능 여부 판단 (모든 파생 유효성 조건 충족 시 true)
-  const isFormValid = !!(validity.email && validity.name && validity.pw && validity.match);
+  // 폼 제출 가능 여부 판단 (모든 파생 유효성 조건 충족 및 중복 체크 완료 시 true)
+  const isFormValid = !!(
+    validity.email && 
+    validity.name && 
+    validity.pw && 
+    validity.match && 
+    duplicateChecks.email && 
+    duplicateChecks.userName
+  );
 
   // 폼 제출 핸들러
   const handleSignUp = async(e: React.SubmitEvent<HTMLFormElement>) => {
@@ -95,6 +107,55 @@ export default function SignupPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'email') {
+      setDuplicateChecks(prev => ({ ...prev, email: false }));
+      setFieldErrors(prev => ({ ...prev, email: '' }));
+    }
+    if (name === 'userName') {
+      setDuplicateChecks(prev => ({ ...prev, userName: false }));
+      setFieldErrors(prev => ({ ...prev, userName: '' }));
+    }
+  };
+
+  // 이메일 중복 체크
+  const handleCheckEmail = async () => {
+    if (!validity.email) return;
+    setIsChecking(prev => ({ ...prev, email: true }));
+    setFieldErrors(prev => ({ ...prev, email: '' }));
+    try {
+      const response = await axios.get(`http://localhost:8080/api/auth/email/${email}`);
+      
+      if (response.data === false) {
+        setFieldErrors(prev => ({ ...prev, email: "이미 사용 중인 이메일입니다." }));
+      } else {
+        setDuplicateChecks(prev => ({ ...prev, email: true }));
+      }
+    } catch (error) {
+      setFieldErrors(prev => ({ ...prev, email: getApiErrorUtil(error) || "이미 사용 중인 이메일입니다." }));
+    } finally {
+      setIsChecking(prev => ({ ...prev, email: false }));
+    }
+  };
+
+  // 닉네임 중복 체크
+  const handleCheckUserName = async () => {
+    if (!validity.name) return;
+    setIsChecking(prev => ({ ...prev, userName: true }));
+    setFieldErrors(prev => ({ ...prev, userName: '' }));
+    try {
+      const response = await axios.get(`http://localhost:8080/api/auth/name/${userName.trim()}`);
+      
+      if (response.data === false) {
+        setFieldErrors(prev => ({ ...prev, userName: "이미 사용 중인 닉네임입니다." }));
+      } else {
+        setDuplicateChecks(prev => ({ ...prev, userName: true }));
+      }
+    } catch (error) {
+      setFieldErrors(prev => ({ ...prev, userName: getApiErrorUtil(error) || "이미 사용 중인 닉네임입니다." }));
+    } finally {
+      setIsChecking(prev => ({ ...prev, userName: false }));
+    }
   };
 
   const checkCapsLock = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -104,14 +165,7 @@ export default function SignupPage() {
   // 비밀번호 입력창 포커스 이탈 시 CapsLock 경고 숨김
   const resetCapsLock = () => setIsCapsLockOn(false);
 
-  // 입력창 동적 스타일 함수 (테두리 색상 처리)
-  const getInputClass = (isValid: boolean) => `
-    w-full pl-4 pr-12 py-3 /* 최적화: 우측 토글 버튼과 텍스트가 겹치지 않도록 안전 여백(pr-12) 확보 */
-    border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 text-sm sm:text-base 
-    ${isValid 
-      ? 'border-blue-500 focus:ring-blue-100' 
-      : 'border-gray-200 focus:border-indigo-500 focus:ring-indigo-100'} 
-  `
+
 
   const getPasswordInputClass = () => `
     flex-1 pl-4 py-3
@@ -139,31 +193,42 @@ export default function SignupPage() {
           <form className="space-y-4 sm:space-y-5" onSubmit={handleSignUp}>
             
             {/* 1. 이메일 입력 섹션 */}
-            <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1 flex items-center gap-1.5"><Mail size={14} className="text-indigo-400"/> 이메일</label>
-              <div className="relative">
-                <input name="email" type="email" value={email} onChange={handleChange} className={getInputClass(validity.email)} placeholder="example@email.com" />
-                <div className="absolute right-4 top-3.5">
-                   {validity.email && <Check className="text-blue-500" size={16}/>}
-                </div>
-              </div>
-            </div>
+            <AuthInput
+              label="이메일"
+              icon={<Mail size={14} className="text-indigo-400"/>}
+              name="email"
+              type="email"
+              value={email}
+              onChange={handleChange}
+              placeholder="example@email.com"
+              isValid={validity.email}
+              onCheckDuplicate={handleCheckEmail}
+              isChecking={isChecking.email}
+              isChecked={duplicateChecks.email}
+              checkDisabled={!validity.email}
+              hasError={!!fieldErrors.email}
+              errorMessage={fieldErrors.email}
+            />
 
             {/* 2. 닉네임 입력 섹션 */}
-            <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1 flex items-center gap-1.5"><User size={14} className="text-indigo-400"/> 닉네임</label>
-              <div className="relative">
-                <input name="userName" type="text" value={userName} 
-                  onChange={handleChange} className={getInputClass(validity.name)} 
-                  placeholder="2-25자 한글/영문/숫자" 
-                  minLength={2}
-                  maxLength={25}
-                />
-                <div className="absolute right-4 top-3.5">
-                   {validity.name && <Check className="text-blue-500" size={16}/>}
-                </div>
-              </div>
-            </div>
+            <AuthInput
+              label="닉네임"
+              icon={<User size={14} className="text-indigo-400"/>}
+              name="userName"
+              type="text"
+              value={userName}
+              onChange={handleChange}
+              placeholder="2-25자 한글/영문/숫자"
+              minLength={2}
+              maxLength={25}
+              isValid={validity.name}
+              onCheckDuplicate={handleCheckUserName}
+              isChecking={isChecking.userName}
+              isChecked={duplicateChecks.userName}
+              checkDisabled={!validity.name}
+              hasError={!!fieldErrors.userName}
+              errorMessage={fieldErrors.userName}
+            />
 
             {/* 3. 비밀번호 입력 섹션 및 체크리스트 */}
             <div className="space-y-1">

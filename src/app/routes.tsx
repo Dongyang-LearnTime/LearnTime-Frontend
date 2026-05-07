@@ -1,5 +1,6 @@
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "../pages/Home";
+import NotFoundPage from "./NotFoundPage";
 import SignupPage from "../pages/auth/SignupPage";
 import LoginPage from "../pages/auth/LoginPage";
 import CreateStudyPage from "../pages/study/create/CreateStudyPage";
@@ -16,6 +17,10 @@ export const routes = [
   {
     path: "/",
     element: <Home />
+  },
+  {
+    path: "*", // 정해진 링크 외의 다른 링크
+    element: <NotFoundPage />
   },
   {
     path: "/signup",

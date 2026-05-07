@@ -16,3 +16,11 @@ export const getQuizResultApi = async (quizHistoryId: string): Promise<StudyQuiz
   const response = await axiosInstance.get(`/api/study/quiz/history/${quizHistoryId}/result`);
   return response.data;
 };
+
+export const generateQuizApi = async (studyId: number, studyNotesId: number): Promise<number> => {
+  const response = await axiosInstance.post(`/api/study/quiz/generate`, {
+    studyId,
+    studyNotesId
+  });
+  return response.data;
+};

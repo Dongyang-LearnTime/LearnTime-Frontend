@@ -7,7 +7,7 @@ export interface StudyNoteData {
 }
 
 export interface StudyNoteDetail {
-  noteId: number;
+  studyNotesId: number;
   studyId: number;
   title: string;
   content: string; // Tiptap HTML content

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getStudyNoteDetailApi, deleteStudyNoteApi } from '../api/StudyNotesApi';
 import { usePageTitle } from '../../../hooks/usePageTitle';
@@ -6,6 +7,7 @@ import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import { formatDateUtil } from '../../../utils/formatDateUtil';
 import '../../../styles/NotesEditor.css';
 import DOMPurify from 'dompurify';
+import { generateQuizApi } from '../api/StudyQuizApi';
 
 import type { StudyNoteDetail } from '../api/StudyNotesApi';
 
@@ -14,8 +16,9 @@ export default function NotesDetailPage() {
   const navigate = useNavigate();
   
   const [ noteDetail, setNoteDetail ] = useState<StudyNoteDetail | null>(null);
-  const [ error, setError ] = useState<string>('');
-  const [ isLoading, setIsLoading ] = useState<boolean>(true);
+  
+  const [ isGeneratingQuiz, setIsGeneratingQuiz ] = useState<boolean>(false);
+  const [ quizError, setQuizError ] = useState<string>('');
 
   // 페이지 제목 변경
   usePageTitle("learn-time | 필기 상세 보기");
@@ -25,14 +28,12 @@ export default function NotesDetailPage() {
       if (!noteId) return;
       
       try {
-        setIsLoading(true);
         const data = await getStudyNoteDetailApi(noteId);
         setNoteDetail(data);
       } catch (err) {
         const errorMessage = getApiErrorUtil(err);
-        setError(errorMessage);
-      } finally {
-        setIsLoading(false);
+        alert(errorMessage);
+        navigate(-1); // 이전 페이지로
       }
     };
 
@@ -55,9 +56,24 @@ export default function NotesDetailPage() {
     }
   };
 
+  const fetchQuizCreate = async () => {
+    if (!noteId || !noteDetail) return;
+    
+    try {
+      setIsGeneratingQuiz(true);
+      setQuizError('');
+      const quizId = await generateQuizApi(noteDetail.studyId, noteDetail.studyNotesId);
+      alert('퀴즈 생성이 완료되었습니다.');
+      navigate(`/study/quiz/${quizId}`);
+    } catch (err) {
+      const errorMessage = getApiErrorUtil(err);
+      setQuizError(errorMessage);
+    } finally {
+      setIsGeneratingQuiz(false);
+    }
+  };
 
-  if (isLoading) return <div>로딩 중...</div>;
-  if (error) return <div>에러 발생: {error}</div>;
+
   if (!noteDetail) return <div>필기 데이터를 찾을 수 없습니다.</div>;
 
   return (
@@ -70,35 +86,36 @@ export default function NotesDetailPage() {
             <span>수정: {formatDateUtil(noteDetail.updatedAt)}</span>
           )}
         </div>
-        {/* <div>
-          <span>공부필기 ID: {noteDetail.noteId}</span>
-          <br />
-          <span>공부 ID: {noteDetail.studyId}</span>
-        </div> */}
 
-        <div className="flex gap-2 mt-4">
-          <button
-            className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50 transition-colors"
-            onClick={() => navigate(`/study/notes/edit/${noteId}`)}
-          >
-            수정
-          </button>
+        <div>
+          <div className="flex gap-2 mt-4">
+            <button
+              className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50 transition-colors"
+              onClick={() => navigate(`/study/notes/edit/${noteId}`)}
+            >
+              수정
+            </button>
 
-          <button
-            className="px-3 py-1.5 bg-white border border-slate-300 text-red-600 text-sm rounded hover:bg-red-50 transition-colors"
-            onClick={() => fetchDeleteNote()}
-          >
-            삭제
-          </button>
+            <button
+              className="px-3 py-1.5 bg-white border border-slate-300 text-red-600 text-sm rounded hover:bg-red-50 transition-colors"
+              onClick={() => fetchDeleteNote()}
+            >
+              삭제
+            </button>
 
-          {/* 임시 */}
-          <button
-            className="px-3 py-1.5 bg-white border border-slate-300 text-indigo-600 text-sm rounded hover:bg-indigo-50 transition-colors"
-            onClick={() => navigate(`/study/quiz/1`)}
-          >
-            퀴즈 생성
-          </button>
-
+            <button
+              className="px-3 py-1.5 bg-white border border-slate-300 text-indigo-600 text-sm rounded hover:bg-indigo-50 transition-colors flex items-center justify-center min-w-[80px] disabled:opacity-70 disabled:cursor-not-allowed"
+              onClick={fetchQuizCreate}
+              disabled={isGeneratingQuiz}
+            >
+              {isGeneratingQuiz ? <Loader2 className="animate-spin w-4 h-4" /> : '퀴즈 생성'}
+            </button>
+          </div>
+          {quizError && (
+            <p className="text-xs sm:text-sm text-red-500 font-medium mt-2">
+              {quizError}
+            </p>
+          )}
         </div>
       </header>
 
