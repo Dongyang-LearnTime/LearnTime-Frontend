@@ -58,8 +58,9 @@ export default function QuizResultPage() {
 
   // 객관식 문항 텍스트 분리 유틸리티
   const parseMultipleChoice = (content: string) => {
-    const lines = content.split('\n');
-    const mainQuestion = lines[0];
+    // 실제 줄바꿈 문자('\n') 또는 이스케이프된 문자열('\\n') 모두 기준으로 분리 및 빈 문자열 제거
+    const lines = content.split(/\\n|\n/).filter(line => line.trim() !== '');
+    const mainQuestion = lines[0] || '';
     const options = lines.slice(1);
     return { mainQuestion, options };
   };
