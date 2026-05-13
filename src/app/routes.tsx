@@ -9,6 +9,7 @@ import NotesEditPage from "../pages/study/notes/NotesEditPage";
 import NotesDetailPage from "../pages/study/notes/NotesDetailPage";
 import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
 import QuizResultPage from "../pages/study/quiz/QuizResultPage";
+import CreatePostPage from "../pages/community/post/CreatePostPage";
 
 
 // App.tsx에서 사용할 라우트 설정 배열
@@ -71,7 +72,14 @@ export const routes = [
       <ProtectedRoute>
         <QuizResultPage />
       </ProtectedRoute>
-  }
+  },
+  {
+    path: "/community/post/create",
+    element:
+      <ProtectedRoute>
+        <CreatePostPage />
+      </ProtectedRoute>
+  },
   // { 관리자 페이지 예상
   //   path : "/admin",
   //   element : 
