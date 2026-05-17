@@ -9,6 +9,7 @@ export interface StudyNoteData {
 export interface StudyNoteDetail {
   studyNotesId: number;
   studyId: number;
+  studyMemberId : number;
   title: string;
   content: string; // Tiptap HTML content
   createdAt: string;
@@ -33,7 +34,6 @@ export const submitStudyNotesApi = async (dataToSave: StudyNoteData): Promise<nu
 };
 
 export const updateStudyNoteApi = async (noteId: string, data: {title: string, content: string}): Promise<void> => {
-  // TODO: 사용자가 직접 구현할 부분 (현재 빈 함수)
   await axiosInstance.put(
     `/api/study/notes/${noteId}`, 
     {
