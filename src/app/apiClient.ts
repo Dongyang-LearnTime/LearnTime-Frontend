@@ -1,9 +1,13 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
+export const API_BASE_URL = import.meta.env.DEV 
+  ? import.meta.env.VITE_LOCAL_API_URL 
+  : import.meta.env.VITE_PRODUCTION_API_URL;
+
 // Axios 인스턴스 생성
 export const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080', // 배포 시 : import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+  baseURL: API_BASE_URL,
   withCredentials: true, // HttpOnly 쿠키(RefreshToken)를 요청에 포함시킴
   headers: {
     'Content-Type': 'application/json',

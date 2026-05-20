@@ -1,5 +1,5 @@
-import { dayMap } from "./CreateStudy";
-import type { StudyForm } from "./CreateStudy";
+import { dayMap } from "./CreateStudyPage";
+import type { StudyForm } from "./CreateStudyPage";
 
 interface StudyBaseInfoFormProps {
     studyForm: StudyForm;
@@ -19,7 +19,8 @@ export default function StudyBaseInfoForm({
     studyDays
 }: StudyBaseInfoFormProps) {
 
-    const today = new Date().toISOString().split('T')[0]; // 오늘 날짜
+    // UTC 기준이 아닌 서울 시간(KST) 기준으로 오늘 날짜 계산 (UTC + 9시간)
+    const today = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split('T')[0];
 
     // =========================
     // 입력 변경

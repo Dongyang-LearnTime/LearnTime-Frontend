@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, User, Lock, Check, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
 import axios from 'axios';
@@ -6,7 +6,12 @@ import axios from 'axios';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated';
+import TermsAgreementSection from './componets/TermsAgreementSection';
 import ErrorMessageBlock from './componets/ErrorMessageBlock';
+import AuthInput from './componets/AuthInput';
+import { API_BASE_URL } from '../../app/apiClient';
+
+import type { Terms } from '../../types/userEnums';
 
 // 유효성 검사 정규식 설정
 const REGEX = {
@@ -20,10 +25,21 @@ export default function SignupPage() {
   const navigate = useNavigate();
 
   const [ formData, setFormData ] = useState({ email: '', userName: '', password: '', confirm: '' });
+  const [ termsAgreements, setTermsAgreements ] = useState<Record<Terms, boolean>>({
+    SERVICE_USE: false,
+    PRIVACY_POLICY: false,
+    BODY_DATA_COLLECT: false,
+  });
+
   const [ signupError, setSignupError ] = useState<string>('');
 
   const [ loading, setLoading ] = useState(false);
   const [ shows, setShows ] = useState({ pw: false, confirm: false });
+  const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
+  
+  const [ duplicateChecks, setDuplicateChecks ] = useState({ email: false, userName: false });
+  const [ isChecking, setIsChecking ] = useState({ email: false, userName: false });
+  const [ fieldErrors, setFieldErrors ] = useState({ email: '', userName: '' });
 
   const { email, userName, password, confirm } = formData;
 
@@ -46,20 +62,37 @@ export default function SignupPage() {
     consecutive: password.length > 0 && !(/(.)\1\1/.test(password))
   };
 
-  // 폼 제출 가능 여부 판단 (모든 파생 유효성 조건 충족 시 true)
-  const isFormValid = !!(validity.email && validity.name && validity.pw && validity.match);
+  // 폼 제출 가능 여부 판단 (모든 파생 유효성 조건 충족 및 중복 체크 완료 시 true)
+  const isFormValid = !!(
+    validity.email && 
+    validity.name && 
+    validity.pw && 
+    validity.match && 
+    duplicateChecks.email && 
+    duplicateChecks.userName
+  );
 
   // 폼 제출 핸들러
   const handleSignUp = async(e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
+    // 약관 동의 여부
+    const isRequiredTermsAgreed = termsAgreements.SERVICE_USE && termsAgreements.PRIVACY_POLICY;
+
+    if (!isRequiredTermsAgreed) {
+      setSignupError("필수 약관에 동의해야 가입이 가능합니다.");
+      setLoading(false);
+      return;
+    }
+
     try {
       // 프론트엔드 유효성 검사는 UX 개선용이며, 반드시 백엔드(Spring) 계층에서 최종 검증 필요
-      await axios.post('http://localhost:8080/api/auth/signup', {
+      await axios.post(`${API_BASE_URL}/api/auth/signup`, {
         userName : userName.trim(),
         email,
-        password 
+        password,
+        termsAgreements
       });
       alert("회원 가입 성공");
       navigate("/login");
@@ -75,16 +108,65 @@ export default function SignupPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'email') {
+      setDuplicateChecks(prev => ({ ...prev, email: false }));
+      setFieldErrors(prev => ({ ...prev, email: '' }));
+    }
+    if (name === 'userName') {
+      setDuplicateChecks(prev => ({ ...prev, userName: false }));
+      setFieldErrors(prev => ({ ...prev, userName: '' }));
+    }
   };
 
-  // 입력창 동적 스타일 함수 (테두리 색상 처리)
-  const getInputClass = (isValid: boolean) => `
-    w-full pl-4 pr-12 py-3 /* 최적화: 우측 토글 버튼과 텍스트가 겹치지 않도록 안전 여백(pr-12) 확보 */
-    border-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 text-sm sm:text-base 
-    ${isValid 
-      ? 'border-blue-500 focus:ring-blue-100' 
-      : 'border-gray-200 focus:border-indigo-500 focus:ring-indigo-100'} 
-  `
+  // 이메일 중복 체크
+  const handleCheckEmail = async () => {
+    if (!validity.email) return;
+    setIsChecking(prev => ({ ...prev, email: true }));
+    setFieldErrors(prev => ({ ...prev, email: '' }));
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/auth/email/${email}`);
+      
+      if (response.data === false) {
+        setFieldErrors(prev => ({ ...prev, email: "이미 사용 중인 이메일입니다." }));
+      } else {
+        setDuplicateChecks(prev => ({ ...prev, email: true }));
+      }
+    } catch (error) {
+      setFieldErrors(prev => ({ ...prev, email: getApiErrorUtil(error) || "이미 사용 중인 이메일입니다." }));
+    } finally {
+      setIsChecking(prev => ({ ...prev, email: false }));
+    }
+  };
+
+  // 닉네임 중복 체크
+  const handleCheckUserName = async () => {
+    if (!validity.name) return;
+    setIsChecking(prev => ({ ...prev, userName: true }));
+    setFieldErrors(prev => ({ ...prev, userName: '' }));
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/auth/name/${userName.trim()}`);
+      
+      if (response.data === false) {
+        setFieldErrors(prev => ({ ...prev, userName: "이미 사용 중인 닉네임입니다." }));
+      } else {
+        setDuplicateChecks(prev => ({ ...prev, userName: true }));
+      }
+    } catch (error) {
+      setFieldErrors(prev => ({ ...prev, userName: getApiErrorUtil(error) || "이미 사용 중인 닉네임입니다." }));
+    } finally {
+      setIsChecking(prev => ({ ...prev, userName: false }));
+    }
+  };
+
+  const checkCapsLock = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    setIsCapsLockOn(e.getModifierState('CapsLock'));
+  };
+
+  // 비밀번호 입력창 포커스 이탈 시 CapsLock 경고 숨김
+  const resetCapsLock = () => setIsCapsLockOn(false);
+
+
 
   const getPasswordInputClass = () => `
     flex-1 pl-4 py-3
@@ -112,31 +194,42 @@ export default function SignupPage() {
           <form className="space-y-4 sm:space-y-5" onSubmit={handleSignUp}>
             
             {/* 1. 이메일 입력 섹션 */}
-            <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1 flex items-center gap-1.5"><Mail size={14} className="text-indigo-400"/> 이메일</label>
-              <div className="relative">
-                <input name="email" type="email" value={email} onChange={handleChange} className={getInputClass(validity.email)} placeholder="example@email.com" />
-                <div className="absolute right-4 top-3.5">
-                   {validity.email && <Check className="text-blue-500" size={16}/>}
-                </div>
-              </div>
-            </div>
+            <AuthInput
+              label="이메일"
+              icon={<Mail size={14} className="text-indigo-400"/>}
+              name="email"
+              type="email"
+              value={email}
+              onChange={handleChange}
+              placeholder="example@email.com"
+              isValid={validity.email}
+              onCheckDuplicate={handleCheckEmail}
+              isChecking={isChecking.email}
+              isChecked={duplicateChecks.email}
+              checkDisabled={!validity.email}
+              hasError={!!fieldErrors.email}
+              errorMessage={fieldErrors.email}
+            />
 
             {/* 2. 닉네임 입력 섹션 */}
-            <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1 flex items-center gap-1.5"><User size={14} className="text-indigo-400"/> 닉네임</label>
-              <div className="relative">
-                <input name="userName" type="text" value={userName} 
-                  onChange={handleChange} className={getInputClass(validity.name)} 
-                  placeholder="2-25자 한글/영문/숫자" 
-                  minLength={2}
-                  maxLength={25}
-                />
-                <div className="absolute right-4 top-3.5">
-                   {validity.name && <Check className="text-blue-500" size={16}/>}
-                </div>
-              </div>
-            </div>
+            <AuthInput
+              label="닉네임"
+              icon={<User size={14} className="text-indigo-400"/>}
+              name="userName"
+              type="text"
+              value={userName}
+              onChange={handleChange}
+              placeholder="2-25자 한글/영문/숫자"
+              minLength={2}
+              maxLength={25}
+              isValid={validity.name}
+              onCheckDuplicate={handleCheckUserName}
+              isChecking={isChecking.userName}
+              isChecked={duplicateChecks.userName}
+              checkDisabled={!validity.name}
+              hasError={!!fieldErrors.userName}
+              errorMessage={fieldErrors.userName}
+            />
 
             {/* 3. 비밀번호 입력 섹션 및 체크리스트 */}
             <div className="space-y-1">
@@ -159,6 +252,9 @@ export default function SignupPage() {
                   type={shows.pw ? 'text' : 'password'}
                   value={password}
                   onChange={handleChange}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
+                  onBlur={resetCapsLock}
                   className={getPasswordInputClass()}
                   placeholder="강력한 암호를 설정하세요"
                 />
@@ -229,6 +325,9 @@ export default function SignupPage() {
                   type={shows.confirm ? 'text' : 'password'}
                   value={confirm}
                   onChange={handleChange}
+                  onKeyDown={checkCapsLock}
+                  onKeyUp={checkCapsLock}
+                  onBlur={resetCapsLock}
                   className={getPasswordInputClass()}
                   placeholder="다시 입력해 주세요"
                 />
@@ -249,15 +348,33 @@ export default function SignupPage() {
               )}
             </div>
 
+            {/* 약관 창 */}
+            <TermsAgreementSection
+              termsAgreements={termsAgreements}
+              onChange={(term, checked) => {
+                setTermsAgreements(prev => ({
+                  ...prev,
+                  [term]: checked
+                }));
+              }}
+            />
+
+            {/* 에러 메시지 (LoginPage와 동일하게 버튼 위에 배치) */}
+            {(signupError || isCapsLockOn) && (
+              <div className="space-y-2">
+                {signupError && (
+                  <ErrorMessageBlock message={signupError} />
+                )}
+                {isCapsLockOn && (
+                  <ErrorMessageBlock message="Caps Lock이 켜져 있습니다." />
+                )}
+              </div>
+            )}
+
             {/* 제출 버튼 */}
             <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.01] hover:shadow-blue-200 active:scale-[0.99]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
               {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : 'Learn-Time 시작하기'}
             </button>
-
-            {/* 에러 메시지 */}
-            {signupError && (
-              <ErrorMessageBlock message={signupError} />
-            )}
 
           </form>
         </div>
