@@ -9,6 +9,7 @@ import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticat
 import TermsAgreementSection from './componets/TermsAgreementSection';
 import ErrorMessageBlock from './componets/ErrorMessageBlock';
 import AuthInput from './componets/AuthInput';
+import { API_BASE_URL } from '../../app/apiClient';
 
 import type { Terms } from '../../types/userEnums';
 
@@ -87,7 +88,7 @@ export default function SignupPage() {
 
     try {
       // 프론트엔드 유효성 검사는 UX 개선용이며, 반드시 백엔드(Spring) 계층에서 최종 검증 필요
-      await axios.post('http://localhost:8080/api/auth/signup', {
+      await axios.post(`${API_BASE_URL}/api/auth/signup`, {
         userName : userName.trim(),
         email,
         password,
@@ -124,7 +125,7 @@ export default function SignupPage() {
     setIsChecking(prev => ({ ...prev, email: true }));
     setFieldErrors(prev => ({ ...prev, email: '' }));
     try {
-      const response = await axios.get(`http://localhost:8080/api/auth/email/${email}`);
+      const response = await axios.get(`${API_BASE_URL}/api/auth/email/${email}`);
       
       if (response.data === false) {
         setFieldErrors(prev => ({ ...prev, email: "이미 사용 중인 이메일입니다." }));
@@ -144,7 +145,7 @@ export default function SignupPage() {
     setIsChecking(prev => ({ ...prev, userName: true }));
     setFieldErrors(prev => ({ ...prev, userName: '' }));
     try {
-      const response = await axios.get(`http://localhost:8080/api/auth/name/${userName.trim()}`);
+      const response = await axios.get(`${API_BASE_URL}/api/auth/name/${userName.trim()}`);
       
       if (response.data === false) {
         setFieldErrors(prev => ({ ...prev, userName: "이미 사용 중인 닉네임입니다." }));
