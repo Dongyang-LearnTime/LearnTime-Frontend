@@ -2,16 +2,19 @@ import { useEditor } from '@tiptap/react';
 import {
   Bold,
   Italic,
+  Underline,
   Strikethrough,
   List,
   ListOrdered,
   Heading1,
   Heading2,
   Heading3,
+  Heading4,
   Quote,
   Undo,
   Redo,
   Code,
+  Terminal,
   Minus
 } from 'lucide-react';
 
@@ -53,6 +56,16 @@ export const MenuBar = ({ editor }: { editor: ReturnType<typeof useEditor> }) =>
         <Strikethrough size={18} />
       </button>
       <button
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        disabled={!editor.can().chain().focus().toggleUnderline().run()}
+        className={`p-2 rounded-lg transition-all duration-200 ${
+          editor.isActive('underline') ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'
+        }`}
+        title="밑줄"
+      >
+        <Underline size={18} />
+      </button>
+      <button
         onClick={() => editor.chain().focus().toggleCode().run()}
         disabled={!editor.can().chain().focus().toggleCode().run()}
         className={`p-2 rounded-lg transition-all duration-200 ${
@@ -92,6 +105,15 @@ export const MenuBar = ({ editor }: { editor: ReturnType<typeof useEditor> }) =>
       >
         <Heading3 size={18} />
       </button>
+      <button
+        onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+        className={`p-2 rounded-lg transition-all duration-200 ${
+          editor.isActive('heading', { level: 4 }) ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'
+        }`}
+        title="제목 4"
+      >
+        <Heading4 size={18} />
+      </button>
 
       <div className="w-px h-6 bg-gray-200 mx-2"></div>
 
@@ -128,6 +150,15 @@ export const MenuBar = ({ editor }: { editor: ReturnType<typeof useEditor> }) =>
         title="구분선"
       >
         <Minus size={18} />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        className={`p-2 rounded-lg transition-all duration-200 ${
+          editor.isActive('codeBlock') ? 'bg-indigo-100 text-indigo-700' : 'text-gray-600 hover:bg-gray-100'
+        }`}
+        title="코드 블록"
+      >
+        <Terminal size={18} />
       </button>
 
       <div className="grow"></div>

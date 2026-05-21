@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
 import { Save, BookOpen, Command, AlertCircle } from 'lucide-react';
 
 import { MenuBar } from './MenuBar';
@@ -10,7 +11,9 @@ import '../../../../styles/NotesEditor.css';
 const SHORTCUT_GUIDE = [
   { keys: 'Ctrl+B', label: '굵게' },
   { keys: 'Ctrl+I', label: '기울임' },
-  { keys: 'Ctrl+Alt+1~3', label: '제목' },
+  { keys: 'Ctrl+U', label: '밑줄' },
+  { keys: 'Ctrl+Alt+1~4', label: '제목' },
+  { keys: 'Ctrl+Alt+C', label: '코드 블록' },
   { keys: 'Ctrl+Shift+7', label: '번호 목록' },
   { keys: 'Ctrl+Shift+8', label: '기호 목록' },
 ];
@@ -38,9 +41,10 @@ export function NotesEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3],
+          levels: [1, 2, 3, 4],
         },
       }),
+      Underline,
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {
