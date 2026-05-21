@@ -11,7 +11,7 @@ import ErrorMessageBlock from './componets/ErrorMessageBlock';
 import AuthInput from './componets/AuthInput';
 import { API_BASE_URL } from '../../app/apiClient';
 
-import type { Terms } from '../../types/userEnums';
+import type { Terms } from '../../types/UserEnums';
 
 // 유효성 검사 정규식 설정
 const REGEX = {

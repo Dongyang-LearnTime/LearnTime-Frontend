@@ -5,7 +5,7 @@ import { Loader2, AlertCircle, CheckCircle, XCircle, Award } from 'lucide-react'
 import { usePageTitle } from '../../../hooks/usePageTitle';
 
 import { getQuizResultApi } from '../api/StudyQuizApi';
-import type { QuizType } from '../../../types/studyEnums';
+import type { QuizType } from '../../../types/StudyEnums';
 
 export interface QuizDetailResponse {
   quizQuestionId: number;

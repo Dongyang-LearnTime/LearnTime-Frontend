@@ -43,6 +43,17 @@ const queryClient = new QueryClient({
     },
 });
 
+
+// QueryClientProvider를 하위 컴포넌트만 감싸는 웸퍼를 default export
+export default function CreateStudyPage() {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <CreateStudyPageInner />
+        </QueryClientProvider>
+    );
+}
+
+
 // 실제 로직은 Inner 컴포넌트에 처리
 function CreateStudyPageInner() {
 
@@ -334,13 +345,4 @@ function CreateStudyPageInner() {
         </div>
     );
 };
-
-// QueryClientProvider를 하위 컴포넌트만 감싸는 웸퍼를 default export
-export default function CreateStudyPage() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <CreateStudyPageInner />
-        </QueryClientProvider>
-    );
-}
 

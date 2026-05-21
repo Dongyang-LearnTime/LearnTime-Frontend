@@ -3,6 +3,7 @@ import Home from "../pages/Home";
 import NotFoundPage from "./NotFoundPage";
 import SignupPage from "../pages/auth/SignupPage";
 import LoginPage from "../pages/auth/LoginPage";
+import StudyStudioPage from "../pages/study/studio/StudyStudioPage";
 import CreateStudyPage from "../pages/study/create/CreateStudyPage";
 import NotesWritePage from "../pages/study/notes/NotesWritePage";
 import NotesEditPage from "../pages/study/notes/NotesEditPage";
@@ -30,6 +31,13 @@ export const routes = [
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/study/:studyId",
+    element:
+      <ProtectedRoute>
+        <StudyStudioPage />
+      </ProtectedRoute>
   },
   {
     path: "/study/plan/create",

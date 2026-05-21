@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getQuizDetailApi, submitQuizApi } from '../api/StudyQuizApi'
-import type { QuizType, ProgressStatus } from '../../../types/studyEnums';
+import type { QuizType, ProgressStatus } from '../../../types/StudyEnums';
 
 
 export interface SubmittedAnswer {

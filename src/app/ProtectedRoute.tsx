@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useMemo } from 'react';
 
-import type { Role } from '../types/userEnums';
+import type { Role } from '../types/UserEnums';
 
 interface JwtPayload {
     role: Role;
