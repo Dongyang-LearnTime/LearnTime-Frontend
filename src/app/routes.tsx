@@ -1,5 +1,6 @@
 import ProtectedRoute from "./ProtectedRoute";
-import Home from "../pages/Home";
+import HomePage from "../pages/HomePage";
+import LearnTimeMainPage from "../pages/LearnTimeMainPage";
 import NotFoundPage from "./NotFoundPage";
 import SignupPage from "../pages/auth/SignupPage";
 import LoginPage from "../pages/auth/LoginPage";
@@ -21,7 +22,15 @@ import NotificationPage from "../pages/notification/NotificationPage";
 export const routes = [
   {
     path: "/",
-    element: <Home />
+    // 로그인 여부에 따라 분기:
+    // - 로그인 전: HomePage (랜딩 페이지, 자체 레이아웃 보유)
+    // - 로그인 후: LearnTimeMainPage (ProtectedRoute로 감쌈)
+    noLayout: true, // HomePage가 full-page 레이아웃을 직접 관리
+    element: (
+      <ProtectedRoute fallback={<HomePage />}>
+        <LearnTimeMainPage />
+      </ProtectedRoute>
+    )
   },
   {
     path: "*", // 정해진 링크 외의 다른 링크

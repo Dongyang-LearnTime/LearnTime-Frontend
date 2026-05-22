@@ -14,6 +14,8 @@ interface JwtPayload {
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: Role;
+  /** 미인증 시 리다이렉트 대신 렌더링할 컴포넌트 (선택) */
+  fallback?: React.ReactNode;
 }
 
 // JWT decode
@@ -27,7 +29,7 @@ function parseJwt(token: string): JwtPayload | null {
     }
 }
 
-export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, requiredRole, fallback }: ProtectedRouteProps) {
 
     const { accessToken, isAuthenticated } = useAuthStore();
 
@@ -35,13 +37,13 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
         return accessToken ? parseJwt(accessToken) : null;
     }, [accessToken]);
 
-    // 로그인 체크
+    // 로그인 체크: fallback이 있으면 로그인 페이지 대신 fallback 렌더링
     if (!isAuthenticated || !accessToken) {
-        return <Navigate to="/login" replace />;
+        return fallback ? <>{fallback}</> : <Navigate to="/login" replace />;
     }
 
     if (!decoded) { // 토큰 이상
-        return <Navigate to="/login" replace />;
+        return fallback ? <>{fallback}</> : <Navigate to="/login" replace />;
     }
 
     // 권한 체크
