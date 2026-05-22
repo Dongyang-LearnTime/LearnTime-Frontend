@@ -4,6 +4,7 @@ import NotFoundPage from "./NotFoundPage";
 import SignupPage from "../pages/auth/SignupPage";
 import LoginPage from "../pages/auth/LoginPage";
 import StudyStudioPage from "../pages/study/studio/StudyStudioPage";
+import StudyInvitationPage from "../pages/study/invitation/StudyInvitationPage";
 import CreateStudyPage from "../pages/study/create/CreateStudyPage";
 import NotesWritePage from "../pages/study/notes/NotesWritePage";
 import NotesEditPage from "../pages/study/notes/NotesEditPage";
@@ -12,6 +13,7 @@ import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
 import QuizResultPage from "../pages/study/quiz/QuizResultPage";
 import CreatePostPage from "../pages/community/post/CreatePostPage";
 import FriendRequestPage from "../pages/community/friend/FriendRequestPage";
+import NotificationPage from "../pages/notification/NotificationPage";
 
 
 // App.tsx에서 사용할 라우트 설정 배열
@@ -34,10 +36,24 @@ export const routes = [
     element: <LoginPage />,
   },
   {
+    path: "/notifications",
+    element:
+      <ProtectedRoute>
+        <NotificationPage />
+      </ProtectedRoute>
+  },
+  {
     path: "/study/:studyId",
     element:
       <ProtectedRoute>
         <StudyStudioPage />
+      </ProtectedRoute>
+  },
+  {
+    path: "/study/invitation",
+    element:
+      <ProtectedRoute>
+        <StudyInvitationPage />
       </ProtectedRoute>
   },
   {
@@ -95,7 +111,7 @@ export const routes = [
       <ProtectedRoute>
         <FriendRequestPage />
       </ProtectedRoute>
-  },
+  }
   // { 관리자 페이지 예상
   //   path : "/admin",
   //   element : 

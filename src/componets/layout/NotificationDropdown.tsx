@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNotificationStore } from "../../store/useNotificationStore";
-import { NotificationApi } from "./api/NotificationApi";
+import { NotificationApi } from "../../pages/notification/NotificationApi";
+import { useNavigate } from "react-router-dom";
 
 export const NotificationDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,7 @@ export const NotificationDropdown: React.FC = () => {
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // 컴포넌트 마운트 시 최초 1회 읽지 않은 알림 수 및 알림 목록 로딩
   useEffect(() => {
@@ -60,6 +62,20 @@ export const NotificationDropdown: React.FC = () => {
       markAsReadLocal(notificationId);
     } catch (error) {
       console.error(`Failed to mark notification ${notificationId} as read:`, error);
+    }
+  };
+
+  const handleNotificationClick = async (notificationId: number, isRead: boolean, type: string) => {
+    if (!isRead) {
+      await handleReadNotification(notificationId);
+    }
+    setIsOpen(false);
+    if (type.includes("FRIEND_REQUEST")) {
+      navigate("/friend/requests");
+    } else if (type.includes("STUDY_INVITATION")) {
+      navigate("/study/invitation");
+    } else {
+      navigate("/notifications");
     }
   };
 
@@ -152,10 +168,10 @@ export const NotificationDropdown: React.FC = () => {
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-gray-400">새로운 알림이 없습니다.</div>
             ) : (
-              notifications.map((item) => (
+              notifications.slice(0, 3).map((item) => (
                 <div
                   key={item.notificationId}
-                  onClick={() => !item.isRead && handleReadNotification(item.notificationId)}
+                  onClick={() => handleNotificationClick(item.notificationId, item.isRead, item.type)}
                   className={`px-4 py-3.5 flex items-start gap-2.5 cursor-pointer transition-colors duration-150 relative ${
                     item.isRead ? "bg-white hover:bg-gray-50/50" : "bg-blue-50/20 hover:bg-blue-50/40"
                   }`}
@@ -200,6 +216,19 @@ export const NotificationDropdown: React.FC = () => {
                 </div>
               ))
             )}
+          </div>
+          
+          {/* 전체 알림 보기 버튼 */}
+          <div className="border-t border-gray-100 bg-gray-50">
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/notifications");
+              }}
+              className="w-full py-3 text-sm text-center text-gray-600 hover:text-blue-600 hover:bg-gray-100 transition-colors font-medium focus:outline-none"
+            >
+              전체 알림 보기
+            </button>
           </div>
         </div>
       )}

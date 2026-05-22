@@ -5,8 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import { routes } from './routes';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNotificationSSE } from '../hooks/useNotificationSSE';
-import { NotificationDropdown } from './notification/NotificationDropdown';
-
+import { NotificationDropdown } from '../componets/layout/NotificationDropdown';
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isAuthChecking = useAuthStore((state) => state.isAuthChecking);
