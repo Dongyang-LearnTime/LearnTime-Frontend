@@ -4,7 +4,9 @@ import type {
     StudyPlanResponse, 
     StudyRecentWeekInfoResponse, 
     StudyTotalInfoResponse, 
-    StudyMemberContentResponse } from "../types/StudyTypes";
+    StudyMemberContentResponse,
+    PlanCompleteRequest,
+    StudyMemberResponse } from "../types/StudyTypes";
 
 // 일일 공부 진도 정보
 export const getStudyPlanApi = async (studyId: string,  planDate: string): Promise<StudyPlanResponse> => {
@@ -42,4 +44,22 @@ export const getStudyMemberContent = async (studyId: string): Promise<StudyMembe
         `/api/study/daily/${studyId}/content`
     );
     return response.data
+};
+
+
+// 일일 진도 시작
+export const startStudyDailyPlanApi = async (studyDailyPlanId: number): Promise<void> => {
+    await axiosInstance.patch(`/api/study/daily/${studyDailyPlanId}/start`);
+};
+
+// 일일 진도 완료
+export const completeStudyDailyPlanApi = async (request: PlanCompleteRequest): Promise<string> => {
+    const response = await axiosInstance.patch<string>(`/api/study/daily/completion`, request);
+    return response.data;
+};
+
+// 스터디 멤버 목록 조회
+export const getStudyMemberListApi = async (studyId: string): Promise<StudyMemberResponse[]> => {
+    const response = await axiosInstance.get<StudyMemberResponse[]>(`/api/study/member/${studyId}`);
+    return response.data;
 };

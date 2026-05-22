@@ -1,4 +1,4 @@
-import type { ProgressStatus, CompletionStatus } from "../../../types/StudyEnums";
+import type { ProgressStatus, CompletionStatus, StudyMemberRole, StudyMemberStatus } from "../../../types/StudyEnums";
 
 // 일일 공부 일정 타입
 export interface StudyPlanResponse {
@@ -47,4 +47,21 @@ export interface StudyMemberContentResponse {
   studyDailyPlanId: number;     // 일일 계획 ID
   dayNumber: number;            // 학습 일차
   memberContent: string;        // 작성한 공부 내용
+}
+
+// 일일 진도 완료 요청
+export interface PlanCompleteRequest {
+  studyDailyPlanId: number;
+  completionStatus: CompletionStatus; // SUCCESS | FAILURE
+  understandingScore: number;         // 1~5
+}
+
+// 스터디 멤버 조회 응답
+export interface StudyMemberResponse {
+  studyMemberId: number;
+  studyMemberRole: StudyMemberRole;
+  joinedAt: string;
+  userId: number;
+  userName: string;
+  status: StudyMemberStatus;
 }
