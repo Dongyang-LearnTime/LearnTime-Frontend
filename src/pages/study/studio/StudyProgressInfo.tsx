@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { getStudyPlanApi, startStudyDailyPlanApi } from "../api/StudyStudioApi";
 import type { StudyPlanResponse } from "../types/StudyTypes";
 import DailyProgress from "./components/DailyProgress";
-import BaseModal from "../../../componets/common/BaseModal";
+import BaseModal from "../../../components/common/BaseModal";
 import PlanCompletionForm from "./components/PlanCompletionForm";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 

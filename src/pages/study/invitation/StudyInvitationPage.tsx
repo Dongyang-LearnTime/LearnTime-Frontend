@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import RequestListCard from '../../../componets/common/RequestListCard';
+import RequestListCard from '../../../components/common/RequestListCard';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import {
     getReceivedInvitationsApi,

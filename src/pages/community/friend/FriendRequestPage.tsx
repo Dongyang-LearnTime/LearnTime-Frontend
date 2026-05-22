@@ -10,7 +10,7 @@ import {
 } from '../api/FriendRequestApi';
 import type { FriendRequestResponse } from '../api/FriendRequestApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
-import RequestListCard from '../../../componets/common/RequestListCard';
+import RequestListCard from '../../../components/common/RequestListCard';
 
 export default function FriendRequestPage() {
     usePageTitle("learn-time | 친구 알림");
