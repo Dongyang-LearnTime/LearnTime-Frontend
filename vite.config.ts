@@ -1,11 +1,20 @@
+// vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import tailwindcss from '@tailwindcss/vite' // 추가
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    tailwindcss(), // Tailwind v4는 react()보다 먼저 실행되는 것이 안전합니다.
     react(),
+    tailwindcss(), // 추가
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080', // Spring Boot 로컬 서버 포트
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

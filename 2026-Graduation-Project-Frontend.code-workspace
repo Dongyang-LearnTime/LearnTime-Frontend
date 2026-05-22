@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "2026-Graduation-Project-Frontend",
+			"path": "."
+		}
+	],
+	"settings": {
+		"css.lint.unknownAtRules": "ignore"
+	}
+}

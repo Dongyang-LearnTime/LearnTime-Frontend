@@ -1,90 +1,43 @@
-import ProtectedRoute from "./ProtectedRoute";
-import Home from "../pages/Home";
-import NotFoundPage from "./NotFoundPage";
-import SignupPage from "../pages/auth/SignupPage";
-import LoginPage from "../pages/auth/LoginPage";
-import CreateStudyPage from "../pages/study/create/CreateStudyPage";
-import NotesWritePage from "../pages/study/notes/NotesWritePage";
-import NotesEditPage from "../pages/study/notes/NotesEditPage";
-import NotesDetailPage from "../pages/study/notes/NotesDetailPage";
-import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
-import QuizResultPage from "../pages/study/quiz/QuizResultPage";
-import CreatePostPage from "../pages/community/post/CreatePostPage";
+// ============================================================
+// app/routes.tsx
+// 클라이언트 사이드 라우팅 설정.
+// ============================================================
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { MainLayout } from '../components/layout/MainLayout';
+import { StudyPage } from '../pages/StudyPage';
+import { ExercisePage } from '../pages/ExercisePage';
+import { SchedulePage } from '../pages/SchedulePage';
+import { CommunityPage } from '../pages/CommunityPage';
+import { EmptyPage } from '../pages/EmptyPage';
+import { Home } from '../pages/home';
 
-
-// App.tsx에서 사용할 라우트 설정 배열
-// ProtectedRoute => 로그인 필요한 페이지에 사용
-export const routes = [
+export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />
+    path: '/',
+    element: <Navigate to="/home" replace />,
   },
   {
-    path: "*", // 정해진 링크 외의 다른 링크
-    element: <NotFoundPage />
+    path: '/home',
+    element: <Home />,
   },
   {
-    path: "/signup",
-    element: <SignupPage />,
+    path: '/login',
+    element: <EmptyPage title="로그인" />,
   },
   {
-    path: "/login",
-    element: <LoginPage />,
+    path: '/signup',
+    element: <EmptyPage title="회원가입" />,
   },
   {
-    path: "/study/plan/create",
-    element:
-      <ProtectedRoute>
-        <CreateStudyPage />
-      </ProtectedRoute>
+    path: '/main',
+    element: <MainLayout />,
+    children: [
+      { path: '', element: <Navigate to="study" replace /> }, // /main 접근 시 study로 리다이렉트
+      { path: 'study', element: <StudyPage /> },
+      { path: 'exercise', element: <ExercisePage /> },
+      { path: 'schedule', element: <SchedulePage /> },
+      { path: 'community', element: <CommunityPage /> },
+      { path: 'settings', element: <EmptyPage title="설정" /> },
+    ],
   },
-  {
-    path: "/study/notes/write/:studyId",
-    element:
-      <ProtectedRoute>
-        <NotesWritePage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/study/notes/:noteId",
-    element:
-      <ProtectedRoute>
-        <NotesDetailPage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/study/notes/edit/:noteId",
-    element:
-      <ProtectedRoute>
-        <NotesEditPage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/study/quiz/:quizId",
-    element:
-      <ProtectedRoute>
-        <QuizSolvePage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/study/quiz/history/:quizHistoryId",
-    element:
-      <ProtectedRoute>
-        <QuizResultPage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/community/post/create",
-    element:
-      <ProtectedRoute>
-        <CreatePostPage />
-      </ProtectedRoute>
-  },
-  // { 관리자 페이지 예상
-  //   path : "/admin",
-  //   element : 
-  //   <ProtectedRoute requiredRole={Role.ROLE_ADMIN}>
-  //     <AdminPage />
-  //   </ProtectedRoute>
-  // }
-];
+]);
