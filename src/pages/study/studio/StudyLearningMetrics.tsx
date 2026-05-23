@@ -67,12 +67,25 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
 
   return (
     <div className="flex flex-col gap-6 max-w-450 mx-auto w-full">
-      {/* 1. 데이터/지표 피드백 구간 (상단) */}
+      {/* 1. 현재 학습 집중 구간 (상단) */}
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+        {/* 오늘의 진도 (60% 너비) */}
+        <section className="lg:col-span-6 min-h-100">
+          <TodayProgressBox />
+        </section>
+
+        {/* 스튜디오 타이머 (40% 너비) */}
+        <section className="lg:col-span-4 min-h-100">
+          <StopwatchBox />
+        </section>
+      </div>
+
+      {/* 2. 데이터/지표 피드백 구간 (하단) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 주간 몰입도 (65% 너비) */}
         <section className="lg:col-span-8 min-h-87.5">
           {isRecentLoading ? (
-            <div className="flex flex-col gap-4 h-full bg-white dark:bg-[#070707] border border-gray-100 dark:border-[#1f1f1f] rounded-[2rem] p-8">
+            <div className="flex flex-col gap-4 h-full bg-white dark:bg-[#070707] border border-gray-100 dark:border-[#1f1f1f] rounded-4xl p-8">
               <div className="flex items-center gap-3 mb-4 animate-pulse">
                 <div className="w-10 h-10 bg-gray-100 dark:bg-[#111] rounded-2xl"></div>
                 <div className="h-6 w-32 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
@@ -80,13 +93,13 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
               <div className="flex-1 w-full bg-gray-50 dark:bg-[#111] rounded-2xl animate-pulse"></div>
             </div>
           ) : recentError ? (
-            <div className="flex items-center justify-center h-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 rounded-[2rem]">
+            <div className="flex items-center justify-center h-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 rounded-4xl">
               <span className="text-sm font-bold text-rose-500">{recentError}</span>
             </div>
           ) : recentData ? (
             <RecentWeekChart data={recentData} />
           ) : (
-            <div className="flex items-center justify-center h-full bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-[2rem]">
+            <div className="flex items-center justify-center h-full bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-4xl">
               <span className="text-sm font-bold text-gray-400">데이터가 없습니다.</span>
             </div>
           )}
@@ -95,7 +108,7 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
         {/* 핵심 공부 지표 (35% 너비) */}
         <section className="lg:col-span-4 min-h-87.5">
           {isTotalLoading ? (
-            <div className="flex flex-col gap-4 h-full bg-white dark:bg-[#070707] border border-gray-100 dark:border-[#1f1f1f] rounded-[2rem] p-8">
+            <div className="flex flex-col gap-4 h-full bg-white dark:bg-[#070707] border border-gray-100 dark:border-[#1f1f1f] rounded-4xl p-8">
               <div className="flex items-center gap-3 mb-4 animate-pulse">
                 <div className="w-10 h-10 bg-gray-100 dark:bg-[#111] rounded-2xl"></div>
                 <div className="h-6 w-32 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
@@ -106,29 +119,16 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
               </div>
             </div>
           ) : totalError ? (
-            <div className="flex items-center justify-center h-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 rounded-[2rem]">
+            <div className="flex items-center justify-center h-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 rounded-4xl">
               <span className="text-sm font-bold text-rose-500">{totalError}</span>
             </div>
           ) : totalData ? (
             <CoreMetricsChart data={totalData} />
           ) : (
-            <div className="flex items-center justify-center h-full bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-[2rem]">
+            <div className="flex items-center justify-center h-full bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-4xl">
               <span className="text-sm font-bold text-gray-400">데이터가 없습니다.</span>
             </div>
           )}
-        </section>
-      </div>
-
-      {/* 2. 현재 학습 집중 구간 (하단) */}
-      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-        {/* 스튜디오 타이머 (40% 너비) */}
-        <section className="lg:col-span-4 min-h-100">
-          <StopwatchBox />
-        </section>
-
-        {/* 오늘의 진도 (60% 너비) */}
-        <section className="lg:col-span-6 min-h-100">
-          <TodayProgressBox />
         </section>
       </div>
     </div>

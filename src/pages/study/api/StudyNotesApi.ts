@@ -49,3 +49,18 @@ export const deleteStudyNoteApi = async (noteId: string): Promise<void> => {
   );
 };
 
+/** 특정 스터디의 필기 목록 조회 */
+export interface StudyNoteListItem {
+  studyNotesId: number;
+  studyId: number;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const getStudyNoteListApi = async (studyId: string): Promise<StudyNoteListItem[]> => {
+  const response = await axiosInstance.get<StudyNoteListItem[]>(
+    `/api/study/notes?studyId=${studyId}`
+  );
+  return response.data;
+};

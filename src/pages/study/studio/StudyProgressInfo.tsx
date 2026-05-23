@@ -92,24 +92,42 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
   };
 
   return (
-    <Card className="flex flex-col h-full relative overflow-hidden group min-h-[300px]">
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-      
+    <Card className="flex flex-col h-full relative overflow-hidden group min-h-75 border-0 shadow-none bg-transparent">      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <CardTitle icon={<BookIcon size={18} />} className="mb-0">일일 진도 정보</CardTitle>
 
-        {/* 날짜 선택 내비게이션 */}
-        <div className="flex items-center bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl p-1 shadow-sm">
-          <button onClick={() => handleDateChange(-1)} className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">이전날</button>
-          <span className="px-3 py-1.5 text-sm font-black tracking-tight text-gray-900 dark:text-white border-x border-gray-200 dark:border-[#222]">
+        {/* 모던 날짜 선택 내비게이션 (Pill 디자인) */}
+        <div className="flex items-center bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1f1f1f] rounded-full p-1 shadow-sm">
+          <button 
+            onClick={() => handleDateChange(-1)} 
+            className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all"
+            title="이전날"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          
+          <div className="px-4 text-sm font-black tracking-tight text-gray-900 dark:text-white min-w-27.5 text-center">
             {planDate}
-          </span>
-          <button onClick={() => handleDateChange(1)} className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">다음날</button>
-          <button onClick={() => setSearchParams({ date: getTodayString() })} className="px-3 py-1.5 ml-1 text-xs font-black bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">오늘</button>
+          </div>
+          
+          <button 
+            onClick={() => handleDateChange(1)} 
+            className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all mr-2"
+            title="다음날"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          
+          <button 
+            onClick={() => setSearchParams({ date: getTodayString() })} 
+            className="px-3 py-1.5 text-xs font-black bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400 rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
+          >
+            오늘
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex-1 flex flex-col justify-center relative z-10">
         {isLoading ? (
           <div className="flex flex-col gap-4 py-4 animate-pulse">
             <div className="h-6 w-1/3 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
@@ -124,7 +142,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
           </div>
         ) : progressData ? (
           <div className="flex flex-col h-full">
-            <div className="flex-1 bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-3xl p-6 mb-6">
+            <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1f1f1f] rounded-3xl p-6 mb-6 shadow-sm">
               <DailyProgress data={progressData} />
             </div>
             
@@ -134,34 +152,43 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
                   <button
                     onClick={handleStartPlan}
                     disabled={isStarting}
-                    className={`px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition-all ${isStarting ? "opacity-70 cursor-not-allowed" : "active:scale-95"}`}
+                    className={`px-8 py-3 bg-linear-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 text-white font-black rounded-2xl shadow-md shadow-indigo-500/20 transition-all flex items-center gap-2 ${isStarting ? "opacity-70 cursor-not-allowed" : "hover:-translate-y-0.5 active:scale-95"}`}
                   >
-                    {isStarting ? "시작 중..." : "일일 진도 시작"}
+                    {isStarting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        시작 중...
+                      </>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        일일 진도 시작
+                      </>
+                    )}
                   </button>
                 )}
 
                 {progressData.progressStatus === "IN_PROGRESS" && (
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                    className="px-8 py-3 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black rounded-2xl shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
                   >
-                    일일 진도 완료
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    일일 진도 완료하기
                   </button>
                 )}
 
                 {progressData.progressStatus === "COMPLETED" && (
-                  <button
-                    disabled
-                    className="px-6 py-3 bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-500 font-bold rounded-2xl cursor-not-allowed"
-                  >
-                    진도 완료됨
-                  </button>
+                  <div className="px-8 py-3 bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-[#222] text-gray-400 font-black rounded-2xl flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    모든 진도 완료됨
+                  </div>
                 )}
               </div>
             )}
           </div>
         ) : (
-          <div className="text-center py-16 bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-3xl">
+          <div className="text-center py-16 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1f1f1f] rounded-3xl shadow-sm">
             <p className="text-sm font-bold text-gray-400">해당 일자의 진도 정보가 없습니다.</p>
           </div>
         )}

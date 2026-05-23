@@ -12,6 +12,8 @@ import NotesEditPage from "../pages/study/notes/NotesEditPage";
 import NotesDetailPage from "../pages/study/notes/NotesDetailPage";
 import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
 import QuizResultPage from "../pages/study/quiz/QuizResultPage";
+import NotesListPage from "../pages/study/notes/NotesListPage";
+import QuizHistoryListPage from "../pages/study/quiz/QuizHistoryListPage";
 import CreatePostPage from "../pages/community/post/CreatePostPage";
 import FriendRequestPage from "../pages/community/friend/FriendRequestPage";
 import NotificationPage from "../pages/notification/NotificationPage";
@@ -128,6 +130,17 @@ export const routes = [
     )
   },
   {
+    path: "/study/notes/list/:studyId",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <StudySidebarLayout>
+          <NotesListPage />
+        </StudySidebarLayout>
+      </ProtectedRoute>
+    )
+  },
+  {
     path: "/study/notes/:noteId",
     element: (
       <ProtectedRoute>
@@ -167,6 +180,17 @@ export const routes = [
         <MainHeader />
         <StudySidebarLayout>
           <QuizResultPage />
+        </StudySidebarLayout>
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/study/quiz/list/:studyId",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <StudySidebarLayout>
+          <QuizHistoryListPage />
         </StudySidebarLayout>
       </ProtectedRoute>
     )

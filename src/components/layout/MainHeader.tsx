@@ -253,7 +253,7 @@ export function MainHeader() {
           </button>
           
           <button onClick={handleLogout} className="text-xs font-bold px-4 py-2 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-full hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors">
-            logout
+            LOGOUT
           </button>
 
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2.5 rounded-full bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 hover:text-black dark:hover:text-white">

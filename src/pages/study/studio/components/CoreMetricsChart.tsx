@@ -1,7 +1,6 @@
 import type { StudyTotalInfoResponse } from "../../types/StudyTypes";
-import { Card, CardTitle } from "../../../../components/common/Card";
+import { Card } from "../../../../components/common/Card";
 import { ProgressBar } from "../../../../components/common/ProgressBar";
-import { TrendIcon } from "../../../../components/ui/Icons";
 
 interface CoreMetricsChartProps {
   data: StudyTotalInfoResponse;
@@ -29,25 +28,28 @@ export default function CoreMetricsChart({ data }: CoreMetricsChartProps) {
     totalFocusedTime,
   } = data;
 
-  // 게이지 아이템 목록 구성
+  // 게이지 아이템 목록 구성 (각각 다른 네온 색상 테마 적용)
   const gaugeItems = [
-    { label: "진도 완료율", value: studyCompletionRate },
-    { label: "진도 성공률", value: studySuccessRate },
-    { label: "퀴즈 정답률", value: quizCorrectRate },
+    { label: "진도 완료율", value: studyCompletionRate, color: "bg-indigo-500", text: "text-indigo-500", hover: "hover:border-indigo-400" },
+    { label: "진도 성공률", value: studySuccessRate, color: "bg-emerald-500", text: "text-emerald-500", hover: "hover:border-emerald-400" },
+    { label: "퀴즈 정답률", value: quizCorrectRate, color: "bg-pink-500", text: "text-pink-500", hover: "hover:border-pink-400" },
   ];
 
   return (
-    <Card className="h-full flex flex-col relative overflow-hidden group">
+    <Card className="h-full flex flex-col relative overflow-hidden group border-0 shadow-none bg-white dark:bg-[#050505] rounded-3xl p-6">
       {/* 배경 장식 */}
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-pink-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      <CardTitle icon={<TrendIcon size={18} />}>핵심 지표</CardTitle>
+      <div className="mb-6 relative z-10">
+        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">핵심 지표</h3>
+        <p className="text-xs font-medium text-gray-500">스터디의 전반적인 달성도를 확인합니다.</p>
+      </div>
 
-      <div className="flex-grow flex flex-col justify-center">
+      <div className="flex-grow flex flex-col justify-center relative z-10">
         {/* 누적 집중 시간을 핵심 수치로 돋보이게 배치 */}
         <div className="mb-8 text-center bg-gray-50 dark:bg-[#0a0a0a] rounded-2xl p-6 border border-gray-100 dark:border-[#1a1a1a]">
           <span className="block text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-2">총 누적 집중 시간</span>
-          <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400 font-mono tracking-tighter drop-shadow-sm">
+          <span className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-mono tracking-tighter drop-shadow-sm">
             {formatFocusedTime(totalFocusedTime)}
           </span>
         </div>
@@ -60,9 +62,9 @@ export default function CoreMetricsChart({ data }: CoreMetricsChartProps) {
                 key={item.label} 
                 name={item.label} 
                 progress={clampedValue} 
-                accentColor="bg-indigo-600" 
-                textColor="text-indigo-500" 
-                borderHover="hover:border-indigo-300" 
+                accentColor={item.color} 
+                textColor={item.text} 
+                borderHover={item.hover} 
               />
             );
           })}

@@ -6,7 +6,8 @@ import type {
     StudyTotalInfoResponse, 
     StudyMemberContentResponse,
     PlanCompleteRequest,
-    StudyMemberResponse } from "../types/StudyTypes";
+    StudyMemberResponse,
+    StudyMemberFriendResponse } from "../types/StudyTypes";
 
 // 일일 공부 진도 정보
 export const getStudyPlanApi = async (studyId: string,  planDate: string): Promise<StudyPlanResponse> => {
@@ -63,3 +64,21 @@ export const getStudyMemberListApi = async (studyId: string): Promise<StudyMembe
     const response = await axiosInstance.get<StudyMemberResponse[]>(`/api/study/member/${studyId}`);
     return response.data;
 };
+
+// 스터디원 초대용 방장 친구 조회
+export const getStudyOwnerFriendListApi = async(studyId: string) : Promise<StudyMemberFriendResponse[]> => {
+    const response = await axiosInstance.get<StudyMemberFriendResponse[]>(`/api/study/member/${studyId}/friends`);
+    return response.data;
+};
+
+interface StudyMemberRequestDTO {
+    studyId: number;
+    invitedUserId: number;
+}
+
+// 스터디 멤버 초대
+export const inviteStudyMemberApi = async (request: StudyMemberRequestDTO): Promise<number> => {
+    const response = await axiosInstance.post<number>('/api/study/member/request', request);
+    return response.data;
+};
+

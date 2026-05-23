@@ -30,15 +30,15 @@ const parseTimeToMinutes = (timeStr: string | null): number => {
   return hours * 60 + minutes + Math.round(seconds / 60);
 };
 
-// 그래프 선에 할당할 색상 목록
+// 트렌디한 네온/파스텔 색상 조합
 const COLORS = [
-  "#2563eb", // blue-600
-  "#16a34a", // green-600
-  "#ea580c", // orange-600
-  "#db2777", // pink-600
-  "#7c3aed", // violet-600
-  "#0891b2", // cyan-600
-  "#eab308", // yellow-500
+  "#6366f1", // Indigo 500
+  "#ec4899", // Pink 500
+  "#14b8a6", // Teal 500
+  "#f59e0b", // Amber 500
+  "#8b5cf6", // Violet 500
+  "#0ea5e9", // Sky 500
+  "#10b981", // Emerald 500
 ];
 
 export default function RecentWeekChart({ data }: RecentWeekChartProps) {
@@ -124,96 +124,118 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
   }, [data, selectedMetric, selectedMembers]);
 
   return (
-    <Card className="h-full">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-gray-400 ml-1">주간 몰입도</h3>
+    <Card className="h-full border-0 shadow-none bg-white dark:bg-[#050505] rounded-3xl p-6 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 relative z-10 gap-4">
+        <div>
+          <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">주간 몰입도</h3>
+          <p className="text-xs font-medium text-gray-500">최근 7일간의 학습 성과를 비교 분석합니다.</p>
+        </div>
+
+        {/* 지표 선택 버튼 그룹 */}
+        <div className="flex items-center bg-gray-100 dark:bg-[#111] p-1 rounded-xl w-fit">
+          <button
+            onClick={() => setSelectedMetric("focusTime")}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              selectedMetric === "focusTime"
+                ? "bg-white dark:bg-[#222] text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
+            }`}
+          >
+            집중 시간
+          </button>
+          <button
+            onClick={() => setSelectedMetric("understandingScore")}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              selectedMetric === "understandingScore"
+                ? "bg-white dark:bg-[#222] text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
+            }`}
+          >
+            이해도 점수
+          </button>
+        </div>
       </div>
 
-      {/* 지표 선택 영역 */}
-      <div className="mb-4 flex items-center gap-4 text-xs font-bold text-gray-600 dark:text-gray-400">
-        <span className="text-gray-900 dark:text-white uppercase tracking-widest">조회 지표:</span>
-        <label className="flex items-center gap-1.5 cursor-pointer">
-          <input
-            type="radio"
-            name="metric"
-            value="focusTime"
-            checked={selectedMetric === "focusTime"}
-            onChange={() => setSelectedMetric("focusTime")}
-            className="accent-indigo-500"
-          />
-          집중 시간 (분)
-        </label>
-        <label className="flex items-center gap-1.5 cursor-pointer">
-          <input
-            type="radio"
-            name="metric"
-            value="understandingScore"
-            checked={selectedMetric === "understandingScore"}
-            onChange={() => setSelectedMetric("understandingScore")}
-            className="accent-indigo-500"
-          />
-          이해도 점수
-        </label>
-      </div>
-
-      {/* 멤버 선택 영역 */}
-      <div className="mb-8 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-600 dark:text-gray-400">
-        <span className="text-gray-900 dark:text-white uppercase tracking-widest">스터디 멤버 필터:</span>
-        {memberInfos.map((member) => (
-          <label key={member.id} className="flex items-center gap-1.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={selectedMembers.includes(member.id)}
-              onChange={() => handleMemberToggle(member.id)}
-              className="accent-indigo-500 rounded"
-            />
-            {member.name}
-          </label>
-        ))}
+      {/* 멤버 필터 (모던 토글 뱃지) */}
+      <div className="mb-6 flex flex-wrap items-center gap-2 relative z-10">
+        <span className="text-xs font-black text-gray-400 mr-2 uppercase tracking-widest">멤버 필터</span>
+        {memberInfos.map((member, idx) => {
+          const isSelected = selectedMembers.includes(member.id);
+          const color = COLORS[idx % COLORS.length];
+          return (
+            <button
+              key={member.id}
+              onClick={() => handleMemberToggle(member.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                isSelected 
+                  ? "bg-white dark:bg-[#111] text-gray-900 dark:text-white shadow-sm"
+                  : "bg-transparent border-transparent text-gray-400 hover:bg-gray-50 dark:hover:bg-[#111]"
+              }`}
+              style={isSelected ? { borderColor: color } : {}}
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: isSelected ? color : '#9ca3af' }}></span>
+                {member.name}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* Recharts 그래프 렌더링 */}
-      <div className="w-full h-[350px]">
+      <div className="w-full h-[320px] relative z-10">
         {selectedMembers.length === 0 ? (
-          <div className="flex justify-center items-center h-full text-sm font-bold text-gray-400">
+          <div className="flex justify-center items-center h-full text-sm font-bold text-gray-400 bg-gray-50 dark:bg-[#0a0a0a] rounded-3xl">
             선택된 스터디 멤버가 없습니다.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={chartData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.2} />
-              <XAxis dataKey="planDate" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" className="dark:stroke-[#1f1f1f]" />
+              <XAxis 
+                dataKey="planDate" 
+                stroke="#9ca3af" 
+                fontSize={11} 
+                tickLine={false} 
+                axisLine={false}
+                tickFormatter={(val) => {
+                  const d = new Date(val);
+                  return `${d.getMonth()+1}/${d.getDate()}`;
+                }}
+              />
               {/* 메인 데이터 Y축 */}
               <YAxis
-                stroke="#888"
-                fontSize={12}
+                stroke="#9ca3af"
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                label={{
-                  value: selectedMetric === "focusTime" ? "집중 시간 (분)" : "이해도 점수",
-                  angle: -90,
-                  position: "insideLeft",
-                  style: { textAnchor: "middle", fill: "#888", fontSize: 12, fontWeight: "bold" }
-                }}
               />
               {/* 음영 처리를 위한 가상 Y축 */}
               <YAxis yAxisId="empty" hide domain={[0, 1]} />
               
               <Tooltip 
-                contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                itemStyle={{ color: '#fff' }}
+                contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '16px', color: '#fff', fontSize: '12px', fontWeight: 'bold', padding: '12px' }}
+                itemStyle={{ color: '#fff', paddingTop: '4px' }}
+                labelStyle={{ color: '#9ca3af', marginBottom: '8px' }}
+                cursor={{ stroke: '#4f46e5', strokeWidth: 1, strokeDasharray: '3 3' }}
               />
-              <Legend wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingTop: '20px' }} />
+              
+              <Legend 
+                wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingTop: '20px' }} 
+                iconType="circle"
+              />
 
               {/* 배경 음영 처리를 위해 라인 뒤에 바 차트를 배치 */}
               <Bar
                 yAxisId="empty"
                 dataKey="emptyValue"
-                fill="#3f3f46" // zinc-700
-                opacity={0.2}
+                fill="#f3f4f6"
+                className="dark:fill-[#111]"
                 isAnimationActive={false}
                 legendType="none"
                 tooltipType="none"
@@ -230,8 +252,9 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
                     name={member ? member.name : `멤버 ${memberId}`}
                     stroke={color}
                     strokeWidth={3}
-                    activeDot={{ r: 6, strokeWidth: 0 }}
-                    connectNulls={false} // 데이터가 없는 지점은 선을 끊음
+                    dot={{ r: 4, strokeWidth: 2, fill: '#fff' }}
+                    activeDot={{ r: 6, strokeWidth: 0, fill: color }}
+                    connectNulls={false}
                   />
                 );
               })}

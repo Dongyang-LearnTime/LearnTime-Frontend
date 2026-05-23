@@ -65,3 +65,14 @@ export interface StudyMemberResponse {
   userName: string;
   status: StudyMemberStatus;
 }
+
+
+// 스터디원 초대용 친구 목록 타입
+export interface StudyMemberFriendResponse {
+  friendId: number;  // 친구 관계 식별자
+  userId: number; // 친구의 사용자 식별자
+  name: string;
+  email: string;
+  createdAt: string;
+  isInvited: boolean; // 공부 초대 여부
+}

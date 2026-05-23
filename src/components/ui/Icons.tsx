@@ -40,6 +40,9 @@ import {
   Layers,
   Smartphone,
   Bell,
+  FileText,
+  Brain,
+  BarChart2,
 } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 
@@ -88,3 +91,6 @@ export const MenuIcon = ({ size = 18, ...props }: IconProps) => <Menu size={size
 export const LayersIcon = ({ size = 18, ...props }: IconProps) => <Layers size={size} {...props} />;
 export const SmartphoneIcon = ({ size = 18, ...props }: IconProps) => <Smartphone size={size} {...props} />;
 export const BellIcon = ({ size = 18, ...props }: IconProps) => <Bell size={size} {...props} />;
+export const NoteIcon = ({ size = 18, ...props }: IconProps) => <FileText size={size} {...props} />;
+export const BrainIcon = ({ size = 18, ...props }: IconProps) => <Brain size={size} {...props} />;
+export const BarChartIcon = ({ size = 18, ...props }: IconProps) => <BarChart2 size={size} {...props} />;

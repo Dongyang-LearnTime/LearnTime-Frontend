@@ -24,3 +24,20 @@ export const generateQuizApi = async (studyId: number, studyNotesId: number): Pr
   });
   return response.data;
 };
+
+/** 특정 스터디의 퀴즈 기록 목록 조회 */
+export interface QuizHistoryListItem {
+  quizHistoryId: number;
+  studyId: number;
+  noteTitle: string;
+  totalQuestions: number;
+  correctCount: number;
+  createdAt: string;
+}
+
+export const getQuizHistoryListApi = async (studyId: string): Promise<QuizHistoryListItem[]> => {
+  const response = await axiosInstance.get<QuizHistoryListItem[]>(
+    `/api/study/quiz/history?studyId=${studyId}`
+  );
+  return response.data;
+};

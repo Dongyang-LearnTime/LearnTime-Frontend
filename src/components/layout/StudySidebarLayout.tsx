@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PlusIcon, SettingsIcon, BookIcon } from '../ui/Icons';
+import { PlusIcon, SettingsIcon, BookIcon, NoteIcon, BrainIcon, ChevronRightIcon } from '../ui/Icons';
 import { useStudyStore } from '../../store/useStudyStore';
 import type { StudyProgressIndicatorResponse } from '../../pages/study/api/StudyApi';
 
@@ -23,9 +23,20 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
   const { progresses, fetchProgresses, isLoading } = useStudyStore();
   const [isExpanded, setIsExpanded] = useState(true);
 
+  // 노션 스타일 아코디언: 펼쳐진 스터디 ID 집합 관리
+  const [openStudyIds, setOpenStudyIds] = useState<Set<number>>(new Set());
+
   useEffect(() => {
     fetchProgresses();
   }, [fetchProgresses]);
+
+  // 현재 URL의 studyId와 일치하는 스터디를 자동으로 펼침
+  useEffect(() => {
+    if (studyId) {
+      const id = Number(studyId);
+      setOpenStudyIds((prev) => new Set(prev).add(id));
+    }
+  }, [studyId]);
 
   // 창 크기에 따른 자동 접힘 처리 (반응형)
   useEffect(() => {
@@ -40,6 +51,19 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
     handleResize(); // 초기 로드 시 실행
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  /** 특정 스터디의 아코디언 토글 */
+  const toggleStudyOpen = (id: number) => {
+    setOpenStudyIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   return (
     <div className="flex flex-1 overflow-hidden max-w-450 mx-auto w-full relative">
@@ -75,46 +99,101 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
           </div>
         </div>
 
-        <nav className="flex-1 py-3 px-2 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
+        <nav className="flex-1 py-3 px-2 overflow-y-auto custom-scrollbar overflow-x-hidden">
           {isLoading ? (
             <div className="text-center py-4 text-xs font-bold text-gray-400">로딩중...</div>
           ) : progresses.length === 0 ? (
             <div className={`text-center py-4 text-xs text-gray-400 font-bold ${isExpanded ? '' : 'hidden'}`}>목록이 없습니다</div>
           ) : (
-            progresses.map((study: StudyProgressIndicatorResponse) => {
-              const isActive = studyId === study.studyId.toString();
-              return (
-                <button
-                  key={study.studyId}
-                  onClick={() => navigate(`/study/${study.studyId}`)}
-                  className={`flex items-center gap-3 py-2.5 rounded-xl text-sm transition-all duration-200 text-left w-full cursor-pointer
-                    ${isActive 
-                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 font-black shadow-sm' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#111] font-bold'
-                    }
-                    ${isExpanded ? 'px-3' : 'justify-center px-0'}
-                  `}
-                  title={!isExpanded ? study.studyTitle : undefined}
-                >
-                  <span className="text-base leading-none shrink-0 opacity-70">
-                    <BookIcon size={16} />
-                  </span>
-                  <span className={`truncate transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden'}`}>
-                    {study.studyTitle}
-                  </span>
-                  {isExpanded && study.hasTodayPlan && (
-                    <span className="w-1.5 h-1.5 bg-rose-500 rounded-full ml-auto shrink-0 shadow-[0_0_5px_rgba(244,63,94,0.5)] animate-pulse" title="오늘의 진도 있음" />
-                  )}
-                  {!isExpanded && study.hasTodayPlan && (
-                    <span className="absolute right-1 top-1 w-2 h-2 bg-rose-500 rounded-full shadow-[0_0_5px_rgba(244,63,94,0.5)] border border-white dark:border-[#050505]" />
-                  )}
-                </button>
-              );
-            })
+            <div className="space-y-0.5">
+              {progresses.map((study: StudyProgressIndicatorResponse) => {
+                const isActive = studyId === study.studyId.toString();
+                const isOpen = openStudyIds.has(study.studyId);
+
+                return (
+                  <div key={study.studyId}>
+                    {/* 스터디 항목 행 */}
+                    <div className={`flex items-center rounded-xl transition-all duration-200 group/item
+                      ${isActive
+                        ? 'bg-indigo-50 dark:bg-indigo-950/40'
+                        : 'hover:bg-gray-50 dark:hover:bg-[#111]'
+                      }
+                      ${isExpanded ? '' : 'justify-center'}
+                    `}>
+                      {/* 사이드바 펼쳐진 상태: 아코디언 토글 화살표 */}
+                      {isExpanded && (
+                        <button
+                          onClick={() => toggleStudyOpen(study.studyId)}
+                          className="p-1.5 ml-1 rounded-lg text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 shrink-0 transition-all cursor-pointer"
+                          aria-label={isOpen ? '접기' : '펼치기'}
+                        >
+                          <ChevronRightIcon
+                            size={13}
+                            className={`transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
+                          />
+                        </button>
+                      )}
+
+                      {/* 스터디 이름 버튼 (클릭 시 해당 스터디 페이지 이동) */}
+                      <button
+                        onClick={() => {
+                          navigate(`/study/${study.studyId}`);
+                          // 사이드바가 접혀있어도 해당 스터디를 펼침
+                          if (!isExpanded) return;
+                          setOpenStudyIds((prev) => new Set(prev).add(study.studyId));
+                        }}
+                        className={`flex items-center gap-2.5 py-2.5 text-sm transition-all duration-200 text-left flex-1 min-w-0 cursor-pointer
+                          ${isActive
+                            ? 'text-indigo-700 dark:text-indigo-400 font-black'
+                            : 'text-gray-600 dark:text-gray-400 font-bold'
+                          }
+                          ${isExpanded ? 'pr-2' : 'justify-center px-0 w-full'}
+                        `}
+                        title={!isExpanded ? study.studyTitle : undefined}
+                      >
+                        <BookIcon size={15} className="shrink-0 opacity-70" />
+                        <span className={`truncate transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0 hidden'}`}>
+                          {study.studyTitle}
+                        </span>
+                        {/* 오늘 진도 있음 표시 */}
+                        {isExpanded && study.hasTodayPlan && (
+                          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full ml-auto shrink-0 shadow-[0_0_5px_rgba(244,63,94,0.5)] animate-pulse" title="오늘의 진도 있음" />
+                        )}
+                        {!isExpanded && study.hasTodayPlan && (
+                          <span className="absolute right-1 top-1 w-2 h-2 bg-rose-500 rounded-full shadow-[0_0_5px_rgba(244,63,94,0.5)] border border-white dark:border-[#050505]" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* 노션 스타일 서브 메뉴 (펼쳐진 상태 + 아코디언 열림) */}
+                    {isExpanded && isOpen && (
+                      <div className="ml-5 pl-3 border-l border-gray-100 dark:border-[#1f1f1f] mt-0.5 mb-1 space-y-0.5">
+                        {/* 필기 목록 */}
+                        <button
+                          onClick={() => navigate(`/study/notes/list/${study.studyId}`)}
+                          className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-xs font-bold text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer"
+                        >
+                          <NoteIcon size={13} className="shrink-0" />
+                          필기 목록
+                        </button>
+                        {/* 퀴즈 기록 */}
+                        <button
+                          onClick={() => navigate(`/study/quiz/list/${study.studyId}`)}
+                          className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-xs font-bold text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer"
+                        >
+                          <BrainIcon size={13} className="shrink-0" />
+                          퀴즈 기록
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
         </nav>
 
-        {/* 하단 유틸리티 영역 */}
+
         <div className="p-3 border-t border-gray-100 dark:border-[#1a1a1a]">
           <button 
             onClick={() => navigate('/main/settings')}
