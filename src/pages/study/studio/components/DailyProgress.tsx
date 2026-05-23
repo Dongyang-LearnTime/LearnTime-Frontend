@@ -21,45 +21,21 @@ const COMPLETION_STATUS_LABEL: Record<string, string> = {
   FAILURE: "실패",
 };
 
-// 공통 테이블 Row 컴포넌트
-function InfoRow({
-  label,
-  children,
-}: InfoRowProps) {
+function InfoRow({ label, children }: InfoRowProps) {
   return (
-    <tr
-      style={{
-        borderBottom: "1px solid #eee",
-      }}
-    >
-      <td
-        style={{
-          padding: "8px 0",
-          fontWeight: "bold",
-          width: "150px",
-          verticalAlign: "top",
-        }}
-      >
+    <div className="flex flex-col sm:flex-row sm:items-start py-4 border-b border-gray-100 dark:border-[#1a1a1a] last:border-0 gap-2 sm:gap-6">
+      <div className="sm:w-36 shrink-0 font-black text-xs text-gray-400 uppercase tracking-widest pt-1">
         {label}
-      </td>
-
-      <td
-        style={{
-          padding: "8px 0",
-          whiteSpace: "pre-wrap",
-        }}
-      >
+      </div>
+      <div className="flex-1 text-sm font-bold text-gray-900 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">
         {children}
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }
 
-export default function DailyProgress({
-  data,
-}: DailyProgressProps) {
+export default function DailyProgress({ data }: DailyProgressProps) {
   const {
-    planDate,
     startDate,
     endDate,
     restDays,
@@ -73,84 +49,66 @@ export default function DailyProgress({
   } = data;
 
   return (
-    <div
-      style={{
-        border: "1px solid #ccc",
-        padding: "16px",
-        borderRadius: "8px",
-      }}
-    >
-      <h3>
-        일일 공부 진도 정보 ({planDate})
-      </h3>
+    <div className="flex flex-col">
+      <div className="flex flex-col">
+        <InfoRow label="스터디 기간">
+          <span className="inline-flex items-center gap-2">
+            <span className="px-2.5 py-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400">{startDate}</span>
+            <span className="text-gray-400">~</span>
+            <span className="px-2.5 py-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400">{endDate}</span>
+          </span>
+        </InfoRow>
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          marginTop: "12px",
-        }}
-      >
-        <tbody>
-          <InfoRow label="스터디 기간">
-            {startDate} ~ {endDate}
+        {(restDays.length > 0 || restDates.length > 0) && (
+          <InfoRow label="휴무 정보">
+            {restDays.length > 0 && <div className="mb-1">휴무 요일: <span className="text-indigo-500">{restDays.join(", ")}</span></div>}
+            {restDates.length > 0 && <div>휴무 날짜: <span className="text-rose-500">{restDates.join(", ")}</span></div>}
           </InfoRow>
+        )}
 
-          {(restDays.length > 0 ||
-            restDates.length > 0) && (
-            <InfoRow label="휴무 정보">
-              {restDays.length > 0 && (
-                <div>
-                  휴무 요일: {restDays.join(", ")}
-                </div>
-              )}
+        <InfoRow label="학습 일차">
+          {dayNumber !== null ? (
+            <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 rounded-xl text-sm font-black">{dayNumber}일차</span>
+          ) : "정보 없음"}
+        </InfoRow>
 
-              {restDates.length > 0 && (
-                <div>
-                  휴무 날짜: {restDates.join(", ")}
-                </div>
-              )}
-            </InfoRow>
-          )}
+        <InfoRow label="학습 계획 내용">
+          <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl p-4 shadow-sm text-sm">
+            {planContent || "등록된 학습 계획이 없습니다."}
+          </div>
+        </InfoRow>
 
-          <InfoRow label="학습 일차">
-            {dayNumber !== null
-              ? `${dayNumber}일차`
-              : "정보 없음"}
-          </InfoRow>
+        <InfoRow label="집중 시간">
+          <span className="font-mono text-base font-black tracking-tight">{focusTime || "00:00:00"}</span>
+        </InfoRow>
 
-          <InfoRow label="학습 계획 내용">
-            {planContent ||
-              "등록된 학습 계획이 없습니다."}
-          </InfoRow>
+        <InfoRow label="진행 상태">
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${
+            progressStatus === "COMPLETED" ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400" :
+            progressStatus === "IN_PROGRESS" ? "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400" :
+            "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-400"
+          }`}>
+            {progressStatus ? PROGRESS_STATUS_LABEL[progressStatus] || progressStatus : "정보 없음"}
+          </span>
+        </InfoRow>
 
-          <InfoRow label="집중 시간">
-            {focusTime || "00:00:00"}
-          </InfoRow>
+        <InfoRow label="완료 상태">
+          <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${
+            completionStatus === "SUCCESS" ? "text-emerald-500" :
+            completionStatus === "FAILURE" ? "text-rose-500" :
+            "text-gray-500"
+          }`}>
+            {completionStatus && <span className={`w-1.5 h-1.5 rounded-full ${completionStatus === "SUCCESS" ? "bg-emerald-500" : "bg-rose-500"}`} />}
+            {completionStatus ? COMPLETION_STATUS_LABEL[completionStatus] || completionStatus : "정보 없음"}
+          </span>
+        </InfoRow>
 
-          <InfoRow label="진행 상태">
-            {progressStatus
-              ? PROGRESS_STATUS_LABEL[
-                  progressStatus
-                ] || progressStatus
-              : "정보 없음"}
-          </InfoRow>
-
-          <InfoRow label="완료 상태">
-            {completionStatus
-              ? COMPLETION_STATUS_LABEL[
-                  completionStatus
-                ] || completionStatus
-              : "정보 없음"}
-          </InfoRow>
-
-          <InfoRow label="이해도 점수">
-            {understandingScore !== null
-              ? `${understandingScore}점`
-              : "평가 안 됨"}
-          </InfoRow>
-        </tbody>
-      </table>
+        <InfoRow label="이해도 점수">
+          {understandingScore !== null ? (
+            <span className="text-lg font-black tracking-tight text-indigo-600 dark:text-indigo-400">{understandingScore}점</span>
+          ) : "평가 안 됨"}
+        </InfoRow>
+      </div>
     </div>
   );
 }

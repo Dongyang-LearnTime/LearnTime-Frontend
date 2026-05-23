@@ -16,24 +16,25 @@ import CreatePostPage from "../pages/community/post/CreatePostPage";
 import FriendRequestPage from "../pages/community/friend/FriendRequestPage";
 import NotificationPage from "../pages/notification/NotificationPage";
 
+import { MainHeader } from "../components/layout/MainHeader";
+import { StudySidebarLayout } from "../components/layout/StudySidebarLayout";
+import StudyRedirector from "../pages/study/studio/StudyRedirector";
+import StudyEmptyPage from "../pages/study/studio/StudyEmptyPage";
+import UnderConstructionPage from "../pages/UnderConstructionPage";
 
-// App.tsx에서 사용할 라우트 설정 배열
-// ProtectedRoute => 로그인 필요한 페이지에 사용
 export const routes = [
   {
     path: "/",
-    // 로그인 여부에 따라 분기:
-    // - 로그인 전: HomePage (랜딩 페이지, 자체 레이아웃 보유)
-    // - 로그인 후: LearnTimeMainPage (ProtectedRoute로 감쌈)
-    noLayout: true, // HomePage가 full-page 레이아웃을 직접 관리
+    noLayout: true,
     element: (
       <ProtectedRoute fallback={<HomePage />}>
+        <MainHeader />
         <LearnTimeMainPage />
       </ProtectedRoute>
     )
   },
   {
-    path: "*", // 정해진 링크 외의 다른 링크
+    path: "*",
     element: <NotFoundPage />
   },
   {
@@ -46,86 +47,179 @@ export const routes = [
   },
   {
     path: "/notifications",
-    element:
+    element: (
       <ProtectedRoute>
+        <MainHeader />
         <NotificationPage />
       </ProtectedRoute>
+    )
+  },
+  {
+    path: "/study",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <StudyRedirector />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/study/studio",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <StudyRedirector />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/study/empty",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <StudySidebarLayout>
+          <StudyEmptyPage />
+        </StudySidebarLayout>
+      </ProtectedRoute>
+    )
   },
   {
     path: "/study/:studyId",
-    element:
+    element: (
       <ProtectedRoute>
-        <StudyStudioPage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <StudyStudioPage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/study/invitation",
-    element:
+    element: (
       <ProtectedRoute>
-        <StudyInvitationPage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <StudyInvitationPage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/study/plan/create",
-    element:
+    element: (
       <ProtectedRoute>
-        <CreateStudyPage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <CreateStudyPage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/study/notes/write/:studyId",
-    element:
+    element: (
       <ProtectedRoute>
-        <NotesWritePage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <NotesWritePage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/study/notes/:noteId",
-    element:
+    element: (
       <ProtectedRoute>
-        <NotesDetailPage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <NotesDetailPage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/study/notes/edit/:noteId",
-    element:
+    element: (
       <ProtectedRoute>
-        <NotesEditPage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <NotesEditPage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/study/quiz/:quizId",
-    element:
+    element: (
       <ProtectedRoute>
-        <QuizSolvePage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <QuizSolvePage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/study/quiz/history/:quizHistoryId",
-    element:
+    element: (
       <ProtectedRoute>
-        <QuizResultPage />
+        <MainHeader />
+        <StudySidebarLayout>
+          <QuizResultPage />
+        </StudySidebarLayout>
       </ProtectedRoute>
+    )
   },
   {
     path: "/community/post/create",
-    element:
+    element: (
       <ProtectedRoute>
+        <MainHeader />
         <CreatePostPage />
       </ProtectedRoute>
+    )
   },
   {
     path: "/friend/requests",
-    element:
+    element: (
       <ProtectedRoute>
+        <MainHeader />
         <FriendRequestPage />
       </ProtectedRoute>
+    )
+  },
+  // 준비 중인 메뉴들
+  {
+    path: "/main/schedule",
+    element: (
+      <ProtectedRoute>
+        <UnderConstructionPage />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/main/exercise",
+    element: (
+      <ProtectedRoute>
+        <UnderConstructionPage />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/main/community",
+    element: (
+      <ProtectedRoute>
+        <UnderConstructionPage />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/main/settings",
+    element: (
+      <ProtectedRoute>
+        <UnderConstructionPage />
+      </ProtectedRoute>
+    )
   }
-  // { 관리자 페이지 예상
-  //   path : "/admin",
-  //   element : 
-  //   <ProtectedRoute requiredRole={Role.ROLE_ADMIN}>
-  //     <AdminPage />
-  //   </ProtectedRoute>
-  // }
 ];

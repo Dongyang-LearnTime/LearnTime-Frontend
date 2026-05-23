@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { useAuthStore } from '../../store/useAuthStore.ts';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { LayersIcon } from '../../components/ui/Icons';
 
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated.ts';
 import { axiosInstance } from '../../app/apiClient.ts';
@@ -24,7 +25,7 @@ export default function LoginPage() {
   const [ loginError, setLoginError ] = useState<string>('');
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   
-  const [ isPending, startTransition ] = useTransition();
+  const [ , startTransition ] = useTransition();
   const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
 
   // 페이지 제목 변경
@@ -75,9 +76,12 @@ export default function LoginPage() {
         
         {/* 헤더 섹션 */}
         <div className="text-center">
-          <Link to="/" className="inline-block group">
-            <h1 className="text-3xl sm:text-4xl font-extrabold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
-              Learn-Time
+          <Link to="/" className="inline-flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-gray-900 rounded-2xl flex items-center justify-center shadow-xl shadow-black/10 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <LayersIcon className="text-white" size={24} />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 uppercase group-hover:scale-105 transition-transform duration-300">
+              Learn Time
             </h1>
           </Link>
           <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">다시 시작해볼까요?</h2>

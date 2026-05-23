@@ -157,24 +157,24 @@ export default function NotificationPage() {
 
     return (
         <div className="max-w-4xl mx-auto p-4 mt-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">전체 알림</h1>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">전체 알림</h1>
                 
                 {notifications.length > 0 && (
                     <div className="flex items-center gap-3">
                         <button
                             onClick={toggleSelectAll}
-                            className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                            className="text-sm font-bold text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                         >
                             {selectedIds.size === notifications.length ? '선택 해제' : '전체 선택'}
                         </button>
                         <button
                             onClick={handleDeleteBulk}
                             disabled={selectedIds.size === 0}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                            className={`px-4 py-2 text-sm font-bold rounded-2xl transition-all ${
                                 selectedIds.size > 0 
-                                ? 'bg-rose-50 text-rose-600 hover:bg-rose-100' 
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/30 dark:text-rose-400' 
+                                : 'bg-gray-100 text-gray-400 dark:bg-[#1a1a1a] dark:text-gray-600 cursor-not-allowed'
                             }`}
                         >
                             선택 삭제 ({selectedIds.size})
@@ -184,61 +184,61 @@ export default function NotificationPage() {
             </div>
 
             {error && (
-                <div className="text-red-500 text-center mb-4 bg-red-50 p-4 rounded-md border border-red-100">
+                <div className="text-rose-500 text-center mb-6 bg-rose-50 dark:bg-rose-950/20 p-4 rounded-2xl border border-rose-100 dark:border-rose-900/40 text-sm font-bold">
                     {error}
                 </div>
             )}
 
             {isLoading && notifications.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">로딩 중...</div>
+                <div className="text-center py-20 text-gray-400 font-bold text-sm">알림을 불러오는 중입니다...</div>
             ) : notifications.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-100 text-gray-500">
+                <div className="text-center py-20 bg-gray-50 dark:bg-[#0a0a0a] rounded-[2rem] border border-gray-100 dark:border-[#1a1a1a] text-gray-400 font-bold">
                     수신된 알림이 없습니다.
                 </div>
             ) : (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                     {notifications.map((item) => (
                         <div 
                             key={item.notificationId}
                             onClick={() => handleNotificationClick(item.notificationId, item.isRead, item.type)}
-                            className={`flex items-start gap-4 p-5 rounded-xl border transition-all cursor-pointer ${
+                            className={`flex items-start gap-4 p-5 rounded-3xl border transition-all cursor-pointer group ${
                                 item.isRead 
-                                ? 'bg-white border-gray-200 hover:border-gray-300 shadow-sm' 
-                                : 'bg-blue-50/30 border-blue-100 shadow-sm hover:border-blue-200'
+                                ? 'bg-white dark:bg-[#050505] border-gray-100 dark:border-[#1a1a1a] hover:border-gray-300 dark:hover:border-[#333]' 
+                                : 'bg-indigo-50/50 dark:bg-indigo-950/10 border-indigo-100 dark:border-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700/50'
                             }`}
                         >
-                            <div className="mt-0.5" onClick={e => e.stopPropagation()}>
+                            <div className="mt-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                                 <input 
                                     type="checkbox" 
-                                    className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                    className="w-5 h-5 text-indigo-600 bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-gray-700 rounded-lg focus:ring-indigo-500 cursor-pointer accent-indigo-600"
                                     checked={selectedIds.has(item.notificationId)}
                                     onChange={(e) => toggleSelect(item.notificationId, e as any)}
                                 />
                             </div>
                             
                             <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-start gap-2">
-                                    <h3 className={`text-base font-semibold ${item.isRead ? 'text-gray-800' : 'text-gray-900'}`}>
-                                        {!item.isRead && <span className="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2 mb-0.5" />}
+                                <div className="flex justify-between items-start gap-2 mb-1">
+                                    <h3 className={`text-base font-black tracking-tight ${item.isRead ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-white'}`}>
+                                        {!item.isRead && <span className="inline-block w-2 h-2 bg-indigo-500 rounded-full mr-2 mb-0.5" />}
                                         {item.title}
                                     </h3>
-                                    <span className="text-xs font-medium text-gray-400 whitespace-nowrap">
+                                    <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">
                                         {new Date(item.createdAt).toLocaleString(undefined, {
                                             month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                         })}
                                     </span>
                                 </div>
-                                <p className={`mt-1 text-sm ${item.isRead ? 'text-gray-500' : 'text-gray-700'}`}>
+                                <p className={`text-sm leading-relaxed ${item.isRead ? 'text-gray-500 dark:text-gray-500' : 'text-gray-700 dark:text-gray-400'}`}>
                                     {item.message}
                                 </p>
                             </div>
 
                             <button
                                 onClick={(e) => handleDeleteSingle(item.notificationId, e)}
-                                className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors focus:outline-none"
+                                className="p-2 text-gray-300 dark:text-gray-600 hover:text-rose-500 dark:hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                                 aria-label="삭제"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
@@ -246,7 +246,7 @@ export default function NotificationPage() {
                     ))}
                     
                     {/* Intersection Observer 타겟 엘리먼트 */}
-                    <div ref={loadMoreRef} className="py-4 text-center text-gray-500 text-sm h-12 flex items-center justify-center">
+                    <div ref={loadMoreRef} className="py-8 text-center text-gray-400 font-bold text-xs">
                         {isFetchingMore ? '더 불러오는 중...' : hasNext ? '' : '모든 알림을 불러왔습니다.'}
                     </div>
                 </div>

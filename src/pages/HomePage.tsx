@@ -7,7 +7,6 @@ import { PreviewSection } from '../components/home/section/PreviewSection';
 import { GamificationSection } from '../components/home/section/GamificationSection';
 import { CTASection } from '../components/home/section/CTASection';
 import { HomeHeader } from '../components/home/HomeHeader';
-import { HomeFooter } from '../components/home/HomeFooter';
 
 export default function HomePage() {
   useEffect(() => {
@@ -45,9 +44,6 @@ export default function HomePage() {
         <GamificationSection />
         <CTASection />
       </main>
-
-      {/* 좌측 하단 세로형 푸터 */}
-      <HomeFooter />
     </div>
   );
 }

@@ -6,6 +6,8 @@ import DailyProgress from "./components/DailyProgress";
 import BaseModal from "../../../components/common/BaseModal";
 import PlanCompletionForm from "./components/PlanCompletionForm";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
+import { Card, CardTitle } from "../../../components/common/Card";
+import { BookIcon } from "../../../components/ui/Icons";
 
 interface StudyProgressInfoProps {
   studyId: string;
@@ -69,11 +71,9 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
     const dd = String(current.getDate()).padStart(2, "0");
     const newDateStr = `${yyyy}-${mm}-${dd}`;
 
-    // URL 쿼리 파라미터 갱신 (자동으로 useEffect 재실행 유도)
     setSearchParams({ date: newDateStr });
   };
 
-  // 진도 시작 핸들러
   const handleStartPlan = async () => {
     if (!progressData || !progressData.studyDailyPlanId) return;
     setIsStarting(true);
@@ -87,52 +87,54 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
     }
   };
 
-  // 모달 제출 완료 핸들러 (진도 완료)
   const handleCompleteSuccess = () => {
     setProgressData((prev) => prev ? { ...prev, progressStatus: "COMPLETED" } : null);
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      {/* 날짜 선택 내비게이션 (디자인 최소화) */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-        <button onClick={() => handleDateChange(-1)}>이전날</button>
-        <span style={{ fontWeight: "bold" }}>조회 기준일: {planDate}</span>
-        <button onClick={() => handleDateChange(1)}>다음날</button>
-        <button onClick={() => setSearchParams({ date: getTodayString() })}>오늘</button>
+    <Card className="flex flex-col h-full relative overflow-hidden group min-h-[300px]">
+      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <CardTitle icon={<BookIcon size={18} />} className="mb-0">일일 진도 정보</CardTitle>
+
+        {/* 날짜 선택 내비게이션 */}
+        <div className="flex items-center bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl p-1 shadow-sm">
+          <button onClick={() => handleDateChange(-1)} className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">이전날</button>
+          <span className="px-3 py-1.5 text-sm font-black tracking-tight text-gray-900 dark:text-white border-x border-gray-200 dark:border-[#222]">
+            {planDate}
+          </span>
+          <button onClick={() => handleDateChange(1)} className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">다음날</button>
+          <button onClick={() => setSearchParams({ date: getTodayString() })} className="px-3 py-1.5 ml-1 text-xs font-black bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">오늘</button>
+        </div>
       </div>
 
-      {/* 로딩 및 에러 처리 분기 */}
-      <section style={{ minHeight: "150px" }}>
+      <div className="flex-1 flex flex-col justify-center">
         {isLoading ? (
-          <div style={{ padding: "24px", border: "1px solid #eee", borderRadius: "8px", textAlign: "center" }}>
-            일일 진도 정보를 로딩 중입니다...
+          <div className="flex flex-col gap-4 py-4 animate-pulse">
+            <div className="h-6 w-1/3 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
+            <div className="h-4 w-1/2 bg-gray-100 dark:bg-[#111] rounded-lg"></div>
+            <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl mt-4"></div>
+            <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl"></div>
+            <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl"></div>
           </div>
         ) : error ? (
-          <div style={{ padding: "24px", color: "red", border: "1px solid #ffcccc", borderRadius: "8px" }}>
-            {error}
+          <div className="text-center py-12 bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 rounded-3xl">
+            <p className="text-sm font-bold text-rose-500">{error}</p>
           </div>
         ) : progressData ? (
-          <div>
-            <DailyProgress data={progressData} />
+          <div className="flex flex-col h-full">
+            <div className="flex-1 bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-3xl p-6 mb-6">
+              <DailyProgress data={progressData} />
+            </div>
             
-            {/* 진도 상태에 따른 버튼 노출 로직 */}
             {progressData.studyDailyPlanId && (
-              <div style={{ marginTop: "16px", textAlign: "right" }}>
+              <div className="flex justify-end mt-auto pt-4 border-t border-gray-100 dark:border-[#1a1a1a]">
                 {progressData.progressStatus === "NOT_STARTED" && (
                   <button
                     onClick={handleStartPlan}
                     disabled={isStarting}
-                    style={{
-                      padding: "10px 20px",
-                      backgroundColor: "#2563eb",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      fontWeight: "bold",
-                      cursor: isStarting ? "not-allowed" : "pointer",
-                      opacity: isStarting ? 0.7 : 1
-                    }}
+                    className={`px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition-all ${isStarting ? "opacity-70 cursor-not-allowed" : "active:scale-95"}`}
                   >
                     {isStarting ? "시작 중..." : "일일 진도 시작"}
                   </button>
@@ -141,15 +143,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
                 {progressData.progressStatus === "IN_PROGRESS" && (
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    style={{
-                      padding: "10px 20px",
-                      backgroundColor: "#059669",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      fontWeight: "bold",
-                      cursor: "pointer"
-                    }}
+                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
                   >
                     일일 진도 완료
                   </button>
@@ -158,15 +152,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
                 {progressData.progressStatus === "COMPLETED" && (
                   <button
                     disabled
-                    style={{
-                      padding: "10px 20px",
-                      backgroundColor: "#e5e7eb",
-                      color: "#9ca3af",
-                      border: "none",
-                      borderRadius: "6px",
-                      fontWeight: "bold",
-                      cursor: "not-allowed"
-                    }}
+                    className="px-6 py-3 bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-500 font-bold rounded-2xl cursor-not-allowed"
                   >
                     진도 완료됨
                   </button>
@@ -175,13 +161,12 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
             )}
           </div>
         ) : (
-          <div style={{ padding: "24px", border: "1px solid #eee", borderRadius: "8px", textAlign: "center" }}>
-            해당 일자의 진도 정보가 없습니다.
+          <div className="text-center py-16 bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-3xl">
+            <p className="text-sm font-bold text-gray-400">해당 일자의 진도 정보가 없습니다.</p>
           </div>
         )}
-      </section>
+      </div>
 
-      {/* 진도 완료 모달 */}
       {progressData?.studyDailyPlanId && (
         <BaseModal 
           isOpen={isModalOpen}
@@ -196,6 +181,6 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
           />
         </BaseModal>
       )}
-    </div>
+    </Card>
   );
 }

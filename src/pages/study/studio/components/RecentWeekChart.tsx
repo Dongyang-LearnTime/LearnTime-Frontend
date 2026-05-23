@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { StudyRecentWeekInfoResponse } from "../../types/StudyTypes";
+import { Card } from "../../../../components/common/Card";
 
 interface RecentWeekChartProps {
   data: StudyRecentWeekInfoResponse[];
@@ -123,43 +124,48 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
   }, [data, selectedMetric, selectedMembers]);
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
-      <h3>일주일 간 지표 그래프</h3>
+    <Card className="h-full">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-gray-400 ml-1">주간 몰입도</h3>
+      </div>
 
-      {/* 지표 선택 영역 (디자인 최소화) */}
-      <div style={{ marginBottom: "16px" }}>
-        <span style={{ marginRight: "12px", fontWeight: "bold" }}>조회 지표:</span>
-        <label style={{ marginRight: "12px" }}>
+      {/* 지표 선택 영역 */}
+      <div className="mb-4 flex items-center gap-4 text-xs font-bold text-gray-600 dark:text-gray-400">
+        <span className="text-gray-900 dark:text-white uppercase tracking-widest">조회 지표:</span>
+        <label className="flex items-center gap-1.5 cursor-pointer">
           <input
             type="radio"
             name="metric"
             value="focusTime"
             checked={selectedMetric === "focusTime"}
             onChange={() => setSelectedMetric("focusTime")}
+            className="accent-indigo-500"
           />
           집중 시간 (분)
         </label>
-        <label>
+        <label className="flex items-center gap-1.5 cursor-pointer">
           <input
             type="radio"
             name="metric"
             value="understandingScore"
             checked={selectedMetric === "understandingScore"}
             onChange={() => setSelectedMetric("understandingScore")}
+            className="accent-indigo-500"
           />
           이해도 점수
         </label>
       </div>
 
       {/* 멤버 선택 영역 */}
-      <div style={{ marginBottom: "16px", display: "flex", flexWrap: "wrap", gap: "12px" }}>
-        <span style={{ fontWeight: "bold" }}>스터디 멤버 필터:</span>
+      <div className="mb-8 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-600 dark:text-gray-400">
+        <span className="text-gray-900 dark:text-white uppercase tracking-widest">스터디 멤버 필터:</span>
         {memberInfos.map((member) => (
-          <label key={member.id} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+          <label key={member.id} className="flex items-center gap-1.5 cursor-pointer">
             <input
               type="checkbox"
               checked={selectedMembers.includes(member.id)}
               onChange={() => handleMemberToggle(member.id)}
+              className="accent-indigo-500 rounded"
             />
             {member.name}
           </label>
@@ -167,9 +173,9 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
       </div>
 
       {/* Recharts 그래프 렌더링 */}
-      <div style={{ width: "100%", height: 350 }}>
+      <div className="w-full h-[350px]">
         {selectedMembers.length === 0 ? (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+          <div className="flex justify-center items-center h-full text-sm font-bold text-gray-400">
             선택된 스터디 멤버가 없습니다.
           </div>
         ) : (
@@ -178,29 +184,36 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
               data={chartData}
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="planDate" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" opacity={0.2} />
+              <XAxis dataKey="planDate" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
               {/* 메인 데이터 Y축 */}
               <YAxis
+                stroke="#888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
                 label={{
                   value: selectedMetric === "focusTime" ? "집중 시간 (분)" : "이해도 점수",
                   angle: -90,
                   position: "insideLeft",
-                  style: { textAnchor: "middle" }
+                  style: { textAnchor: "middle", fill: "#888", fontSize: 12, fontWeight: "bold" }
                 }}
               />
               {/* 음영 처리를 위한 가상 Y축 */}
               <YAxis yAxisId="empty" hide domain={[0, 1]} />
               
-              <Tooltip />
-              <Legend />
+              <Tooltip 
+                contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                itemStyle={{ color: '#fff' }}
+              />
+              <Legend wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingTop: '20px' }} />
 
               {/* 배경 음영 처리를 위해 라인 뒤에 바 차트를 배치 */}
               <Bar
                 yAxisId="empty"
                 dataKey="emptyValue"
-                fill="#e5e7eb" // gray-200
-                opacity={0.5}
+                fill="#3f3f46" // zinc-700
+                opacity={0.2}
                 isAnimationActive={false}
                 legendType="none"
                 tooltipType="none"
@@ -216,7 +229,8 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
                     dataKey={`member_${memberId}`}
                     name={member ? member.name : `멤버 ${memberId}`}
                     stroke={color}
-                    activeDot={{ r: 8 }}
+                    strokeWidth={3}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
                     connectNulls={false} // 데이터가 없는 지점은 선을 끊음
                   />
                 );
@@ -225,6 +239,6 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
           </ResponsiveContainer>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

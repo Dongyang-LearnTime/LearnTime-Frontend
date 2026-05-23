@@ -51,5 +51,9 @@ export default function ProtectedRoute({ children, requiredRole, fallback }: Pro
         return <Navigate to="/" replace />;
     }
 
-    return <>{children}</>;
+    return (
+        <div className="min-h-screen bg-white dark:bg-[#050505] text-gray-900 dark:text-white transition-colors duration-500 font-sans selection:bg-indigo-500/30 flex flex-col">
+            {children}
+        </div>
+    );
 }

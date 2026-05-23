@@ -4,6 +4,7 @@ import { API_BASE_URL } from './apiClient';
 import { Route, Routes } from 'react-router-dom';
 import { routes } from './routes';
 import { useAuthStore } from '../store/useAuthStore';
+import { HomeFooter } from '../components/home/HomeFooter';
 
 function App() {
   const isAuthChecking = useAuthStore((state) => state.isAuthChecking);
@@ -50,18 +51,21 @@ function App() {
   }
 
   return (
-    <>
-      <Routes>
-        {routes.map((route) => (
-          <Route
-            key={route.path}
-            path={route.path}
-            // noLayout이 true인 라우트는 <main> 래퍼 없이 렌더링
-            element={(route as { path: string; element: React.ReactNode; noLayout?: boolean }).noLayout ? route.element : <main>{route.element}</main>}
-          />
-        ))}
-      </Routes>
-    </>
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-1">
+        <Routes>
+          {routes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              // noLayout이 true인 라우트는 <main> 래퍼 없이 렌더링
+              element={(route as { path: string; element: React.ReactNode; noLayout?: boolean }).noLayout ? route.element : <main>{route.element}</main>}
+            />
+          ))}
+        </Routes>
+      </div>
+      <HomeFooter />
+    </div>
   );
 }
 

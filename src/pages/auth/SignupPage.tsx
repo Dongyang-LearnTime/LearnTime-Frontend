@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, User, Lock, Check, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
+import { LayersIcon } from '../../components/ui/Icons';
 import axios from 'axios';
 
 import { usePageTitle } from '../../hooks/usePageTitle';
@@ -180,8 +181,11 @@ export default function SignupPage() {
         
         {/* 상단 헤더 섹션 */}
         <div className="text-center">
-          <Link to="/" className="inline-block group">
-            <h1 className="text-3xl sm:text-4xl font-extrabold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">Learn-Time</h1>
+          <Link to="/" className="inline-flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-gray-900 rounded-2xl flex items-center justify-center shadow-xl shadow-black/10 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <LayersIcon className="text-white" size={24} />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 uppercase group-hover:scale-105 transition-transform duration-300">Learn Time</h1>
           </Link>
           <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight flex items-center justify-center gap-2">
             회원가입 <Sparkles className="text-amber-400 w-5 h-5 sm:w-6 sm:h-6" />

@@ -1,4 +1,7 @@
 import type { StudyTotalInfoResponse } from "../../types/StudyTypes";
+import { Card, CardTitle } from "../../../../components/common/Card";
+import { ProgressBar } from "../../../../components/common/ProgressBar";
+import { TrendIcon } from "../../../../components/ui/Icons";
 
 interface CoreMetricsChartProps {
   data: StudyTotalInfoResponse;
@@ -34,51 +37,37 @@ export default function CoreMetricsChart({ data }: CoreMetricsChartProps) {
   ];
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: "16px", borderRadius: "8px" }}>
-      <h3>핵심 공부 지표</h3>
+    <Card className="h-full flex flex-col relative overflow-hidden group">
+      {/* 배경 장식 */}
+      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* 수치 게이지 바 리스트 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "20px" }}>
-        {gaugeItems.map((item) => {
-          // 백분율 제한 (0 ~ 100)
-          const clampedValue = Math.min(Math.max(item.value, 0), 100);
+      <CardTitle icon={<TrendIcon size={18} />}>핵심 지표</CardTitle>
 
-          return (
-            <div key={item.label}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                <span style={{ fontWeight: "bold" }}>{item.label}</span>
-                <span>{clampedValue}%</span>
-              </div>
-              {/* 게이지바 컨테이너 */}
-              <div
-                style={{
-                  width: "100%",
-                  backgroundColor: "#e5e7eb", // gray-200
-                  borderRadius: "9999px",
-                  height: "12px",
-                  overflow: "hidden",
-                }}
-              >
-                {/* 게이지 채우기 영역 */}
-                <div
-                  style={{
-                    width: `${clampedValue}%`,
-                    backgroundColor: "#2563eb", // blue-600
-                    height: "100%",
-                    transition: "width 0.3s ease-in-out",
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
+      <div className="flex-grow flex flex-col justify-center">
+        {/* 누적 집중 시간을 핵심 수치로 돋보이게 배치 */}
+        <div className="mb-8 text-center bg-gray-50 dark:bg-[#0a0a0a] rounded-2xl p-6 border border-gray-100 dark:border-[#1a1a1a]">
+          <span className="block text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-2">총 누적 집중 시간</span>
+          <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400 font-mono tracking-tighter drop-shadow-sm">
+            {formatFocusedTime(totalFocusedTime)}
+          </span>
+        </div>
+
+        <div className="space-y-6">
+          {gaugeItems.map((item) => {
+            const clampedValue = Math.min(Math.max(item.value, 0), 100);
+            return (
+              <ProgressBar 
+                key={item.label} 
+                name={item.label} 
+                progress={clampedValue} 
+                accentColor="bg-indigo-600" 
+                textColor="text-indigo-500" 
+                borderHover="hover:border-indigo-300" 
+              />
+            );
+          })}
+        </div>
       </div>
-
-      {/* 총 집중 시간 텍스트 출력 영역 */}
-      <div style={{ paddingTop: "12px", borderTop: "1px solid #eee" }}>
-        <span style={{ fontWeight: "bold", marginRight: "8px" }}>총 집중 시간:</span>
-        <span>{formatFocusedTime(totalFocusedTime)}</span>
-      </div>
-    </div>
+    </Card>
   );
 }
