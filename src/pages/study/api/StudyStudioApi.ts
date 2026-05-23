@@ -5,9 +5,11 @@ import type {
     StudyRecentWeekInfoResponse, 
     StudyTotalInfoResponse, 
     StudyMemberContentResponse,
+    StudyDailyPlanResponse,
     PlanCompleteRequest,
     StudyMemberResponse,
     StudyMemberFriendResponse } from "../types/StudyTypes";
+
 
 // 일일 공부 진도 정보
 export const getStudyPlanApi = async (studyId: string,  planDate: string): Promise<StudyPlanResponse> => {
@@ -39,12 +41,40 @@ export const getStudyRecentWeekInfoApi = async (studyId: string): Promise<StudyR
     return response.data
 };
 
-// 개인 일정 설정
-export const getStudyMemberContent = async (studyId: string): Promise<StudyMemberContentResponse[]> => {
-    const response = await axiosInstance.get<StudyMemberContentResponse[]>(
-        `/api/study/daily/${studyId}/content`
+// 스터디 일일 진도 내용 조회
+export const getStudyMemberContentApi = async (studyId: string, planDate: string): Promise<StudyMemberContentResponse> => {
+    const response = await axiosInstance.get<StudyMemberContentResponse>(
+        `/api/study/daily/${studyId}/content`,
+        { params: { planDate } }
     );
-    return response.data
+    return response.data;
+};
+
+// 스터디 일일 진도 내용 추가
+export const addStudyMemberContentApi = async (studyDailyPlanId: number, userContent: string): Promise<number> => {
+    const response = await axiosInstance.post<number>('/api/study/daily/content', { studyDailyPlanId, userContent });
+    return response.data;
+};
+
+// 스터디 일일 진도 내용 수정
+export const updateStudyMemberContentApi = async (studyMemberContentId: number, userContent: string): Promise<void> => {
+    await axiosInstance.patch(`/api/study/daily/content/${studyMemberContentId}`, { userContent });
+};
+
+// 스터디 일일 진도 내용 삭제
+export const deleteStudyMemberContentApi = async (studyMemberContentId: number): Promise<void> => {
+    await axiosInstance.delete(`/api/study/daily/content/${studyMemberContentId}`);
+};
+
+// 모든 일일 공부 진도 내용 조회
+export const getStudyDailyPlansApi = async (studyId: string): Promise<StudyDailyPlanResponse[]> => {
+    const response = await axiosInstance.get<StudyDailyPlanResponse[]>(`/api/study/daily/${studyId}/plan`);
+    return response.data;
+};
+
+// 공부 스터디 삭제
+export const deleteStudyApi = async (studyId: string): Promise<void> => {
+    await axiosInstance.delete(`/api/study/${studyId}`);
 };
 
 
@@ -71,14 +101,12 @@ export const getStudyOwnerFriendListApi = async(studyId: string) : Promise<Study
     return response.data;
 };
 
-interface StudyMemberRequestDTO {
-    studyId: number;
-    invitedUserId: number;
-}
-
 // 스터디 멤버 초대
-export const inviteStudyMemberApi = async (request: StudyMemberRequestDTO): Promise<number> => {
-    const response = await axiosInstance.post<number>('/api/study/member/request', request);
+export const inviteStudyMemberApi = async (studyId: number, invitedUserId: number): Promise<number> => {
+    const response = await axiosInstance.post<number>('/api/study/member/request', {
+        studyId,
+        invitedUserId
+    });
     return response.data;
 };
 

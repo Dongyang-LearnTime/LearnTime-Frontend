@@ -137,7 +137,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
                       {/* 스터디 이름 버튼 (클릭 시 해당 스터디 페이지 이동) */}
                       <button
                         onClick={() => {
-                          navigate(`/study/${study.studyId}`);
+                          navigate(`/study/${study.studyId}?title=${encodeURIComponent(study.studyTitle)}`);
                           // 사이드바가 접혀있어도 해당 스터디를 펼침
                           if (!isExpanded) return;
                           setOpenStudyIds((prev) => new Set(prev).add(study.studyId));

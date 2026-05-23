@@ -71,7 +71,7 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
         {/* 오늘의 진도 (60% 너비) */}
         <section className="lg:col-span-6 min-h-100">
-          <TodayProgressBox />
+          <TodayProgressBox studyId={studyId} />
         </section>
 
         {/* 스튜디오 타이머 (40% 너비) */}

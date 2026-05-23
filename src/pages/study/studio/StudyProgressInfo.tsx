@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { getStudyPlanApi, startStudyDailyPlanApi } from "../api/StudyStudioApi";
-import type { StudyPlanResponse } from "../types/StudyTypes";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { getStudyPlanApi, startStudyDailyPlanApi, getStudyDailyPlansApi, deleteStudyApi, getStudyMemberListApi } from "../api/StudyStudioApi";
+import { getMyStudyProgresses } from "../api/StudyApi";
+import type { StudyPlanResponse, StudyDailyPlanResponse } from "../types/StudyTypes";
 import DailyProgress from "./components/DailyProgress";
 import BaseModal from "../../../components/common/BaseModal";
 import PlanCompletionForm from "./components/PlanCompletionForm";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import { Card, CardTitle } from "../../../components/common/Card";
-import { BookIcon } from "../../../components/ui/Icons";
+import { BookIcon, TrashIcon } from "../../../components/ui/Icons";
+import { useAuthStore } from "../../../store/useAuthStore";
 
 interface StudyProgressInfoProps {
   studyId: string;
@@ -34,6 +36,31 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 모든 진도 및 방장 여부 조회용 상태
+  const userId = useAuthStore((state) => state.userId);
+  const navigate = useNavigate();
+  const [allPlans, setAllPlans] = useState<StudyDailyPlanResponse[]>([]);
+  const [isOwner, setIsOwner] = useState(false);
+  const [studyTitle, setStudyTitle] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // 모든 진도 목록 및 스터디 정보 조회
+  useEffect(() => {
+    Promise.all([
+      getStudyDailyPlansApi(studyId),
+      getStudyMemberListApi(studyId),
+      getMyStudyProgresses()
+    ]).then(([plansData, membersData, progressesData]) => {
+      setAllPlans(plansData);
+      const owner = membersData.some(m => Number(m.userId) === Number(userId) && m.studyMemberRole === "OWNER");
+      setIsOwner(owner);
+      const title = progressesData.find(p => Number(p.studyId) === Number(studyId))?.studyTitle || "스터디 제목";
+      setStudyTitle(title);
+    }).catch(err => console.error("Failed to fetch additional study info:", err));
+  }, [studyId, userId]);
 
   // planDate 변경에 따른 API 호출
   useEffect(() => {
@@ -89,6 +116,19 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
 
   const handleCompleteSuccess = () => {
     setProgressData((prev) => prev ? { ...prev, progressStatus: "COMPLETED" } : null);
+  };
+
+  const handleDeleteStudy = async () => {
+    if (deleteConfirmText !== studyTitle) return;
+    setIsDeleting(true);
+    try {
+      await deleteStudyApi(studyId);
+      alert("스터디가 성공적으로 삭제되었습니다.");
+      navigate("/main"); // 삭제 후 메인 화면으로 이동
+    } catch (err) {
+      alert(getApiErrorUtil(err) || "스터디 삭제에 실패했습니다.");
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -181,7 +221,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
                 {progressData.progressStatus === "COMPLETED" && (
                   <div className="px-8 py-3 bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-[#222] text-gray-400 font-black rounded-2xl flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                    모든 진도 완료됨
+                    진도 완료됨
                   </div>
                 )}
               </div>
@@ -208,6 +248,109 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
           />
         </BaseModal>
       )}
+
+      {/* 모든 일일 공부 진도 목록 (14~90개) */}
+      <div className="mt-8 pt-8 border-t border-gray-100 dark:border-[#1a1a1a]">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <BookIcon size={16} />
+            모든 진도 목록 ({allPlans.length}개)
+          </h3>
+          
+          {/* 방장일 때만 스터디 삭제 버튼 표시 (하단으로 이동됨) */}
+        </div>
+
+        {allPlans.length > 0 ? (
+          <div className="max-h-64 overflow-y-auto custom-scrollbar bg-gray-50/50 dark:bg-[#050505] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl p-4 space-y-2">
+            {allPlans.map((plan) => (
+              <div 
+                key={plan.studyDailyPlanId} 
+                onClick={() => setSearchParams({ date: plan.planDate })}
+                className={`p-3 rounded-xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                  plan.planDate === planDate 
+                    ? "bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800" 
+                    : "bg-white border-gray-100 dark:bg-[#0a0a0a] dark:border-[#1f1f1f] hover:border-indigo-200 dark:hover:border-indigo-800"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black ${
+                    plan.planDate === planDate ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 dark:bg-[#1a1a1a] dark:text-gray-400"
+                  }`}>
+                    {plan.dayNumber}일차
+                  </div>
+                  <span className={`text-sm font-bold truncate max-w-50 sm:max-w-md ${
+                    plan.planDate === planDate ? "text-indigo-900 dark:text-indigo-200" : "text-gray-700 dark:text-gray-300"
+                  }`}>
+                    {plan.planContent}
+                  </span>
+                </div>
+                <span className="text-xs font-medium text-gray-400 shrink-0">
+                  {plan.planDate}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 bg-gray-50 dark:bg-[#0a0a0a] rounded-2xl">
+            <p className="text-sm font-bold text-gray-400">진도 목록이 없습니다.</p>
+          </div>
+        )}
+
+        {/* 방장일 때만 스터디 삭제 버튼 표시 (하단 배치, 크기 증가) */}
+        {isOwner && (
+          <div className="flex justify-end mt-10">
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-black text-rose-500 hover:text-white bg-rose-50 hover:bg-rose-500 dark:bg-rose-950/30 dark:hover:bg-rose-600 rounded-xl transition-colors shadow-sm"
+            >
+              <TrashIcon size={16} /> 스터디 삭제
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 스터디 삭제 모달 (AWS EC2 방식) */}
+      <BaseModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => !isDeleting && setIsDeleteModalOpen(false)}
+        showCloseButton={!isDeleting}
+      >
+        <div className="p-6">
+          <h3 className="text-xl font-black text-rose-600 dark:text-rose-500 mb-2 flex items-center gap-2">
+            <TrashIcon size={20} />
+            스터디 영구 삭제
+          </h3>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-6">
+            삭제된 스터디는 복구할 수 없습니다. 정말 삭제하시려면 아래 입력창에 스터디 제목 <strong className="text-gray-900 dark:text-white px-1.5 py-0.5 bg-gray-100 dark:bg-[#222] rounded select-all">{studyTitle}</strong> 을 정확히 입력하세요.
+          </p>
+
+          <input
+            type="text"
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+            placeholder="스터디 제목을 입력하세요"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-xl text-sm font-bold focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all dark:text-white mb-6"
+            autoComplete="off"
+          />
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              disabled={isDeleting}
+              className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-[#1a1a1a] dark:hover:bg-[#222] text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors disabled:opacity-50"
+            >
+              취소
+            </button>
+            <button
+              onClick={handleDeleteStudy}
+              disabled={deleteConfirmText !== studyTitle || isDeleting}
+              className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-rose-500/20"
+            >
+              {isDeleting ? "삭제 중..." : "영구 삭제"}
+            </button>
+          </div>
+        </div>
+      </BaseModal>
     </Card>
   );
 }

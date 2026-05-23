@@ -19,6 +19,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [friends, setFriends] = useState<StudyMemberFriendResponse[]>([]);
   const [isFriendsLoading, setIsFriendsLoading] = useState(false);
+  const [friendSearchTerm, setFriendSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -53,10 +54,10 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
   const handleInvite = async (friendUserId: number) => {
     try {
-      await inviteStudyMemberApi({
-        studyId: Number(studyId),
-        invitedUserId: friendUserId
-      });
+      await inviteStudyMemberApi(
+          Number(studyId),
+          friendUserId
+      );
       alert("초대 요청을 보냈습니다.");
       setIsInviteModalOpen(false);
     } catch (err) {
@@ -170,6 +171,20 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
               </button>
             </div>
 
+            {/* 친구 이름 검색창 */}
+            <div className="mb-4 relative">
+              <input 
+                type="text" 
+                value={friendSearchTerm}
+                onChange={(e) => setFriendSearchTerm(e.target.value)}
+                placeholder="친구 이름 검색..."
+                className="w-full px-4 py-3 pl-10 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-[#111] transition-all dark:text-white"
+              />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              </div>
+            </div>
+
             {isFriendsLoading ? (
               <div className="py-12 flex flex-col items-center justify-center gap-3">
                 <div className="w-8 h-8 border-4 border-indigo-100 border-t-indigo-500 dark:border-indigo-900 dark:border-t-indigo-400 rounded-full animate-spin"></div>
@@ -184,7 +199,9 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
               </div>
             ) : (
               <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
-                {friends.map(friend => {
+                {friends
+                  .filter((friend) => friend.name.toLowerCase().includes(friendSearchTerm.toLowerCase()))
+                  .map(friend => {
                   const isAlreadyMember = members.some(m => m.userId === friend.userId && m.status === "ACTIVE");
                   const isInvited = friend.isInvited;
                   const disableInvite = isAlreadyMember || isInvited;

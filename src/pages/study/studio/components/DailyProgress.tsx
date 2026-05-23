@@ -21,6 +21,16 @@ const COMPLETION_STATUS_LABEL: Record<string, string> = {
   FAILURE: "실패",
 };
 
+const DAY_MAP: Record<string, string> = {
+  MONDAY: "월요일",
+  TUESDAY: "화요일",
+  WEDNESDAY: "수요일",
+  THURSDAY: "목요일",
+  FRIDAY: "금요일",
+  SATURDAY: "토요일",
+  SUNDAY: "일요일"
+};
+
 function InfoRow({ label, children }: InfoRowProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-start py-4 border-b border-gray-100 dark:border-[#1a1a1a] last:border-0 gap-2 sm:gap-6">
@@ -61,7 +71,7 @@ export default function DailyProgress({ data }: DailyProgressProps) {
 
         {(restDays.length > 0 || restDates.length > 0) && (
           <InfoRow label="휴무 정보">
-            {restDays.length > 0 && <div className="mb-1">휴무 요일: <span className="text-indigo-500">{restDays.join(", ")}</span></div>}
+            {restDays.length > 0 && <div className="mb-1">휴무 요일: <span className="text-indigo-500">{restDays.map(d => DAY_MAP[d] || d).join(", ")}</span></div>}
             {restDates.length > 0 && <div>휴무 날짜: <span className="text-rose-500">{restDates.join(", ")}</span></div>}
           </InfoRow>
         )}

@@ -1,5 +1,13 @@
 import type { ProgressStatus, CompletionStatus, StudyMemberRole, StudyMemberStatus } from "../../../types/StudyEnums";
 
+// 모든 일일 공부 진도 내용 응답
+export interface StudyDailyPlanResponse {
+  studyDailyPlanId: number;
+  dayNumber: number;
+  planDate: string;
+  planContent: string;
+}
+
 // 일일 공부 일정 타입
 export interface StudyPlanResponse {
   planDate: string;             // 조회 기준일 (YYYY-MM-DD)
@@ -41,12 +49,14 @@ export interface StudyTotalInfoResponse {
   totalFocusedTime: number;    // 총 집중 시간 (단위: 초)
 }
 
-// 사용자의 추가 진도 내용
+// 사용자의 추가 진도 내용 (응답)
 export interface StudyMemberContentResponse {
-  studyMemberContentId: number; // 스터디 멤버 작성 내용 ID
-  studyDailyPlanId: number;     // 일일 계획 ID
-  dayNumber: number;            // 학습 일차
-  memberContent: string;        // 작성한 공부 내용
+  studyDailyPlanId: number | null; // 일일 계획 ID
+  planContent: string | null;      // 일일 진도 내용
+  memberContents: {
+    studyMemberContentId: number;  // 스터디 멤버 작성 내용 ID
+    memberContent: string;         // 작성한 공부 내용
+  }[];
 }
 
 // 일일 진도 완료 요청
