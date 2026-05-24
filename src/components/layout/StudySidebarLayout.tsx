@@ -184,6 +184,14 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
                           <BrainIcon size={13} className="shrink-0" />
                           퀴즈 기록
                         </button>
+                        {/* AI 피드백 기록 */}
+                        <button
+                          onClick={() => navigate(`/study/feedback/list/${study.studyId}`)}
+                          className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-xs font-bold text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer"
+                        >
+                          <BrainIcon size={13} className="shrink-0" />
+                          AI 피드백 기록
+                        </button>
                       </div>
                     )}
                   </div>

@@ -107,10 +107,10 @@ export function NotesEditor({
   };
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-8 font-sans">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 font-sans">
+      <div className="space-y-6">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 bg-white">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111] transition-colors duration-300">
           <div className="flex flex-col gap-3 w-full">
             <div className="flex items-center gap-5 w-full">
               <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
@@ -129,14 +129,14 @@ export function NotesEditor({
                     }
                   }}
                   maxLength={100}
-                  className="text-2xl sm:text-3xl font-bold text-slate-800 bg-transparent border-none outline-none focus:ring-2 focus:ring-indigo-100 rounded-lg px-2 -ml-2 w-full transition-all"
+                  className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 bg-transparent border-none outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 rounded-lg px-2 -ml-2 w-full transition-all"
                   placeholder="노트 제목을 입력하세요"
                 />
               </div>
             </div>
 
             {notesError && (
-              <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-red-50 border border-red-100 text-red-600 animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-red-50 border border-red-100 text-red-600">
                 <AlertCircle size={15} className="shrink-0" />
                 <p className="text-xs sm:text-sm font-medium">{notesError}</p>
               </div>
@@ -153,10 +153,10 @@ export function NotesEditor({
         </div>
 
         {/* Editor Section */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col relative transition-all duration-200 focus-within:border-indigo-300 focus-within:shadow-md focus-within:shadow-indigo-100/50">
+        <div className="bg-white dark:bg-[#111] rounded-3xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col relative transition-all duration-300 focus-within:border-indigo-400 focus-within:shadow-md focus-within:shadow-indigo-100/50 dark:focus-within:shadow-indigo-900/30">
           <MenuBar editor={editor!} />
 
-          <div className="relative grow bg-white">
+          <div className="relative grow bg-white dark:bg-[#111]">
             {!isFocused && isEmpty && (
               <div className="absolute top-8 left-8 sm:left-12 text-slate-400 pointer-events-none text-[1.05rem]">
                 여기에 오늘 학습한 내용을 자유롭게 작성해보세요...
@@ -171,7 +171,7 @@ export function NotesEditor({
           </div>
 
           {/* Keyboard Shortcuts Hint */}
-          <div className="bg-slate-50 border-t border-slate-100 p-4 text-sm text-slate-500 flex flex-wrap gap-x-6 gap-y-2 justify-center sm:justify-start">
+          <div className="bg-gray-50 dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-x-6 gap-y-2 justify-center sm:justify-start transition-colors duration-300">
             <div className="flex items-center gap-1.5">
               <Command size={14} className="text-slate-400" />
               <span>단축키 안내</span>
@@ -179,7 +179,7 @@ export function NotesEditor({
             <div className="flex gap-4 flex-wrap">
               {SHORTCUT_GUIDE.map((item) => (
                 <span key={item.keys}>
-                  <kbd className="font-sans px-1.5 py-0.5 bg-white border border-slate-200 rounded text-xs text-slate-600 shadow-sm">
+                  <kbd className="font-sans px-1.5 py-0.5 bg-white dark:bg-[#222] border border-gray-200 dark:border-gray-700 rounded text-xs text-gray-600 dark:text-gray-300 shadow-sm transition-colors duration-300">
                     {item.keys}
                   </kbd>{' '}
                   {item.label}

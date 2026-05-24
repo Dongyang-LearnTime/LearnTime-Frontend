@@ -18,15 +18,21 @@ export default function StudyRedirector() {
       const plansToday = progresses.filter(p => p.hasTodayPlan);
       
       let targetId: number;
+      let targetTitle: string = '';
+      
       if (plansToday.length > 0) {
-        // hasTodayPlan이 있는 것들 중 가장 큰 id
-        targetId = Math.max(...plansToday.map(p => p.studyId));
+        // hasTodayPlan이 있는 것들 중 가장 큰 id를 가진 스터디 탐색
+        const target = plansToday.reduce((prev, current) => (prev.studyId > current.studyId) ? prev : current);
+        targetId = target.studyId;
+        targetTitle = target.studyTitle;
       } else {
-        // hasTodayPlan이 없으면 전체 중 가장 큰 id
-        targetId = Math.max(...progresses.map(p => p.studyId));
+        // hasTodayPlan이 없으면 전체 중 가장 큰 id를 가진 스터디 탐색
+        const target = progresses.reduce((prev, current) => (prev.studyId > current.studyId) ? prev : current);
+        targetId = target.studyId;
+        targetTitle = target.studyTitle;
       }
       
-      navigate(`/study/${targetId}`, { replace: true });
+      navigate(`/study/${targetId}?title=${encodeURIComponent(targetTitle)}`, { replace: true });
     } else if (progresses.length === 0 && !isLoading) {
       // 목록이 비어있으면 Empty 화면으로 이동
       navigate('/study/empty', { replace: true });

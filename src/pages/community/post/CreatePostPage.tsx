@@ -76,13 +76,13 @@ export default function CreatePostPage() {
 
     return (
         <div className="max-w-2xl mx-auto p-4 mt-8">
-            <h1 className="text-2xl font-bold mb-6">새 게시글 작성</h1>
+            <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">새 게시글 작성</h1>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 {/* 제목 입력 */}
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="title" className="font-semibold">
-                        제목 <span className="text-sm font-normal text-gray-500">({title.length}/{MAX_TITLE_LENGTH})</span>
+                    <label htmlFor="title" className="font-semibold text-gray-900 dark:text-gray-200">
+                        제목 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">({title.length}/{MAX_TITLE_LENGTH})</span>
                     </label>
                     <input
                         id="title"
@@ -91,15 +91,15 @@ export default function CreatePostPage() {
                         onChange={(e) => setTitle(e.target.value)}
                         maxLength={MAX_TITLE_LENGTH}
                         placeholder="제목을 입력하세요"
-                        className="border border-gray-300 rounded-md p-2 focus:outline-none focus:border-blue-500"
+                        className="border border-gray-300 dark:border-[#333] bg-white dark:bg-[#111] text-gray-900 dark:text-white rounded-md p-2 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                         required
                     />
                 </div>
 
                 {/* 내용 입력 */}
                 <div className="flex flex-col gap-2">
-                    <label htmlFor="content" className="font-semibold">
-                        내용 <span className="text-sm font-normal text-gray-500">({content.length}/{MAX_CONTENT_LENGTH})</span>
+                    <label htmlFor="content" className="font-semibold text-gray-900 dark:text-gray-200">
+                        내용 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">({content.length}/{MAX_CONTENT_LENGTH})</span>
                     </label>
                     <textarea
                         id="content"
@@ -107,22 +107,22 @@ export default function CreatePostPage() {
                         onChange={(e) => setContent(e.target.value)}
                         maxLength={MAX_CONTENT_LENGTH}
                         placeholder="게시글 내용을 입력하세요"
-                        className="border border-gray-300 rounded-md p-2 h-40 resize-y focus:outline-none focus:border-blue-500"
+                        className="border border-gray-300 dark:border-[#333] bg-white dark:bg-[#111] text-gray-900 dark:text-white rounded-md p-2 h-40 resize-y focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
                         required
                     />
                 </div>
 
                 {/* 이미지 업로드 */}
                 <div className="flex flex-col gap-2">
-                    <label className="font-semibold">
-                        이미지 첨부 <span className="text-sm font-normal text-gray-500">({images.length}/{MAX_IMAGES_COUNT})</span>
+                    <label className="font-semibold text-gray-900 dark:text-gray-200">
+                        이미지 첨부 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">({images.length}/{MAX_IMAGES_COUNT})</span>
                     </label>
                     <input
                         type="file"
                         accept="image/*"
                         multiple
                         onChange={handleImageChange}
-                        className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                        className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900/20 file:text-blue-700 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/40 text-gray-700 dark:text-gray-300 cursor-pointer"
                         disabled={images.length >= MAX_IMAGES_COUNT}
                     />
 
@@ -130,12 +130,12 @@ export default function CreatePostPage() {
                     {images.length > 0 && (
                         <ul className="mt-2 flex flex-col gap-1">
                             {images.map((img, idx) => (
-                                <li key={idx} className="flex items-center justify-between bg-gray-50 p-2 rounded-md text-sm">
+                                <li key={idx} className="flex items-center justify-between bg-gray-50 dark:bg-[#1a1a1a] p-2 rounded-md text-sm text-gray-900 dark:text-white">
                                     <span className="truncate">{img.name}</span>
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveImage(idx)}
-                                        className="text-red-500 hover:text-red-700 ml-4 shrink-0"
+                                        className="text-red-500 dark:text-rose-400 hover:text-red-700 dark:hover:text-rose-300 ml-4 shrink-0"
                                     >
                                         삭제
                                     </button>

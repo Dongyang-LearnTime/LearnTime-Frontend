@@ -8,11 +8,11 @@ import StudyStudioPage from "../pages/study/studio/StudyStudioPage";
 import StudyInvitationPage from "../pages/study/invitation/StudyInvitationPage";
 import CreateStudyPage from "../pages/study/create/CreateStudyPage";
 import NotesWritePage from "../pages/study/notes/NotesWritePage";
+import StudyNotesListPage from "../pages/study/notes/StudyNotesListPage";
 import NotesEditPage from "../pages/study/notes/NotesEditPage";
 import NotesDetailPage from "../pages/study/notes/NotesDetailPage";
 import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
 import QuizResultPage from "../pages/study/quiz/QuizResultPage";
-import NotesListPage from "../pages/study/notes/NotesListPage";
 import QuizHistoryListPage from "../pages/study/quiz/QuizHistoryListPage";
 import CreatePostPage from "../pages/community/post/CreatePostPage";
 import FriendRequestPage from "../pages/community/friend/FriendRequestPage";
@@ -23,6 +23,8 @@ import { StudySidebarLayout } from "../components/layout/StudySidebarLayout";
 import StudyRedirector from "../pages/study/studio/StudyRedirector";
 import StudyEmptyPage from "../pages/study/studio/StudyEmptyPage";
 import UnderConstructionPage from "../pages/UnderConstructionPage";
+import StudyQuizListPage from "../pages/study/quiz/StudyQuizListPage";
+import StudyFeedbackListPage from "../pages/study/feedback/StudyFeedbackListPage";
 
 export const routes = [
   {
@@ -135,7 +137,7 @@ export const routes = [
       <ProtectedRoute>
         <MainHeader />
         <StudySidebarLayout>
-          <NotesListPage />
+          <StudyNotesListPage />
         </StudySidebarLayout>
       </ProtectedRoute>
     )
@@ -185,12 +187,34 @@ export const routes = [
     )
   },
   {
-    path: "/study/quiz/list/:studyId",
+    path: "/study/quiz/history/list/:studyQuizId",
     element: (
       <ProtectedRoute>
         <MainHeader />
         <StudySidebarLayout>
           <QuizHistoryListPage />
+        </StudySidebarLayout>
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/study/quiz/list/:studyId",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <StudySidebarLayout>
+          <StudyQuizListPage />
+        </StudySidebarLayout>
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/study/feedback/list/:studyId",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <StudySidebarLayout>
+          <StudyFeedbackListPage />
         </StudySidebarLayout>
       </ProtectedRoute>
     )

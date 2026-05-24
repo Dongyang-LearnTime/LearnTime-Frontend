@@ -46,8 +46,24 @@ function App() {
       silentRefresh();
     }, [setAccessToken, setAuthChecking]);
 
+  useEffect(() => {
+    // 5초 후에는 무조건 로딩 해제 (무한 로딩 방지)
+    const timeoutId = setTimeout(() => {
+      setAuthChecking(false);
+    }, 5000);
+
+    return () => clearTimeout(timeoutId);
+  }, [setAuthChecking]);
+
   if (isAuthChecking) {
-    return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>;
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-gray-50 dark:bg-[#050505]">
+        <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500">
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+          <p className="text-gray-500 font-medium tracking-wide animate-pulse">인증 정보를 확인 중입니다...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

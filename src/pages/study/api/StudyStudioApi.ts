@@ -8,7 +8,9 @@ import type {
     StudyDailyPlanResponse,
     PlanCompleteRequest,
     StudyMemberResponse,
-    StudyMemberFriendResponse } from "../types/StudyTypes";
+    StudyMemberFriendResponse,
+    UpdateStudyTitleRequest 
+} from "../types/StudyTypes";
 
 
 // 일일 공부 진도 정보
@@ -77,6 +79,15 @@ export const deleteStudyApi = async (studyId: string): Promise<void> => {
     await axiosInstance.delete(`/api/study/${studyId}`);
 };
 
+// 스터디 진도 제목 수정
+export const updateStudyTitleApi = async (request: UpdateStudyTitleRequest): Promise<void> => {
+    await axiosInstance.patch('/api/study/title', request);
+};
+
+// 스터디 책 제목 수정
+export const updateStudyBookTitleApi = async (request: UpdateStudyTitleRequest): Promise<void> => {
+    await axiosInstance.patch('/api/study/book-title', request);
+};
 
 // 일일 진도 시작
 export const startStudyDailyPlanApi = async (studyDailyPlanId: number): Promise<void> => {
@@ -108,5 +119,13 @@ export const inviteStudyMemberApi = async (studyId: number, invitedUserId: numbe
         invitedUserId
     });
     return response.data;
+};
+
+// 스터디 방장 권한 이양
+export const changeStudyOwnerApi = async (studyId: number, newOwnerMemberId: number): Promise<void> => {
+    await axiosInstance.patch('/api/study/member/owner', {
+        studyId,
+        newOwnerMemberId
+    });
 };
 

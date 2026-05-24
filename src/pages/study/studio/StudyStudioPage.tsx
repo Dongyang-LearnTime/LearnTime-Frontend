@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { generateStudyFeedback } from "../api/StudyFeedbackApi";
 import StudyLearningMetrics from "./StudyLearningMetrics";
 import StudyProgressInfo from "./StudyProgressInfo";
 import StudyMemberList from "./StudyMemberList";
@@ -11,6 +12,22 @@ export default function StudyStudioPage() {
   const [searchParams] = useSearchParams();
   const studyTitle = searchParams.get("title");
   const [ activeTab, setActiveTab ] = useState<"metrics" | "progress" | "members">("metrics");
+  const [ isGeneratingFeedback, setIsGeneratingFeedback ] = useState(false);
+
+  const handleGenerateFeedback = async () => {
+    if (!studyId) return;
+    try {
+      setIsGeneratingFeedback(true);
+      await generateStudyFeedback(Number(studyId));
+      alert("AI 진도 분석(피드백) 생성이 완료되었습니다.");
+      navigate(`/study/feedback/list/${studyId}`);
+    } catch (error) {
+      console.error(error);
+      alert("AI 진도 분석 생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsGeneratingFeedback(false);
+    }
+  };
 
   if (!studyId) {
     return <div style={{ padding: "16px" }}>스터디 ID가 유효하지 않습니다.</div>;
@@ -32,10 +49,20 @@ export default function StudyStudioPage() {
         <div className="flex items-center gap-3">
           {/* AI 진도 분석 버튼 */}
           <button
-            onClick={() => navigate('/main/settings')} // TODO: AI 분석 페이지 라우트로 교체
-            className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-indigo-200/50 dark:shadow-indigo-900/30 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            onClick={handleGenerateFeedback}
+            disabled={isGeneratingFeedback}
+            className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-indigo-200/50 dark:shadow-indigo-900/30 ${isGeneratingFeedback ? 'opacity-70 cursor-wait' : 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]'}`}
           >
-            <SparklesIcon size={16} /> AI 진도 분석
+            {isGeneratingFeedback ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                분석 중...
+              </>
+            ) : (
+              <>
+                <SparklesIcon size={16} /> AI 진도 분석
+              </>
+            )}
           </button>
           {/* 진도 추가 버튼 */}
           <button

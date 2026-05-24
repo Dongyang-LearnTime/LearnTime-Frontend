@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getStudyMemberListApi, getStudyOwnerFriendListApi, inviteStudyMemberApi } from "../api/StudyStudioApi";
+import { getStudyMemberListApi, getStudyOwnerFriendListApi, inviteStudyMemberApi, changeStudyOwnerApi } from "../api/StudyStudioApi";
 import type { StudyMemberResponse, StudyMemberFriendResponse } from "../types/StudyTypes";
 import { Card, CardTitle } from "../../../components/common/Card";
 import { UsersIcon, PlusIcon, XIcon } from "../../../components/ui/Icons";
@@ -38,6 +38,21 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
     fetchMembers();
   }, [studyId]);
+
+  const handleChangeOwner = async (newOwnerMemberId: number, newOwnerName: string) => {
+    if (!window.confirm(`${newOwnerName} 님에게 방장 권한을 위임하시겠습니까?`)) {
+      return;
+    }
+    
+    try {
+      await changeStudyOwnerApi(Number(studyId), newOwnerMemberId);
+      alert("방장 권한이 성공적으로 위임되었습니다.");
+      window.location.reload(); // 권한 재적용을 위해 새로고침
+    } catch (err) {
+      const errorMsg = getApiErrorUtil(err) || "방장 권한 위임 중 오류가 발생했습니다.";
+      alert(errorMsg);
+    }
+  };
 
   const handleOpenInviteModal = async () => {
     setIsInviteModalOpen(true);
@@ -143,15 +158,26 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
-                    <span className={`flex items-center gap-1 ${
-                      member.status === "ACTIVE" ? "text-emerald-500" : "text-rose-500"
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE" ? "bg-emerald-500" : "bg-rose-500"}`} />
-                      {member.status === "ACTIVE" ? "활동 중" : "탈퇴"}
-                    </span>
-                    <span className="text-gray-300 dark:text-gray-700">•</span>
-                    <span>{new Date(member.joinedAt).toLocaleDateString()} 가입</span>
+                  <div className="flex items-center justify-between gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`flex items-center gap-1 ${
+                        member.status === "ACTIVE" ? "text-emerald-500" : "text-rose-500"
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE" ? "bg-emerald-500" : "bg-rose-500"}`} />
+                        {member.status === "ACTIVE" ? "활동 중" : "탈퇴"}
+                      </span>
+                      <span className="text-gray-300 dark:text-gray-700">•</span>
+                      <span>{new Date(member.joinedAt).toLocaleDateString()} 가입</span>
+                    </div>
+                    {/* 방장일 때만 다른 사용자에게 방장 위임 버튼 표시 */}
+                    {isOwner && Number(member.userId) !== Number(userId) && member.status === "ACTIVE" && (
+                      <button
+                        onClick={() => handleChangeOwner(member.userId, member.userName)}
+                        className="opacity-100 sm:opacity-0 sm:group-hover/card:opacity-100 px-2 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-md hover:bg-indigo-100 transition-all cursor-pointer shrink-0"
+                      >
+                        방장 위임
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

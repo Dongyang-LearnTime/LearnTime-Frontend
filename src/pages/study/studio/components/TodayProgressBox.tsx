@@ -22,11 +22,6 @@ const getTodayString = (): string => {
 };
 
 export function TodayProgressBox({ studyId }: TodayProgressBoxProps) {
-  // --------------------------------------------------------------------------------
-  // TODO: 추후 getStudyMemberContent API와 연동하여 사용자의 오늘의 진도를 불러와야 함
-  // --------------------------------------------------------------------------------
-
-  // 공부 일정 리스트 (기존 StudyMemberContent 로직)
   const [schedules, setSchedules] = useState<StudyScheduleItem[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);

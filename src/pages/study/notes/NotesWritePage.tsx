@@ -19,7 +19,6 @@ export default function NotesWritePage() {
         content,
       };
       const noteId = await submitStudyNotesApi(dataToSave);
-      alert('저장 완료');
       navigate(`/study/notes/${noteId}`);
     } catch (error: unknown) {
       throw new Error(getApiErrorUtil(error)); // NotesEditor에 예외 던짐 -> 에러메세지 출력

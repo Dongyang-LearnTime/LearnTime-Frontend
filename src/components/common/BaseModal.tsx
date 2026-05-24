@@ -26,7 +26,7 @@ export default function BaseModal({
       id="base-modal-backdrop"
     >
       <div
-        className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative"
+        className="bg-white dark:bg-[#111] dark:border dark:border-[#222] rounded-xl shadow-xl w-full max-w-sm p-6 relative"
         onClick={(e) => e.stopPropagation()}
         id="base-modal-content"
       >

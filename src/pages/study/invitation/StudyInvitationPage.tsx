@@ -74,17 +74,17 @@ export default function StudyInvitationPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 mt-8">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800">스터디 초대 관리</h1>
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 min-h-[80vh]">
+            <h1 className="text-2xl font-black tracking-tight mb-8 text-gray-900 dark:text-white">스터디 초대 관리</h1>
 
             {/* 탭 네비게이션 */}
-            <div className="flex border-b border-gray-200 mb-6">
+            <div className="flex border-b border-gray-200 dark:border-[#1a1a1a] mb-6">
                 <button
                     onClick={() => handleTabClick('received')}
                     className={`py-3 px-6 text-lg font-medium transition-colors ${
                         currentTab === 'received' 
-                        ? 'text-blue-600 border-b-2 border-blue-600' 
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}
                 >
                     받은 초대
@@ -93,8 +93,8 @@ export default function StudyInvitationPage() {
                     onClick={() => handleTabClick('sent')}
                     className={`py-3 px-6 text-lg font-medium transition-colors ${
                         currentTab === 'sent' 
-                        ? 'text-blue-600 border-b-2 border-blue-600' 
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }`}
                 >
                     보낸 초대
@@ -103,14 +103,14 @@ export default function StudyInvitationPage() {
 
             {/* 에러 메시지 */}
             {error && (
-                <div className="text-red-500 text-center mt-4 bg-red-50 p-4 rounded-md border border-red-100">
+                <div className="text-red-500 text-center mt-4 bg-red-50 dark:bg-red-950/20 p-4 rounded-md border border-red-100 dark:border-red-900/40">
                     {error}
                 </div>
             )}
 
             {/* 로딩 중 */}
             {isLoading && !error && (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                     로딩 중...
                 </div>
             )}
@@ -119,7 +119,7 @@ export default function StudyInvitationPage() {
             {!isLoading && !error && (
                 <div className="flex flex-col gap-4">
                     {invitations.length === 0 ? (
-                        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-100 text-gray-500">
+                        <div className="text-center py-12 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-100 dark:border-[#1a1a1a] text-gray-500 dark:text-gray-400">
                             {currentTab === 'received' 
                                 ? '대기 중인 받은 스터디 초대가 없습니다.' 
                                 : '대기 중인 보낸 스터디 초대가 없습니다.'}

@@ -10,6 +10,8 @@ export interface StudyDailyPlanResponse {
 
 // 일일 공부 일정 타입
 export interface StudyPlanResponse {
+  studyTitle : string;
+  bookTitle : string;
   planDate: string;             // 조회 기준일 (YYYY-MM-DD)
   startDate: string;            // 스터디 시작일 (YYYY-MM-DD)
   endDate: string;              // 스터디 종료일 (YYYY-MM-DD)
@@ -85,4 +87,10 @@ export interface StudyMemberFriendResponse {
   email: string;
   createdAt: string;
   isInvited: boolean; // 공부 초대 여부
+}
+
+// 스터디 제목 및 책 제목 수정 요청 
+export interface UpdateStudyTitleRequest {
+  studyId: number;
+  title: string;
 }

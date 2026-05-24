@@ -1,7 +1,11 @@
 import type { StudyPlanResponse } from "../../types/StudyTypes";
 
+import { EditIcon } from "lucide-react";
+
 interface DailyProgressProps {
   data: StudyPlanResponse;
+  isOwner?: boolean;
+  onEditTitle?: (type: "title" | "bookTitle", currentValue: string) => void;
 }
 
 interface InfoRowProps {
@@ -44,7 +48,7 @@ function InfoRow({ label, children }: InfoRowProps) {
   );
 }
 
-export default function DailyProgress({ data }: DailyProgressProps) {
+export default function DailyProgress({ data, isOwner, onEditTitle }: DailyProgressProps) {
   const {
     startDate,
     endDate,
@@ -56,11 +60,35 @@ export default function DailyProgress({ data }: DailyProgressProps) {
     progressStatus,
     completionStatus,
     understandingScore,
+    studyTitle,
+    bookTitle,
   } = data;
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-col">
+        <InfoRow label="진도 제목">
+          <div className="flex items-center gap-2">
+            <span>{studyTitle || "정보 없음"}</span>
+            {isOwner && onEditTitle && (
+              <button onClick={() => onEditTitle("title", studyTitle || "")} className="p-1 text-gray-400 hover:text-indigo-600 transition-colors" title="제목 수정">
+                <EditIcon size={14} />
+              </button>
+            )}
+          </div>
+        </InfoRow>
+
+        <InfoRow label="책 제목">
+          <div className="flex items-center gap-2">
+            <span>{bookTitle || "정보 없음"}</span>
+            {isOwner && onEditTitle && (
+              <button onClick={() => onEditTitle("bookTitle", bookTitle || "")} className="p-1 text-gray-400 hover:text-indigo-600 transition-colors" title="책 제목 수정">
+                <EditIcon size={14} />
+              </button>
+            )}
+          </div>
+        </InfoRow>
+
         <InfoRow label="스터디 기간">
           <span className="inline-flex items-center gap-2">
             <span className="px-2.5 py-1 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400">{startDate}</span>

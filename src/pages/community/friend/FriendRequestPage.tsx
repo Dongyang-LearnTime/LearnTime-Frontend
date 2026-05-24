@@ -73,7 +73,7 @@ export default function FriendRequestPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 mt-8">
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 min-h-[80vh]">
             <h1 className="text-2xl font-black tracking-tight mb-8 text-gray-900 dark:text-white">친구 요청 알림</h1>
 
             {/* 탭 네비게이션 */}

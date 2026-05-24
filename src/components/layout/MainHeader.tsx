@@ -6,8 +6,8 @@ import { useNotificationStore } from '../../store/useNotificationStore';
 import { NotificationApi } from '../../pages/notification/NotificationApi';
 import { axiosInstance } from '../../app/apiClient';
 import {
-  BookIcon, DumbbellIcon, UsersIcon, SettingsIcon, SunIcon, MoonIcon, CalendarIcon,
-  ChevronDownIcon, MenuIcon, XIcon, BellIcon, LayersIcon
+  BookIcon, DumbbellIcon, UsersIcon, SunIcon, MoonIcon, CalendarIcon,
+  ChevronDownIcon, MenuIcon, XIcon, BellIcon, LayersIcon, MessageSquareIcon
 } from '../ui/Icons';
 
 export function MainHeader() {
@@ -22,8 +22,10 @@ export function MainHeader() {
   // Menu states
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isInviteMenuOpen, setIsInviteMenuOpen] = useState(false);
   
   const notificationRef = useRef<HTMLDivElement>(null);
+  const inviteMenuRef = useRef<HTMLDivElement>(null);
 
   // Notification logic (from original NotificationDropdown)
   const notifications = useNotificationStore((state) => state.notifications);
@@ -52,6 +54,9 @@ export function MainHeader() {
     function handleClickOutside(event: MouseEvent) {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setIsNotificationOpen(false);
+      }
+      if (inviteMenuRef.current && !inviteMenuRef.current.contains(event.target as Node)) {
+        setIsInviteMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -168,7 +173,34 @@ export function MainHeader() {
 
           <NavItem to="/main/exercise" icon={<DumbbellIcon size={18} />} label="운동 랩" active={currentPath.includes('exercise')} />
           <NavItem to="/main/community" icon={<UsersIcon size={18} />} label="커뮤니티" active={currentPath.includes('community')} />
-          <NavItem to="/main/settings" icon={<SettingsIcon size={18} />} label="설정" active={currentPath.includes('settings')} />
+          <div className="relative" ref={inviteMenuRef}>
+            <NavItem 
+              to="#" 
+              icon={<MessageSquareIcon size={18} />} 
+              label="초대 수신함" 
+              active={currentPath.includes('requests') || currentPath.includes('invitation')} 
+              onClickOverride={() => setIsInviteMenuOpen(!isInviteMenuOpen)}
+              hasToggle={true}
+              isExpanded={isInviteMenuOpen}
+            />
+            {/* 초대 수신함 드롭다운 */}
+            {isInviteMenuOpen && (
+              <div className="absolute left-0 mt-3 w-48 bg-white/98 dark:bg-[#0c0c0c]/98 backdrop-blur-xl border border-gray-200 dark:border-[#222] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-black/80 overflow-hidden z-50 py-2">
+                <button 
+                  onClick={() => { setIsInviteMenuOpen(false); navigate("/friend/requests"); }} 
+                  className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${currentPath.includes('requests') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white'}`}
+                >
+                  친구 초대
+                </button>
+                <button 
+                  onClick={() => { setIsInviteMenuOpen(false); navigate("/study/invitation"); }} 
+                  className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${currentPath.includes('invitation') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white'}`}
+                >
+                  스터디 초대
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* 우측 컨트롤 영역 */}
@@ -253,7 +285,7 @@ export function MainHeader() {
           </button>
           
           <button onClick={handleLogout} className="text-xs font-bold px-4 py-2 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-full hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors">
-            LOGOUT
+            로그아웃
           </button>
 
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2.5 rounded-full bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 hover:text-black dark:hover:text-white">
