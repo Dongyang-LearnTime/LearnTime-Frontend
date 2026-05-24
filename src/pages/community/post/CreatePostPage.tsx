@@ -99,7 +99,7 @@ export default function CreatePostPage() {
                     <p className="text-sm text-gray-500 mt-1">배움의 가치를 나누고 함께 성장하는 글을 나누어 주세요.</p>
                 </header>
 
-                <div className="bg-white dark:bg-[#111] border border-gray-200/80 dark:border-[#222] rounded-[2rem] p-6 sm:p-8 shadow-xl transition-all duration-300">
+                <div className="bg-white dark:bg-[#111] border border-gray-200/80 dark:border-[#222] rounded-4xl p-6 sm:p-8 shadow-xl transition-all duration-300">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                         
                         {/* 1. 공지사항 여부 선택 (JWT 권한이 ROLE_ADMIN일 때만 렌더링) */}
@@ -219,7 +219,7 @@ export default function CreatePostPage() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`flex-[2] text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 shadow-md text-sm ${
+                                className={`flex-2 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 shadow-md text-sm ${
                                     isSubmitting 
                                         ? 'bg-gray-400 cursor-not-allowed shadow-none' 
                                         : 'bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]'
