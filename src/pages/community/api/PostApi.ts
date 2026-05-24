@@ -5,6 +5,7 @@ export interface PostCreateRequest {
   title: string;
   content: string;
   studyId?: number;
+  isNotice: boolean;
 }
 
 export const createPostApi = async (request: PostCreateRequest, images: File[]): Promise<number> => {

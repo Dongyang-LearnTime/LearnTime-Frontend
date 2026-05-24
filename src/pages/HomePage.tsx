@@ -7,8 +7,10 @@ import { PreviewSection } from '../components/home/section/PreviewSection';
 import { GamificationSection } from '../components/home/section/GamificationSection';
 import { CTASection } from '../components/home/section/CTASection';
 import { HomeHeader } from '../components/home/HomeHeader';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function HomePage() {
+  usePageTitle('메인 홈');
   useEffect(() => {
     const observerOptions = {
       threshold: 0.15,

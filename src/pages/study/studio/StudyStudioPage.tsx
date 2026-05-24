@@ -5,6 +5,7 @@ import StudyLearningMetrics from "./StudyLearningMetrics";
 import StudyProgressInfo from "./StudyProgressInfo";
 import StudyMemberList from "./StudyMemberList";
 import { PlusIcon, SparklesIcon } from "../../../components/ui/Icons";
+import { usePageTitle } from "../../../hooks/usePageTitle";
 
 export default function StudyStudioPage() {
   const { studyId } = useParams<{ studyId: string }>();
@@ -13,6 +14,8 @@ export default function StudyStudioPage() {
   const studyTitle = searchParams.get("title");
   const [ activeTab, setActiveTab ] = useState<"metrics" | "progress" | "members">("metrics");
   const [ isGeneratingFeedback, setIsGeneratingFeedback ] = useState(false);
+
+  usePageTitle(studyTitle ? `학습 스튜디오 - ${studyTitle}` : "학습 스튜디오");
 
   const handleGenerateFeedback = async () => {
     if (!studyId) return;

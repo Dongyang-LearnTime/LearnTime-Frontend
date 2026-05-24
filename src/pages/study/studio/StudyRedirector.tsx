@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudyStore } from '../../../store/useStudyStore';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function StudyRedirector() {
+  usePageTitle('학습 스튜디오 불러오는 중...');
   const navigate = useNavigate();
   const { progresses, fetchProgresses, isLoading } = useStudyStore();
 

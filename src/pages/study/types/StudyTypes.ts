@@ -94,3 +94,12 @@ export interface UpdateStudyTitleRequest {
   studyId: number;
   title: string;
 }
+
+// 오늘의 학습 계획 및 진행 상태 응답
+export interface TodayStudyPlanResponse {
+  studyId: number;
+  studyTitle: string;
+  studyDailyPlanId: number;
+  planContent: string;
+  progressStatus: ProgressStatus;
+}

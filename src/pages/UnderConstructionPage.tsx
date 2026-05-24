@@ -1,6 +1,8 @@
 import { MainHeader } from "../components/layout/MainHeader";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function UnderConstructionPage() {
+    usePageTitle('준비 중');
     return (
         <div className="flex flex-col h-full min-h-screen bg-gray-50 dark:bg-[#020202]">
             <MainHeader />

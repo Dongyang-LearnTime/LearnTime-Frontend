@@ -5,8 +5,10 @@ import Pagination from '../../../components/common/Pagination';
 import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
 import { getStudyNotesList} from '../api/StudyNotesApi';
 import type { StudyNotesResponse } from '../types/StudyNoteTypes';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function StudyNotesListPage() {
+  usePageTitle('필기 목록');
   const { studyId } = useParams<{ studyId: string }>();
   const navigate = useNavigate();
 

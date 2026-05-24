@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { BookIcon, PlusIcon } from '../../../components/ui/Icons';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function StudyEmptyPage() {
+  usePageTitle('내 스터디');
   const navigate = useNavigate();
 
   return (

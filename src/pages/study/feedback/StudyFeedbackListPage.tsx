@@ -7,8 +7,10 @@ import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
 import { getStudyFeedbackList, generateStudyFeedback } from '../api/StudyFeedbackApi';
 import type { StudyFeedbackResponse } from '../types/StudyFeedBackTypes';
 import FeedbackDetailDrawer from './components/FeedbackDetailDrawer';
+import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function StudyFeedbackListPage() {
+  usePageTitle('AI 피드백 목록');
   const { studyId } = useParams<{ studyId: string }>();
   const [selectedFeedbackId, setSelectedFeedbackId] = useState<number | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
