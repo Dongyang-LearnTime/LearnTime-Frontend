@@ -1,4 +1,4 @@
-import type { PostListResponse } from "../../pages/community/types/PostTypes";
+import type { PostListResponse } from "../../community/types/PostTypes";
 
 export type ProfileVisibility = "PUBLIC" | "PRIVATE";
 
@@ -17,6 +17,10 @@ export interface ProfileResponse {
   description: string | null;
   profileVisibility: ProfileVisibility;
   friendCount: number;
+  isFriend : boolean | null;
+  hasPendingSentRequest: boolean | null;
+  hasPendingReceivedRequest: boolean | null;
+  pendingFriendRequestId: number | null;
   badges: UserBadgeResponse[];
   recentPosts: PostListResponse[];
 }
@@ -24,5 +28,5 @@ export interface ProfileResponse {
 export interface ProfileUpdateRequest {
   description: string | null;
   profileVisibility: ProfileVisibility;
-  profileImageUrl: string | null;
+  isImageDeleted: boolean;
 }

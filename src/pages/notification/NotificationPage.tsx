@@ -16,6 +16,7 @@ export default function NotificationPage() {
     const setNotifications = useNotificationStore((state) => state.setNotifications);
     const appendNotifications = useNotificationStore((state) => state.appendNotifications);
     const markAsReadLocal = useNotificationStore((state) => state.markAsReadLocal);
+    const markAllAsReadLocal = useNotificationStore((state) => state.markAllAsReadLocal);
     const deleteNotificationLocal = useNotificationStore((state) => state.deleteNotificationLocal);
 
     // 컴포넌트 로컬 상태
@@ -92,6 +93,8 @@ export default function NotificationPage() {
             navigate("/friend/requests");
         } else if (type.includes("STUDY_INVITATION")) {
             navigate("/study/invitation");
+        } else if (type.includes("MESSAGE") || type.includes("NOTE")) {
+            navigate("/messages");
         }
     };
 
@@ -155,6 +158,17 @@ export default function NotificationPage() {
         }
     };
 
+    // 모두 읽음 처리
+    const handleReadAll = async () => {
+        if (notifications.length === 0) return;
+        try {
+            await NotificationApi.readAllNotifications();
+            markAllAsReadLocal();
+        } catch (err) {
+            alert(getApiErrorUtil(err) || "모두 읽음 처리에 실패했습니다.");
+        }
+    };
+
     return (
         <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 min-h-[80vh]">
             <div className="flex justify-between items-center mb-8">
@@ -162,6 +176,13 @@ export default function NotificationPage() {
                 
                 {notifications.length > 0 && (
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleReadAll}
+                            className="text-sm font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                        >
+                            모두 읽음
+                        </button>
+                        <span className="text-gray-300 dark:text-gray-700">|</span>
                         <button
                             onClick={toggleSelectAll}
                             className="text-sm font-bold text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"

@@ -21,6 +21,20 @@ export const sendFriendRequestApi = async (receiverId: number): Promise<number> 
   return response.data;
 };
 
+export interface FriendResponse {
+  friendId: number;
+  userId: number;
+  name: string;
+  email: string;
+  createdAt: string;
+}
+
+// 친구 목록 조회
+export const getFriendsApi = async (): Promise<FriendResponse[]> => {
+  const response = await axiosInstance.get<FriendResponse[]>('/api/user/friends');
+  return response.data;
+};
+
 // 받은 친구 요청 목록 조회
 export const getReceivedPendingRequestsApi = async (): Promise<FriendRequestResponse[]> => {
   const response = await axiosInstance.get<FriendRequestResponse[]>('/api/user/friends/requests/received');
@@ -47,4 +61,9 @@ export const rejectFriendRequestApi = async (friendRequestId: number): Promise<v
 // 친구 요청 취소
 export const cancelFriendRequestApi = async (friendRequestId: number): Promise<void> => {
   await axiosInstance.patch(`/api/user/friends/requests/${friendRequestId}`);
+};
+
+// 친구 삭제
+export const deleteFriendApi = async (friendUserId: number): Promise<void> => {
+  await axiosInstance.delete(`/api/user/friends/${friendUserId}`);
 };

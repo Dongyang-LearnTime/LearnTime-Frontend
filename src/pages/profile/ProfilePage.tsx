@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getProfile, updateProfile } from "./api/ProfileApi";
-import { useAuthStore } from "../store/useAuthStore";
-import { usePageTitle } from "../hooks/usePageTitle";
+import { useAuthStore } from "../../store/useAuthStore";
+import { usePageTitle } from "../../hooks/usePageTitle";
+import Avatar from "../../components/common/Avatar";
+import { sendFriendRequestApi, deleteFriendApi, acceptFriendRequestApi, rejectFriendRequestApi, cancelFriendRequestApi } from "../community/api/FriendRequestApi";
 
 import type { ProfileResponse, ProfileVisibility } from "./types/ProfileTypes";
-import type { PostListResponse } from "../pages/community/types/PostTypes";
+import type { PostListResponse } from "../community/types/PostTypes";
 
 export default function ProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -16,11 +18,12 @@ export default function ProfilePage() {
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // 수정 모달 상태
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editDescription, setEditDescription] = useState("");
   const [editVisibility, setEditVisibility] = useState<ProfileVisibility>("PUBLIC");
-  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [isImageDeleted, setIsImageDeleted] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   usePageTitle(profile ? `${profile.name}님의 프로필` : "프로필");
@@ -34,7 +37,9 @@ export default function ProfilePage() {
         setProfile(data);
         setEditDescription(data.description || "");
         setEditVisibility(data.profileVisibility);
-        setEditImageUrl(data.profileImageUrl || "");
+        setEditImagePreview(data.profileImageUrl || null);
+        setEditImageFile(null);
+        setIsImageDeleted(false);
       })
       .catch((err) => {
         setErrorStatus(err.response?.status || 500);
@@ -54,14 +59,72 @@ export default function ProfilePage() {
       await updateProfile({
         description: editDescription,
         profileVisibility: editVisibility,
-        profileImageUrl: editImageUrl || null,
-      });
+        isImageDeleted: isImageDeleted,
+      }, editImageFile);
       setIsEditModalOpen(false);
       fetchProfileData(); // 수정 후 데이터 리로드
     } catch (error) {
       alert("프로필 수정에 실패했습니다.");
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleInviteFriend = async () => {
+    if (!profile) return;
+    try {
+      await sendFriendRequestApi(profile.userId);
+      alert("친구 초대를 보냈습니다.");
+      fetchProfileData();
+    } catch (error) {
+      alert("친구 초대에 실패했습니다.");
+    }
+  };
+
+  const handleDeleteFriend = async () => {
+    if (!profile) return;
+    if (!window.confirm("정말 친구를 삭제하시겠습니까?")) return;
+    try {
+      await deleteFriendApi(profile.userId);
+      alert("친구 삭제가 완료되었습니다.");
+      fetchProfileData();
+    } catch (error) {
+      alert("친구 삭제에 실패했습니다.");
+    }
+  };
+
+  const handleAcceptFriendRequest = async () => {
+    if (!profile || profile.pendingFriendRequestId === null) return;
+    try {
+      await acceptFriendRequestApi(profile.pendingFriendRequestId);
+      alert("친구 요청을 수락했습니다.");
+      fetchProfileData();
+    } catch (error) {
+      alert("친구 요청 수락에 실패했습니다.");
+    }
+  };
+
+  const handleRejectFriendRequest = async () => {
+    if (!profile || profile.pendingFriendRequestId === null) return;
+    if (!window.confirm("친구 요청을 거절하시겠습니까?")) return;
+    try {
+      await rejectFriendRequestApi(profile.pendingFriendRequestId);
+      alert("친구 요청을 거절했습니다.");
+      fetchProfileData();
+    } catch (error) {
+      alert("친구 요청 거절에 실패했습니다.");
+    }
+  };
+
+  const handleCancelFriendRequest = async () => {
+    if (!profile || profile.pendingFriendRequestId === null) return;
+    if (!window.confirm("보낸 친구 요청을 취소하시겠습니까?")) return;
+    try {
+      await cancelFriendRequestApi(profile.pendingFriendRequestId);
+      alert("친구 요청을 취소했습니다.");
+      fetchProfileData();
+    } catch (error) {
+      alert("친구 요청 취소에 실패했습니다.");
     }
   };
 
@@ -100,15 +163,12 @@ export default function ProfilePage() {
         
         {/* 좌측 사이드바: 아바타 및 유저 정보 */}
         <div className="md:w-1/4 flex flex-col items-center md:items-start">
-          <div className="w-64 h-64 md:w-full md:h-auto md:aspect-square rounded-full bg-gray-200 border border-gray-300 dark:border-gray-700 overflow-hidden mb-6 shrink-0 shadow-sm relative">
-            {profile.profileImageUrl ? (
-              <img src={profile.profileImageUrl} alt="profile" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100 dark:bg-gray-800 text-6xl">
-                {profile.name.charAt(0)}
-              </div>
-            )}
-          </div>
+          <Avatar 
+            src={profile.profileImageUrl}
+            alt={profile.name}
+            className="w-64 h-64 md:w-full md:h-auto md:aspect-square mb-6"
+            fallbackSizeClass="text-6xl"
+          />
           
           <div className="w-full text-center md:text-left mb-6">
             <h1 className="text-2xl font-bold dark:text-white">{profile.name}</h1>
@@ -132,9 +192,47 @@ export default function ProfilePage() {
               </button>
             )}
             {isAuthenticated && !isOwner && (
-              <button className="w-full py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-semibold shadow-sm transition-colors duration-200">
-                친구 초대
-              </button>
+              profile.isFriend ? (
+                // 1. 이미 친구인 경우 (친구 삭제 노출)
+                <button 
+                  onClick={handleDeleteFriend}
+                  className="w-full py-1.5 px-3 bg-transparent hover:bg-rose-50 text-rose-600 border border-rose-300 dark:border-rose-900/40 dark:hover:bg-rose-950/20 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer"
+                >
+                  친구 삭제
+                </button>
+              ) : profile.hasPendingReceivedRequest ? (
+                // 2. 나한테 대기 중인 친구 요청이 온 경우 (수락/거절 노출)
+                <div className="flex gap-2 w-full">
+                  <button 
+                    onClick={handleAcceptFriendRequest}
+                    className="flex-1 py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-semibold shadow-sm transition-all duration-200 cursor-pointer text-center"
+                  >
+                    수락
+                  </button>
+                  <button 
+                    onClick={handleRejectFriendRequest}
+                    className="flex-1 py-1.5 px-3 bg-transparent hover:bg-gray-100 text-gray-700 border border-gray-300 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer text-center"
+                  >
+                    거절
+                  </button>
+                </div>
+              ) : profile.hasPendingSentRequest ? (
+                // 3. 내가 친구 초대를 보내고 상대 수락 대기 중인 경우 (요청 취소 노출)
+                <button 
+                  onClick={handleCancelFriendRequest}
+                  className="w-full py-1.5 px-3 bg-transparent hover:bg-gray-100 text-gray-700 border border-gray-300 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 rounded-md text-sm font-semibold transition-all duration-200 cursor-pointer"
+                >
+                  요청 취소
+                </button>
+              ) : (
+                // 4. 아무런 관계가 없는 경우 (친구 초대 노출)
+                <button 
+                  onClick={handleInviteFriend}
+                  className="w-full py-1.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-semibold shadow-sm transition-all duration-200 cursor-pointer"
+                >
+                  친구 초대
+                </button>
+              )
             )}
           </div>
           
@@ -230,14 +328,43 @@ export default function ProfilePage() {
             
             <div className="p-6 flex flex-col gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">프로필 이미지 URL</label>
-                <input 
-                  type="text" 
-                  value={editImageUrl}
-                  onChange={(e) => setEditImageUrl(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-[#30363d] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-[#0d1117] dark:text-white"
-                />
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">프로필 이미지</label>
+                <div className="flex items-center gap-4">
+                  <Avatar 
+                    src={!isImageDeleted ? editImagePreview : null}
+                    alt={profile?.name || ''}
+                    className="w-16 h-16"
+                    fallbackSizeClass="text-xl"
+                  />
+                  <div className="flex flex-col gap-2 flex-1">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setEditImageFile(file);
+                          setEditImagePreview(URL.createObjectURL(file));
+                          setIsImageDeleted(false);
+                        }
+                      }}
+                      className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 cursor-pointer"
+                    />
+                    <div className="flex gap-2">
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setEditImageFile(null);
+                          setEditImagePreview(null);
+                          setIsImageDeleted(true);
+                        }}
+                        className="text-xs text-red-500 hover:text-red-700 px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded font-medium transition-colors"
+                      >
+                        이미지 삭제
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               <div>

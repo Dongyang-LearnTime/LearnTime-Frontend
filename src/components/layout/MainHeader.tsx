@@ -87,6 +87,8 @@ export function MainHeader() {
       navigate("/friend/requests");
     } else if (type.includes("STUDY_INVITATION")) {
       navigate("/study/invitation");
+    } else if (type.includes("MESSAGE") || type.includes("NOTE")) {
+      navigate("/messages");
     } else {
       navigate("/notifications");
     }

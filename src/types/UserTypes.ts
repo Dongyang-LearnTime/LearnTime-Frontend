@@ -21,3 +21,22 @@ export interface RecentActivityResponse {
   studyTitle: string;
   createdAt: string;
 }
+
+export interface TierInfo {
+  tierName: string;
+  minPoint: number;
+}
+
+export interface BadgeInfo {
+  badgeType: string;
+  displayName: string;
+  description: string;
+}
+
+export interface BadgeTierInfoResponse {
+  allTiers: TierInfo[];
+  allBadges: BadgeInfo[];
+  currentTierName: string;
+  acquiredBadges: UserBadgeResponse[];
+}
+

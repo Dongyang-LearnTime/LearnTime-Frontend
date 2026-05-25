@@ -114,7 +114,7 @@ export function TodayProgressBox({ studyId }: TodayProgressBoxProps) {
 
       <div className="grow overflow-y-auto pr-2 custom-scrollbar space-y-4 mb-6">
         {schedules.length === 0 ? (
-          <p className="text-xs text-gray-400 font-medium italic ml-1">등록된 공부 일정이 없습니다.</p>
+          <p className="text-sm text-gray-400 font-medium italic ml-1 py-1">개인 공부 일정이 없습니다.</p>
         ) : (
           schedules.map((item) => (
             <div key={item.studyMemberContentId} className="flex items-center justify-between group p-4 bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-2xl hover:border-indigo-200 dark:hover:border-indigo-900 transition-all">

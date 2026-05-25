@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlusIcon, SearchIcon, SparklesIcon, ThumbsUpIcon, TrophyIcon } from '../../components/ui/Icons';
 import { PostCard } from './components/PostCard';
-import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getRankingApi } from './api/PostApi';
+import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getRankingApi, getNoticePostsApi } from './api/PostApi';
 import { useAuthStore } from '../../store/useAuthStore';
 import type { PostListResponse, PointRankingResponse } from './types/PostTypes';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ export function CommunityPage() {
   const navigate = useNavigate();
 
   const [ posts, setPosts ] = useState<PostListResponse[]>([]);
+  const [ notices, setNotices ] = useState<PostListResponse[]>([]);
   const [ topPosts, setTopPosts ] = useState<PostListResponse[]>([]);
   const [ ranking, setRanking ] = useState<PointRankingResponse[]>([]);
   const [ searchInput, setSearchInput ] = useState('');
@@ -53,10 +54,20 @@ export function CommunityPage() {
     }
   };
 
+  const fetchNotices = async () => {
+    try {
+      const data = await getNoticePostsApi();
+      setNotices(data);
+    } catch (error) {
+      console.error('Failed to fetch notices:', error);
+    }
+  };
+
   // 선언형 아키텍처: searchKeyword 상태 변화 감지 시 자동으로 데이터 갱신
   useEffect(() => {
     fetchTopPosts();
     fetchRanking();
+    fetchNotices();
     fetchPosts(0, searchKeyword);
   }, [fetchPosts, searchKeyword]);
 
@@ -156,6 +167,18 @@ export function CommunityPage() {
 
           <div className="space-y-6">
             <h3 className="text-lg font-black tracking-tight mb-4 flex items-center gap-2 text-gray-500">최신 게시글</h3>
+            
+            {/* 공지글 목록 렌더링 */}
+            {notices.length > 0 && notices.map(post => (
+              <div key={post.postId} className="border-l-4 border-rose-500 rounded-r-3xl bg-rose-50/5 dark:bg-rose-950/5 overflow-hidden">
+                <PostCard
+                  post={post}
+                  onClick={() => navigate(`/community/post/${post.postId}`)}
+                />
+              </div>
+            ))}
+
+            {/* 일반 최신 게시글 목록 렌더링 */}
             {posts.map(post => (
               <PostCard
                 key={post.postId}
@@ -163,7 +186,7 @@ export function CommunityPage() {
                 onClick={() => navigate(`/community/post/${post.postId}`)}
               />
             ))}
-            {posts.length === 0 && (
+            {posts.length === 0 && notices.length === 0 && (
               <div className="py-20 text-center text-gray-400 font-bold">
                 게시글이 존재하지 않습니다. 첫 글을 작성해보세요!
               </div>
@@ -172,7 +195,24 @@ export function CommunityPage() {
         </div>
 
         {/* 우측 3열: 포인트 순위 Top 5 미니 박스 */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-3 space-y-10">
+          {/* 리워드 마일스톤 상세 배너 */}
+          <div 
+            onClick={() => navigate('/badge-tier-info')}
+            className="cursor-pointer bg-linear-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/40 dark:to-purple-900/40 hover:from-indigo-100 hover:to-purple-100 dark:hover:bg-indigo-900/50 border border-indigo-100 dark:border-indigo-800/50 rounded-3xl p-6 shadow-sm relative overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] select-none group"
+          >
+            <div className="absolute right-[-10%] bottom-[-10%] w-24 h-24 bg-indigo-200/40 dark:bg-indigo-600/20 rounded-full blur-2xl pointer-events-none group-hover:scale-110 transition-transform"></div>
+            <h4 className="text-base font-black mb-1.5 flex items-center gap-1.5 text-indigo-900 dark:text-indigo-100">
+              🏆 리워드 마일스톤
+            </h4>
+            <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 font-bold leading-relaxed mb-4">
+              학습하고 진도를 완수해 포인트를 쌓으세요! 티어를 업그레이드하고 고유 배지를 수집할 수 있습니다.
+            </p>
+            <span className="inline-block bg-white dark:bg-indigo-900/80 border border-indigo-100 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 font-extrabold text-[10px] px-3.5 py-1.5 rounded-xl shadow-xs group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:bg-indigo-500 transition-colors">
+              업적 정보 보기 &rarr;
+            </span>
+          </div>
+
           <div className="bg-white/80 dark:bg-[#111111]/80 backdrop-blur-md border border-gray-200/60 dark:border-[#222]/80 rounded-3xl p-5 shadow-lg relative overflow-hidden transition-all hover:shadow-xl duration-300">
             {/* 상단 장식 라인 */}
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-400 via-indigo-500 to-violet-500" />

@@ -6,6 +6,8 @@ import { createCommentApi, deleteCommentApi, updateCommentApi } from '../api/Com
 import type { PostResponse } from '../types/PostTypes';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { usePageTitle } from '../../../hooks/usePageTitle';
+import UserPopover from '../../../components/common/UserPopover';
+import Avatar from '../../../components/common/Avatar';
 
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>();
@@ -125,11 +127,20 @@ export default function PostDetailPage() {
       <div className="bg-white dark:bg-[#0a0a0a] rounded-[3rem] border border-gray-100 dark:border-[#1a1a1a] shadow-xl overflow-hidden flex flex-col">
         <header className="p-8 sm:p-10 border-b border-gray-100 dark:border-[#1a1a1a] flex justify-between items-center bg-gray-50/50 dark:bg-[#050505]/50">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-linear-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-black text-xl shadow-lg">
-              {avatarLetter}
-            </div>
+            <Avatar 
+              src={post.profileImageUrl}
+              alt={post.userName}
+              className="w-14 h-14"
+              fallbackSizeClass="text-xl"
+            />
             <div>
-              <p className="font-black text-lg text-gray-900 dark:text-gray-100">{post.userName}</p>
+              {post.userId ? (
+                <UserPopover userId={post.userId} userName={post.userName}>
+                  <p className="font-black text-lg text-gray-900 dark:text-gray-100 hover:underline cursor-pointer">{post.userName}</p>
+                </UserPopover>
+              ) : (
+                <p className="font-black text-lg text-gray-900 dark:text-gray-100">{post.userName}</p>
+              )}
               <p className="text-[0.7rem] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                 {new Date(post.createdAt).toLocaleDateString()}
               </p>
@@ -236,7 +247,13 @@ export default function PostDetailPage() {
                 return (
                   <div key={comment.commentId} className="bg-gray-50/80 dark:bg-[#050505] p-6 sm:p-8 rounded-4xl border border-gray-100 dark:border-[#1a1a1a] relative group">
                     <div className="flex justify-between items-center mb-4">
-                      <span className="font-black text-sm text-indigo-600 dark:text-indigo-400">{comment.authorName}</span>
+                      {comment.authorId ? (
+                        <UserPopover userId={comment.authorId} userName={comment.authorName}>
+                          <span className="font-black text-sm text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline">{comment.authorName}</span>
+                        </UserPopover>
+                      ) : (
+                        <span className="font-black text-sm text-indigo-600 dark:text-indigo-400">{comment.authorName}</span>
+                      )}
                       <div className="flex items-center gap-4">
                         <span className="text-xs font-bold text-gray-400">
                           {new Date(comment.createdAt).toLocaleDateString()}

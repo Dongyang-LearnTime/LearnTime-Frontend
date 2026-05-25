@@ -5,6 +5,8 @@ import { Card, CardTitle } from "../../../components/common/Card";
 import { UsersIcon, PlusIcon, XIcon } from "../../../components/ui/Icons";
 import { useAuthStore } from "../../../store/useAuthStore";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
+import UserPopover from "../../../components/common/UserPopover";
+import Avatar from "../../../components/common/Avatar";
 
 interface StudyMemberListProps {
   studyId: string;
@@ -109,7 +111,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
   return (
     <>
-      <Card className="relative overflow-hidden group border-0 shadow-none bg-transparent">
+      <Card className="relative group border-0 shadow-none bg-transparent">
         <div className="flex items-center justify-between mb-6 relative z-10">
           <CardTitle icon={<UsersIcon size={18} />} className="mb-0">스터디 멤버</CardTitle>
           {isOwner && (
@@ -139,18 +141,19 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                 key={member.studyMemberId} 
                 className="flex items-center gap-4 p-5 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1f1f1f] rounded-2xl shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all group/card"
               >
-                {/* 프로필 이미지 (이니셜 대체) */}
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-black shrink-0 shadow-inner ${
-                  member.studyMemberRole === "OWNER" 
-                    ? "bg-linear-to-br from-indigo-100 to-violet-100 text-indigo-600 dark:from-indigo-900/50 dark:to-violet-900/50 dark:text-indigo-400" 
-                    : "bg-gray-100 dark:bg-[#111] text-gray-500 dark:text-gray-400"
-                }`}>
-                  {member.userName.charAt(0)}
-                </div>
+                {/* 프로필 이미지 (Avatar 컴포넌트로 대체) */}
+                <Avatar 
+                  src={member.profileImageUrl}
+                  alt={member.userName}
+                  className="w-12 h-12"
+                  fallbackSizeClass="text-lg"
+                />
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="text-sm font-black text-gray-900 dark:text-white truncate">{member.userName}</h4>
+                    <UserPopover userId={member.userId} userName={member.userName}>
+                      <h4 className="text-sm font-black text-gray-900 dark:text-white truncate cursor-pointer hover:underline">{member.userName}</h4>
+                    </UserPopover>
                     {member.studyMemberRole === "OWNER" && (
                       <span className="px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black tracking-widest uppercase">
                         방장
@@ -172,7 +175,10 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                     {/* 방장일 때만 다른 사용자에게 방장 위임 버튼 표시 */}
                     {isOwner && Number(member.userId) !== Number(userId) && member.status === "ACTIVE" && (
                       <button
-                        onClick={() => handleChangeOwner(member.userId, member.userName)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleChangeOwner(member.userId, member.userName);
+                        }}
                         className="opacity-100 sm:opacity-0 sm:group-hover/card:opacity-100 px-2 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-md hover:bg-indigo-100 transition-all cursor-pointer shrink-0"
                       >
                         방장 위임
@@ -239,9 +245,12 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                   return (
                     <div key={friend.friendId} className="flex items-center justify-between p-3 rounded-2xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-[#1a1a1a] hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-colors group">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center text-sm font-black text-gray-600 dark:text-gray-300 shadow-sm">
-                          {friend.name.charAt(0)}
-                        </div>
+                        <Avatar 
+                          src={friend.profileImageUrl}
+                          alt={friend.name}
+                          className="w-10 h-10"
+                          fallbackSizeClass="text-sm"
+                        />
                         <div>
                           <p className="text-sm font-black text-gray-900 dark:text-white leading-tight mb-0.5">{friend.name}</p>
                           <p className="text-[10px] font-bold text-gray-400">{friend.email}</p>

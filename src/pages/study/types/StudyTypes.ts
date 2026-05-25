@@ -75,6 +75,7 @@ export interface StudyMemberResponse {
   joinedAt: string;
   userId: number;
   userName: string;
+  profileImageUrl: string | null; 
   status: StudyMemberStatus;
 }
 
@@ -87,6 +88,7 @@ export interface StudyMemberFriendResponse {
   email: string;
   createdAt: string;
   isInvited: boolean; // 공부 초대 여부
+  profileImageUrl?: string | null;
 }
 
 // 스터디 제목 및 책 제목 수정 요청 

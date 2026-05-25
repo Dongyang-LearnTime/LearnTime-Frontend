@@ -2,51 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { CheckCircle2, PlayCircle, Clock, BookOpen, PenTool } from 'lucide-react';
+import { MessageSquareIcon } from '../components/ui/Icons';
 import { useAuthStore } from '../store/useAuthStore';
 import { getTodayPlans } from './study/api/StudyApi';
 import { getUserSummary, getRecentActivities } from '../api/UserApi';
+import { getTierImage, getBadgeImage } from '../utils/gamificationAssets';
 import type { TodayStudyPlanResponse } from './study/types/StudyTypes';
 import type { UserSummaryResponse, RecentActivityResponse } from '../types/UserTypes';
-
-// 게이미피케이션 자산 import 
-import BicycleTier from '../assets/tier/Bicycle.svg';
-import CarTier from '../assets/tier/Car.svg';
-import HelicopterTier from '../assets/tier/Helicopter.svg';
-import PlainTier from '../assets/tier/Plain.svg';
-
-import Days30Badge from '../assets/badge/30Days.svg';
-import Days90Badge from '../assets/badge/90Days.svg';
-import Days180Badge from '../assets/badge/180Days.svg';
-import FirstPlanBadge from '../assets/badge/FirstPlan.svg';
-import Notes80Badge from '../assets/badge/Notes80.svg';
-import MorningFirstTimeBadge from '../assets/badge/MorningFirstTime.svg';
-import MorningFiveTimeBadge from '../assets/badge/MorningFiveTime.svg';
-import Quiz10TimeBadge from '../assets/badge/Quiz10Time.svg';
-import SpaceShipBadge from '../assets/badge/SpaceShip.svg';
-
-// 헬퍼: 티어 이름에 따른 이미지 매핑
-const getTierImage = (tierName: string) => {
-    if (tierName?.toLowerCase().includes('car')) return CarTier;
-    if (tierName?.toLowerCase().includes('helicopter')) return HelicopterTier;
-    if (tierName?.toLowerCase().includes('plain') || tierName?.toLowerCase().includes('plane')) return PlainTier;
-    return BicycleTier;
-};
-
-// 헬퍼: 배지 타입에 따른 이미지 매핑
-const getBadgeImage = (badgeType: string) => {
-    switch(badgeType) {
-        case '30Days': return Days30Badge;
-        case '90Days': return Days90Badge;
-        case '180Days': return Days180Badge;
-        case 'FirstPlan': return FirstPlanBadge;
-        case 'Notes80': return Notes80Badge;
-        case 'MorningFirstTime': return MorningFirstTimeBadge;
-        case 'MorningFiveTime': return MorningFiveTimeBadge;
-        case 'Quiz10Time': return Quiz10TimeBadge;
-        case 'SpaceShip': return SpaceShipBadge;
-        default: return Days30Badge;
-    }
-};
 
 // 헬퍼: 날짜 포맷팅 (방금 전, n분 전, n시간 전, 어제, 그 외엔 YYYY.MM.DD)
 const formatTimeAgo = (dateString: string) => {
@@ -109,8 +71,8 @@ export default function LearnTimeMainPage() {
 
     return (
         <div className="relative w-full min-h-screen overflow-hidden bg-gray-50 dark:bg-[#0a0a0a] pb-32">
-            <div className="fixed top-[-10%] left-[-10%] w-128 h-128 bg-indigo-400/5 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="fixed bottom-[-10%] right-[-10%] w-128 h-128 bg-emerald-400/5 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="fixed top-[-10%] left-[-10%] w-lg h-128 bg-indigo-400/5 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="fixed bottom-[-10%] right-[-10%] w-lg h-128 bg-emerald-400/5 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 z-10">
                 
@@ -125,9 +87,17 @@ export default function LearnTimeMainPage() {
                         <div className="absolute left-[10%] top-[-20%] w-72 h-72 bg-indigo-400/20 dark:bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
                         
                         <div className="relative z-10 flex-1 flex flex-col justify-center w-full text-left">
-                            <span className="inline-block px-4 py-1.5 bg-indigo-100 dark:bg-purple-500/20 text-indigo-700 dark:text-purple-200 border border-indigo-200 dark:border-purple-500/30 rounded-full text-xs font-bold mb-4 w-max shadow-sm">
-                                WELCOME BACK
-                            </span>
+                            <div className="flex items-center gap-3 mb-4">
+                                <span className="inline-block px-4 py-1.5 bg-indigo-100 dark:bg-purple-500/20 text-indigo-700 dark:text-purple-200 border border-indigo-200 dark:border-purple-500/30 rounded-full text-xs font-bold shadow-sm">
+                                    WELCOME BACK
+                                </span>
+                                <button 
+                                    onClick={() => navigate('/messages')} 
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-indigo-700 dark:text-indigo-200 border border-indigo-200 dark:border-white/20 rounded-full text-xs font-bold shadow-sm transition-all hover:scale-105 cursor-pointer"
+                                >
+                                    <MessageSquareIcon size={14} /> 쪽지함
+                                </button>
+                            </div>
                             <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-2 drop-shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-500">
                                 {userName || '학습자'} 님 오늘도 달려봐요!
                             </h1>
@@ -143,17 +113,17 @@ export default function LearnTimeMainPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2">
-                                <span className="text-[11px] font-bold text-gray-400 dark:text-purple-300/60 tracking-wider uppercase">보유 뱃지 {userSummary?.badges?.length || 0}개</span>
+                            <div className="flex flex-col gap-2 cursor-pointer group/badges" onClick={() => navigate('/badge-tier-info')}>
+                                <span className="text-[11px] font-bold text-gray-400 dark:text-purple-300/60 tracking-wider uppercase group-hover/badges:text-indigo-600 dark:group-hover/badges:text-indigo-400 transition-colors">보유 배지 {userSummary?.badges?.length || 0}개 &rarr;</span>
                                 <div className="flex gap-3">
                                     {userSummary?.badges?.slice(0, 4).map((badge, index) => (
-                                        <div key={index} className="group relative bg-white/60 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 p-2.5 rounded-2xl border border-gray-200 dark:border-white/10 transition-all duration-300 hover:scale-105 cursor-pointer shadow-sm">
+                                        <div key={index} className="group relative bg-white/60 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 p-2.5 rounded-2xl border border-gray-200 dark:border-white/10 transition-all duration-300 hover:scale-105 shadow-sm">
                                             <img src={getBadgeImage(badge.badgeType)} className="w-10 h-10" alt={badge.displayName} />
                                             <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-slate-900/90 text-white text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none shadow-md">{badge.displayName}</span>
                                         </div>
                                     ))}
                                     {(!userSummary?.badges || userSummary.badges.length === 0) && (
-                                        <span className="text-sm font-bold text-gray-400 dark:text-gray-500">아직 획득한 뱃지가 없습니다.</span>
+                                        <span className="text-sm font-bold text-gray-400 dark:text-gray-500">아직 획득한 배지가 없습니다.</span>
                                     )}
                                 </div>
                             </div>
@@ -165,7 +135,8 @@ export default function LearnTimeMainPage() {
                                 <img 
                                     src={getTierImage(userSummary?.tierName || 'Bicycle')} 
                                     alt="Tier Illustration" 
-                                    className="relative z-10 w-36 h-36 md:w-44 md:h-44 drop-shadow-xl transform hover:scale-105 hover:rotate-3 transition-all duration-500" 
+                                    className="relative z-10 w-36 h-36 md:w-44 md:h-44 drop-shadow-xl transform hover:scale-105 hover:rotate-3 transition-all duration-500 cursor-pointer" 
+                                    onClick={() => navigate('/badge-tier-info')}
                                 />
                             </div>
                         </div>

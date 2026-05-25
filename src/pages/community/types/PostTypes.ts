@@ -18,6 +18,7 @@ export interface PostResponse {
     postId: number; // 게시글 식별자(ID)
     userId: number | null; // 작성자 식별자(ID), 탈퇴한 경우 null
     userName: string; // 작성자 이름 또는 닉네임, 탈퇴한 경우 "탈퇴한 사용자"
+    profileImageUrl: string | null; // 작성자의 프로필 사진 
     title: string; // 게시글 제목
     content: string; // 게시글 본문 내용
     createdAt: string; // 게시글 생성 일시 (ISO Date String)
@@ -37,6 +38,7 @@ export interface PostListResponse {
     postId: number;
     userId: number | null;
     userName: string;
+    userProfileImageUrl: string | null; // 작성자의 프로필 사진 
     title: string;
     viewCount: number;
     likeCount: number;

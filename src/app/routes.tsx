@@ -29,7 +29,10 @@ import { CommunityPage } from "../pages/community/CommunityPage";
 import PostDetailPage from "../pages/community/post/PostDetailPage";
 import PostEditPage from "../pages/community/post/PostEditPage";
 import RankingPage from "../pages/community/RankingPage";
-import ProfilePage from "../profile/ProfilePage";
+import ProfilePage from "../pages/profile/ProfilePage";
+import MessageListPage from "../pages/message/MessageListPage";
+import BadgeTierInfoPage from "../pages/community/tire/BadgeTierInfoPage";
+
 export const routes = [
   {
     path: "/",
@@ -69,6 +72,24 @@ export const routes = [
         <MainHeader />
         <ProfilePage />
       </>
+    )
+  },
+  {
+    path: "/badge-tier-info",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <BadgeTierInfoPage />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/messages",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <MessageListPage />
+      </ProtectedRoute>
     )
   },
   {
