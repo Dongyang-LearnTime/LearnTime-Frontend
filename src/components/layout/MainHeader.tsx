@@ -172,7 +172,7 @@ export function MainHeader() {
           </div>
 
           <NavItem to="/main/exercise" icon={<DumbbellIcon size={18} />} label="운동 랩" active={currentPath.includes('exercise')} />
-          <NavItem to="/main/community" icon={<UsersIcon size={18} />} label="커뮤니티" active={currentPath.includes('community')} />
+          <NavItem to="/community" icon={<UsersIcon size={18} />} label="커뮤니티" active={currentPath.includes('community')} />
           <div className="relative" ref={inviteMenuRef}>
             <NavItem 
               to="#" 
@@ -293,6 +293,60 @@ export function MainHeader() {
           </button>
         </div>
       </div>
+
+      {/* 모바일 네비게이션 드롭다운 메뉴 */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden absolute top-20 left-0 right-0 mx-auto w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl border border-gray-150 dark:border-slate-800/80 rounded-3xl shadow-2xl p-5 flex flex-col gap-3 z-50 animate-in fade-in slide-in-from-top-5 duration-300">
+          <button 
+            onClick={() => { setIsMobileMenuOpen(false); navigate("/main/schedule"); }}
+            className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold transition-all text-sm text-left ${currentPath.includes('schedule') ? 'bg-gray-900 dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+          >
+            <CalendarIcon size={18} />
+            <span>일정 생성</span>
+          </button>
+          <button 
+            onClick={() => { setIsMobileMenuOpen(false); navigate("/study"); }}
+            className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold transition-all text-sm text-left ${currentPath.includes('study') && !currentPath.includes('plan') ? 'bg-gray-900 dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+          >
+            <BookIcon size={18} />
+            <span>학습 스튜디오</span>
+          </button>
+          <button 
+            onClick={() => { setIsMobileMenuOpen(false); navigate("/main/exercise"); }}
+            className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold transition-all text-sm text-left ${currentPath.includes('exercise') ? 'bg-gray-900 dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+          >
+            <DumbbellIcon size={18} />
+            <span>운동 랩</span>
+          </button>
+          <button 
+            onClick={() => { setIsMobileMenuOpen(false); navigate("/main/community"); }}
+            className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold transition-all text-sm text-left ${currentPath.includes('community') ? 'bg-gray-900 dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+          >
+            <UsersIcon size={18} />
+            <span>커뮤니티</span>
+          </button>
+
+          <hr className="border-gray-100 dark:border-slate-800" />
+          
+          <div className="flex flex-col gap-2 bg-gray-50/50 dark:bg-slate-950/20 p-3 rounded-2xl border border-gray-100 dark:border-slate-800">
+            <span className="text-[10px] font-extrabold text-gray-400 dark:text-slate-500 uppercase tracking-widest pl-2 mb-1">초대 수신함</span>
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); navigate("/friend/requests"); }}
+              className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${currentPath.includes('requests') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/20' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <span>친구 초대</span>
+              <MessageSquareIcon size={14} />
+            </button>
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); navigate("/study/invitation"); }}
+              className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${currentPath.includes('invitation') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/20' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <span>스터디 초대</span>
+              <MessageSquareIcon size={14} />
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

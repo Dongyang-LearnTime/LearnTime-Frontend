@@ -1,7 +1,7 @@
 import { axiosInstance } from "../../../app/apiClient";
 import imageCompression from "browser-image-compression";
 import type { PageResponse } from "../../../types/PaginationType";
-import type { PostCreateRequest, PostUpdateRequest, PostListResponse, PostUpdateDetailResponse, PostResponse} from "../types/PostTypes";
+import type { PostCreateRequest, PostUpdateRequest, PostListResponse, PostUpdateDetailResponse, PostResponse, PointRankingResponse } from "../types/PostTypes";
 
 
 export const createPostApi = async (request: PostCreateRequest, images: File[]): Promise<number> => {
@@ -127,6 +127,17 @@ export const togglePostLikeApi = async (postId: number): Promise<void> => {
 // 게시글 삭제
 export const deletePostApi = async (postId: number): Promise<void> => {
     await axiosInstance.delete(`/api/community/post/${postId}`);
+};
+
+// 포인트 순위 조회 API
+export const getRankingApi = async (page: number, size: number = 20): Promise<PageResponse<PointRankingResponse>> => {
+    const response = await axiosInstance.get(
+        `/api/community/ranking`,
+        {
+            params: { page, size }
+        }
+    );
+    return response.data;
 };
 
 

@@ -70,7 +70,7 @@ const formatTimeAgo = (dateString: string) => {
 };
 
 export default function LearnTimeMainPage() {
-    usePageTitle('홈 - Learn Time');
+    usePageTitle('홈');
     const navigate = useNavigate();
     const userName = useAuthStore((state) => state.userName);
 

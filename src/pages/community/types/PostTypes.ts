@@ -10,7 +10,7 @@ export interface PostCreateRequest {
 export interface PostUpdateRequest {
     title: string; 
     content: string; 
-    deleteImages: string[]; 
+    deletedImageUrls: string[]; 
     isNotice: boolean; 
 }
 

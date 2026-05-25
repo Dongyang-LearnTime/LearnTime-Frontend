@@ -12,6 +12,15 @@ export interface FriendRequestResponse {
   createdAt: string;
 }
 
+// 친구 요청 전송
+export const sendFriendRequestApi = async (receiverId: number): Promise<number> => {
+  const response = await axiosInstance.post<number>(
+    `/api/user/friends/requests/${receiverId}`
+  );
+
+  return response.data;
+};
+
 // 받은 친구 요청 목록 조회
 export const getReceivedPendingRequestsApi = async (): Promise<FriendRequestResponse[]> => {
   const response = await axiosInstance.get<FriendRequestResponse[]>('/api/user/friends/requests/received');

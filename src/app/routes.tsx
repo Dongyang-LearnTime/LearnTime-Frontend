@@ -25,7 +25,11 @@ import StudyEmptyPage from "../pages/study/studio/StudyEmptyPage";
 import UnderConstructionPage from "../pages/UnderConstructionPage";
 import StudyQuizListPage from "../pages/study/quiz/StudyQuizListPage";
 import StudyFeedbackListPage from "../pages/study/feedback/StudyFeedbackListPage";
-
+import { CommunityPage } from "../pages/community/CommunityPage";
+import PostDetailPage from "../pages/community/post/PostDetailPage";
+import PostEditPage from "../pages/community/post/PostEditPage";
+import RankingPage from "../pages/community/RankingPage";
+import ProfilePage from "../profile/ProfilePage";
 export const routes = [
   {
     path: "/",
@@ -56,6 +60,15 @@ export const routes = [
         <MainHeader />
         <NotificationPage />
       </ProtectedRoute>
+    )
+  },
+  {
+    path: "/profile/:userId",
+    element: (
+      <>
+        <MainHeader />
+        <ProfilePage />
+      </>
     )
   },
   {
@@ -220,11 +233,47 @@ export const routes = [
     )
   },
   {
+    path: "/community",
+    element: (
+      <>
+        <MainHeader />
+        <CommunityPage />
+      </>
+    )
+  },
+  {
+    path: "/community/ranking",
+    element: (
+      <>
+        <MainHeader />
+        <RankingPage />
+      </>
+    )
+  },
+  {
     path: "/community/post/create",
     element: (
       <ProtectedRoute>
         <MainHeader />
         <CreatePostPage />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/community/post/:postId",
+    element: (
+      <>
+        <MainHeader />
+        <PostDetailPage />
+      </>
+    )
+  },
+  {
+    path: "/community/post/edit/:postId",
+    element: (
+      <ProtectedRoute>
+        <MainHeader />
+        <PostEditPage />
       </ProtectedRoute>
     )
   },
@@ -248,14 +297,6 @@ export const routes = [
   },
   {
     path: "/main/exercise",
-    element: (
-      <ProtectedRoute>
-        <UnderConstructionPage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/main/community",
     element: (
       <ProtectedRoute>
         <UnderConstructionPage />
