@@ -110,7 +110,7 @@ export default function PostDetailPage() {
     );
   }
 
-  const avatarLetter = post.userName ? post.userName.charAt(0).toUpperCase() : 'U';
+
   
   const isPostAuthor = post.userId !== null && Number(post.userId) === Number(currentUserId);
   const canControlPost = isPostAuthor || isAdmin;

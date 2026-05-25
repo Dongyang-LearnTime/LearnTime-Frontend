@@ -162,7 +162,7 @@ export function MainHeader() {
 
         {/* 데스크탑 네비게이션 */}
         <nav className="hidden lg:flex items-center gap-2">
-          <NavItem to="/main/schedule" icon={<CalendarIcon size={18} />} label="일정 생성" active={currentPath.includes('schedule')} />
+          <NavItem to="/schedule" icon={<CalendarIcon size={18} />} label="일정 생성" active={currentPath.includes('schedule')} />
           
           <div className="relative">
             <NavItem
@@ -173,7 +173,7 @@ export function MainHeader() {
             />
           </div>
 
-          <NavItem to="/main/exercise" icon={<DumbbellIcon size={18} />} label="운동 랩" active={currentPath.includes('exercise')} />
+          <NavItem to="/exercise" icon={<DumbbellIcon size={18} />} label="운동 랩" active={currentPath.includes('exercise')} />
           <NavItem to="/community" icon={<UsersIcon size={18} />} label="커뮤니티" active={currentPath.includes('community')} />
           <div className="relative" ref={inviteMenuRef}>
             <NavItem 

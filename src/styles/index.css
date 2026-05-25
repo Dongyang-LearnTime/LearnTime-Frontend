@@ -18,3 +18,10 @@
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: rgba(75, 85, 99, 0.4);
 }
+
+/* Bento Grid Layout Utility */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.5rem;
+}

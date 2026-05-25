@@ -7,7 +7,7 @@ import type { PostListResponse, PointRankingResponse } from './types/PostTypes';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
 
-export function CommunityPage() {
+export default function CommunityPage() {
   usePageTitle('커뮤니티 광장');
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -215,7 +215,7 @@ export function CommunityPage() {
 
           <div className="bg-white/80 dark:bg-[#111111]/80 backdrop-blur-md border border-gray-200/60 dark:border-[#222]/80 rounded-3xl p-5 shadow-lg relative overflow-hidden transition-all hover:shadow-xl duration-300">
             {/* 상단 장식 라인 */}
-            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-400 via-indigo-500 to-violet-500" />
+            <div className="absolute top-0 left-0 right-0 h-0.75 bg-linear-to-r from-amber-400 via-indigo-500 to-violet-500" />
             
             <h3 className="text-sm font-black tracking-tight mb-4 flex items-center gap-1.5 text-gray-900 dark:text-white">
               <TrophyIcon size={18} className="text-amber-500" /> 포인트 랭킹 Top 5
@@ -228,19 +228,19 @@ export function CommunityPage() {
                   className="flex items-center justify-between p-2 bg-gray-50/40 dark:bg-white/2 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 border border-gray-100/30 dark:border-white/2 rounded-xl group transition-all duration-300 hover:translate-x-1"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] flex-shrink-0 transition-transform group-hover:scale-110 ${
-                      idx === 0 ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-white shadow-sm shadow-amber-500/30' : 
-                      idx === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-white shadow-sm shadow-slate-400/30' : 
-                      idx === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-700 text-white shadow-sm shadow-amber-700/30' : 
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] shrink-0 transition-transform group-hover:scale-110 ${
+                      idx === 0 ? 'bg-linear-to-br from-amber-300 to-amber-500 text-white shadow-sm shadow-amber-500/30' : 
+                      idx === 1 ? 'bg-linear-to-br from-slate-300 to-slate-400 text-white shadow-sm shadow-slate-400/30' : 
+                      idx === 2 ? 'bg-linear-to-br from-amber-600 to-amber-700 text-white shadow-sm shadow-amber-700/30' : 
                       'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500'
                     }`}>
                       {idx + 1}
                     </span>
-                    <span className="font-bold text-xs text-gray-700 dark:text-gray-300 truncate max-w-[85px] sm:max-w-[100px]">
+                    <span className="font-bold text-xs text-gray-700 dark:text-gray-300 truncate max-w-21.25 sm:max-w-25">
                       {user.name}
                     </span>
                   </div>
-                  <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 tracking-wider flex-shrink-0 font-mono">
+                  <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 tracking-wider shrink-0 font-mono">
                     {user.point.toLocaleString()} PT
                   </span>
                 </div>

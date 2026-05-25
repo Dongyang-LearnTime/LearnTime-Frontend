@@ -25,12 +25,14 @@ import StudyEmptyPage from "../pages/study/studio/StudyEmptyPage";
 import UnderConstructionPage from "../pages/UnderConstructionPage";
 import StudyQuizListPage from "../pages/study/quiz/StudyQuizListPage";
 import StudyFeedbackListPage from "../pages/study/feedback/StudyFeedbackListPage";
-import { CommunityPage } from "../pages/community/CommunityPage";
+import CommunityPage from "../pages/community/CommunityPage";
 import PostDetailPage from "../pages/community/post/PostDetailPage";
 import PostEditPage from "../pages/community/post/PostEditPage";
 import RankingPage from "../pages/community/RankingPage";
 import ProfilePage from "../pages/profile/ProfilePage";
 import MessageListPage from "../pages/message/MessageListPage";
+import SchedulePage from "../pages/schedule/SchedulePage";
+import ExercisePage from "../pages/exercise/ExercisePage";
 import BadgeTierInfoPage from "../pages/community/tire/BadgeTierInfoPage";
 
 export const routes = [
@@ -307,20 +309,21 @@ export const routes = [
       </ProtectedRoute>
     )
   },
-  // 준비 중인 메뉴들
   {
-    path: "/main/schedule",
+    path: "/schedule",
     element: (
       <ProtectedRoute>
-        <UnderConstructionPage />
+        <MainHeader />
+        <SchedulePage />
       </ProtectedRoute>
     )
   },
   {
-    path: "/main/exercise",
+    path: "/exercise",
     element: (
       <ProtectedRoute>
-        <UnderConstructionPage />
+        <MainHeader />
+        <ExercisePage />
       </ProtectedRoute>
     )
   },

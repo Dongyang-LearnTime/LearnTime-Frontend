@@ -14,8 +14,7 @@ export function PostCard({
   post,
   onClick,
 }: PostCardProps) {
-  // 작성자 아바타 (첫 글자)
-  const avatarLetter = post.userName ? post.userName.charAt(0).toUpperCase() : 'U';
+
 
   return (
     <Card onClick={onClick} className="py-5 px-8 group hover:border-indigo-200 transition-all cursor-pointer">
