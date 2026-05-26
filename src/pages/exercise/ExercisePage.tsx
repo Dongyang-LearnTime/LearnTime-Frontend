@@ -12,7 +12,11 @@ export default function ExercisePage() {
 
   return (
     <>
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="relative w-full min-h-screen overflow-hidden bg-gray-50 dark:bg-[#0a0a0a] pb-32">
+      <div className="fixed top-[-10%] left-[-10%] w-lg h-128 bg-rose-400/5 dark:bg-rose-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-lg h-128 bg-amber-400/5 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 z-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
         {
           // 페이지 헤더: 타이틀과 설명 문구
         }
@@ -68,6 +72,7 @@ export default function ExercisePage() {
           </div>
         </div>
       </div>
+    </div>
       {isReportModalOpen && (
         <ExerciseReportModal onClose={() => setIsReportModalOpen(false)} />
       )}

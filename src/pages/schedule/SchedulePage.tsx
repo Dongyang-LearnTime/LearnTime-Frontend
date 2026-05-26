@@ -74,7 +74,6 @@ export default function SchedulePage() {
   // 오늘 날짜 정보 계산
   const today = useMemo(() => new Date(), []);
   const todayDateStr = useMemo(() => getTodayString(today), [today]);
-  const todayDayIndex = useMemo(() => today.getDay(), [today]);
 
   // 로컬 메모 불러오기
   useEffect(() => {
