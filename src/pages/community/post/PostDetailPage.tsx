@@ -116,7 +116,7 @@ export default function PostDetailPage() {
   const canControlPost = isPostAuthor || isAdmin;
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       <button 
         onClick={() => navigate('/community')}
         className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline mb-6 inline-block"
@@ -128,7 +128,7 @@ export default function PostDetailPage() {
         <header className="p-8 sm:p-10 border-b border-gray-100 dark:border-[#1a1a1a] flex justify-between items-center bg-gray-50/50 dark:bg-[#050505]/50">
           <div className="flex items-center gap-4">
             <Avatar 
-              src={post.profileImageUrl}
+              src={post.userProfileImageUrl}
               alt={post.userName}
               className="w-14 h-14"
               fallbackSizeClass="text-xl"

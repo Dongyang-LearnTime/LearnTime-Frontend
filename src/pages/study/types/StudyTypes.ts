@@ -55,6 +55,7 @@ export interface StudyTotalInfoResponse {
 export interface StudyMemberContentResponse {
   studyDailyPlanId: number | null; // 일일 계획 ID
   planContent: string | null;      // 일일 진도 내용
+  isHoliday : boolean;             // 오늘 휴무일 여부
   memberContents: {
     studyMemberContentId: number;  // 스터디 멤버 작성 내용 ID
     memberContent: string;         // 작성한 공부 내용

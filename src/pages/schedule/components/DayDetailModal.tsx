@@ -2,6 +2,7 @@ import { XIcon, CalendarIcon } from '../../../components/ui/Icons';
 import { ScheduleCard } from './ScheduleCard';
 import type { Schedule } from '../types/ScheduleTypes';
 import { DAYS } from '../types/constants';
+import * as holidaysKr from '@hyunbinseo/holidays-kr';
 
 // DayDetailModal 컴포넌트 Props 정의
 interface DayDetailModalProps {
@@ -44,6 +45,12 @@ export function DayDetailModal({
   const monthDate = new Date(currentYear, currentMonth, 1);
   const monthShort = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(monthDate).toUpperCase();
   
+  // 공휴일 확인
+  const yearKey = `y${currentYear}` as keyof typeof holidaysKr;
+  const yearHolidays = holidaysKr[yearKey] as Record<string, readonly string[]> | undefined;
+  const holidayNames = yearHolidays ? yearHolidays[dateKey as keyof typeof yearHolidays] : undefined;
+  const holidayName = holidayNames && holidayNames.length > 0 ? holidayNames[0] : null;
+
   // 요일명 계산
   const dayOfWeekIndex = new Date(currentYear, currentMonth, selectedDay).getDay();
   const dayOfWeekName = DAYS[dayOfWeekIndex];
@@ -75,25 +82,29 @@ export function DayDetailModal({
           </button>
         </header>
 
-        {
-          // 달력 메모 입력 영역
-        }
-        <div className="mb-8 p-6 bg-gray-50 dark:bg-[#050505] rounded-3xl border border-gray-100 dark:border-[#1a1a1a]">
-          <label className="block text-[0.65rem] font-black text-gray-400 mb-3 uppercase tracking-widest">오늘의 메모/기념일</label>
-          <input 
-            type="text"
-            value={noteValue}
-            onChange={(e) => updateCalendarNote(selectedDay, e.target.value)}
-            placeholder="예: 영희 생일, 프로젝트 마감..."
-            className="w-full bg-white dark:bg-[#111] border border-gray-100 dark:border-[#222] rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-all font-bold"
-          />
-        </div>
+
 
         {
           // 상세 일정 목록 영역
         }
         <div className="space-y-4 max-h-100 overflow-y-auto pr-4 custom-scrollbar">
           <h4 className="text-[0.65rem] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">상세 일정 목록</h4>
+          
+          {holidayName && (
+            <div className="flex flex-col gap-3 p-5 rounded-3xl transition-all cursor-default bg-red-50/50 dark:bg-red-950/20 border-2 border-red-100 dark:border-red-900/30">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-red-100 text-red-500 dark:bg-red-900/50 dark:text-red-400">
+                  <CalendarIcon size={18} />
+                </div>
+                <div>
+                  <h5 className="font-black text-base text-red-600 dark:text-red-400 leading-tight">
+                    {holidayName} <span className="text-xs font-bold opacity-70 ml-1">(공휴일)</span>
+                  </h5>
+                </div>
+              </div>
+            </div>
+          )}
+
           {selectedDaySchedules.length > 0 ? (
             selectedDaySchedules.map(item => (
               <ScheduleCard 
@@ -104,12 +115,12 @@ export function DayDetailModal({
                 onDelete={onDelete}
               />
             ))
-          ) : (
+          ) : !holidayName ? (
             <div className="py-10 text-center">
               <CalendarIcon size={32} className="mx-auto text-gray-100 dark:text-[#111] mb-4" />
               <p className="text-gray-400 font-bold text-sm">이날 예정된 일정이 없습니다.</p>
             </div>
-          )}
+          ) : null}
         </div>
 
         {

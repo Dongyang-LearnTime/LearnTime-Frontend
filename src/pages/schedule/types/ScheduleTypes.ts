@@ -5,7 +5,6 @@ export interface Schedule {
   startTime: string; // HH:MM 형식의 시작 시간
   endTime: string; // HH:MM 형식의 종료 시간
   type: 'schedule' | 'routine'; // 일정 유형 (일회성 일정 / 반복 루틴)
-  completed: boolean; // 완료 여부
   repeatDays?: number[]; // 반복 루틴일 때 반복 요일 인덱스 배열 (0: 일요일 ~ 6: 토요일)
   isFavorite: boolean; // 주요 일정(즐겨찾기) 여부
 }
@@ -14,7 +13,6 @@ export interface Schedule {
 export interface CalendarRequest {
   content: string;
   targetDate: string; // LocalDateTime
-  isCompleted: boolean;
   isImportant: boolean;
 }
 
@@ -22,7 +20,6 @@ export interface CalendarResponse {
   calendarRecordId: number;
   content: string;
   targetDate: string; // LocalDateTime
-  isCompleted: boolean;
   isImportant: boolean;
   createdAt: string; // LocalDateTime
 }

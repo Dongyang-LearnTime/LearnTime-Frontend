@@ -15,6 +15,7 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
 
   const [ studyDailyPlanId, setStudyDailyPlanId ] = useState<number | null>(null);
   const [ planContent, setPlanContent ] = useState<string | null>(null);
+  const [ isHoliday, setIsHoliday ] = useState<boolean>(false);
   const [ memberContents, setMemberContents ] = useState<MemberContentItem[]>([]);
   
   const [ inputValue, setInputValue ] = useState('');
@@ -30,6 +31,7 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
         const data = await getStudyMemberContentApi(studyId, planDate);
         setStudyDailyPlanId(data.studyDailyPlanId);
         setPlanContent(data.planContent);
+        setIsHoliday(data.isHoliday ?? false);
         setMemberContents(data.memberContents || []);
       } catch (error) {
         console.error("진도 내용을 불러오는데 실패했습니다.", error);
@@ -125,6 +127,14 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
             <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl mt-2"></div>
             <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl"></div>
           </div>
+        ) : isHoliday ? (
+          <div className="py-14 flex flex-col items-center justify-center h-full text-center">
+            <span className="text-4xl block mb-4">🏝️</span>
+            <p className="text-gray-500 font-bold text-sm leading-relaxed">
+              오늘은 스터디 휴무일입니다.<br />
+              진도 내용을 등록할 수 없습니다.
+            </p>
+          </div>
         ) : (
           <>
             {planContent && (
@@ -173,17 +183,19 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
       </div>
 
       {/* 일정 추가 폼 */}
-      <form onSubmit={handleAddContent} className="flex gap-3 shrink-0">
-        <input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="오늘 공부한 내용을 입력하세요..."
-          className="grow bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900 dark:text-white"
-        />
-        <button type="submit" className="px-8 bg-black dark:bg-white text-white dark:text-black text-sm font-black rounded-2xl active:scale-95 transition-transform cursor-pointer">
-          등록
-        </button>
-      </form>
+      {!isHoliday && (
+        <form onSubmit={handleAddContent} className="flex gap-3 shrink-0">
+          <input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="오늘 공부한 내용을 입력하세요..."
+            className="grow bg-gray-50 dark:bg-[#050505] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-gray-900 dark:text-white"
+          />
+          <button type="submit" className="px-8 bg-black dark:bg-white text-white dark:text-black text-sm font-black rounded-2xl active:scale-95 transition-transform cursor-pointer">
+            등록
+          </button>
+        </form>
+      )}
     </Card>
   );
 }

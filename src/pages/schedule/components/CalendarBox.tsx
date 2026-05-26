@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { CalendarIcon } from '../../../components/ui/Icons';
-import { DAYS, HOLIDAYS_2026_05 } from '../types/constants';
+import { DAYS } from '../types/constants';
+import type { Schedule } from '../types/ScheduleTypes';
+import * as holidaysKr from '@hyunbinseo/holidays-kr';
 
 // CalendarBox 컴포넌트 Props 정의
 interface CalendarBoxProps {
@@ -10,6 +12,7 @@ interface CalendarBoxProps {
   onNextMonth: () => void;
   onDayClick: (day: number) => void;
   calendarNotes: Record<string, string>;
+  schedules: Schedule[];
 }
 
 // 달력을 렌더링하고, 기념일 및 각 날짜의 커스텀 메모를 요약해서 표시해주는 달력 카드 컴포넌트
@@ -20,7 +23,11 @@ export function CalendarBox({
   onNextMonth,
   onDayClick,
   calendarNotes,
+  schedules,
 }: CalendarBoxProps) {
+  // @hyunbinseo/holidays-kr 패키지의 연도별 정적 데이터 맵핑
+  const yearKey = `y${currentYear}` as keyof typeof holidaysKr;
+  const yearHolidays = holidaysKr[yearKey] as Record<string, readonly string[]> | undefined;
   // 월별 일수 계산
   const daysInMonth = useMemo(() => {
     return new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -95,9 +102,20 @@ export function CalendarBox({
           
           const dayOfWeek = (i + firstDayOfMonth) % 7; 
           const isSunday = dayOfWeek === 0;
-          const holidayName = currentMonth === 4 ? HOLIDAYS_2026_05[day] : null;
+          
+          // @hyunbinseo/holidays-kr 패키지 기반 휴일 검색
+          const holidayNames = yearHolidays ? yearHolidays[dateStr as keyof typeof yearHolidays] : undefined;
+          const holidayName = holidayNames && holidayNames.length > 0 ? holidayNames[0] : null;
+          
           const isHoliday = !!holidayName || isSunday;
           const note = calendarNotes[dateStr];
+
+          // 해당 일자에 예정된 일정 필터링 (루틴 제외)
+          const daySchedules = schedules.filter(s => {
+            if (s.type === 'schedule') return s.date === dateStr;
+            return false;
+          });
+          const hasSchedules = daySchedules.length > 0;
 
           return (
             <div 
@@ -105,30 +123,49 @@ export function CalendarBox({
               onClick={() => onDayClick(day)}
               className={`aspect-square p-3 rounded-3xl border transition-all cursor-pointer flex flex-col items-start justify-between group relative overflow-hidden
                 ${isToday 
-                  ? 'bg-black dark:bg-white border-black dark:border-white shadow-2xl shadow-indigo-500/20 scale-105 z-10' 
-                  : 'bg-transparent border-gray-50 dark:border-[#111] hover:bg-gray-50 dark:hover:bg-[#0a0a0a] hover:border-gray-200 dark:hover:border-[#222]'}
+                  ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-600 dark:border-indigo-400 border-2 shadow-xl shadow-indigo-500/10 scale-105 z-10' 
+                  : hasSchedules
+                    ? 'bg-indigo-500/[0.03] dark:bg-indigo-500/[0.05] border-indigo-100 dark:border-indigo-500/10 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 hover:border-indigo-500/30'
+                    : 'bg-transparent border-gray-50 dark:border-[#111] hover:bg-gray-50 dark:hover:bg-[#0a0a0a] hover:border-gray-200 dark:hover:border-[#222]'}
               `}
             >
               <div className="flex flex-col w-full">
-                <span className={`text-base font-black ${isToday ? 'text-white dark:text-black' : isHoliday ? 'text-red-500' : 'text-gray-900 dark:text-gray-100 opacity-60 group-hover:opacity-100'}`}>
+                <span className={`text-base font-black ${isToday ? 'text-indigo-600 dark:text-indigo-400' : isHoliday ? 'text-red-500' : 'text-gray-900 dark:text-gray-100 opacity-60 group-hover:opacity-100'}`}>
                   {day}
                 </span>
                 {holidayName && (
                   <span className="text-[8px] font-black text-red-400 truncate w-full">{holidayName}</span>
                 )}
                 {note && (
-                  <span className={`text-[9px] font-bold mt-1 truncate w-full px-1.5 py-0.5 rounded-md ${isToday ? 'bg-white/20 text-white' : 'bg-indigo-500/10 text-indigo-500'}`}>
+                  <span className={`text-[9px] font-bold mt-1 truncate w-full px-1.5 py-0.5 rounded-md ${isToday ? 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'bg-indigo-500/10 text-indigo-500'}`}>
                     {note}
                   </span>
                 )}
               </div>
               
-              {
-                // 목업 더미용 점 표시 (7, 12, 20일)
-              }
-              {(day === 7 || day === 12 || day === 20) && currentMonth === 4 && (
-                <div className="flex gap-1">
-                  <div className={`w-1.5 h-1.5 rounded-full ${isToday ? 'bg-white/50' : 'bg-indigo-500'}`}></div>
+              {/* 일정이 있는 날짜는 직관적으로 보이도록 상태 점(dot) 표시기 추가 */}
+              {hasSchedules && (
+                <div className="flex gap-1 mt-auto pt-1 w-full overflow-hidden items-center">
+                  <div className="flex gap-0.5 shrink-0">
+                    {daySchedules.slice(0, 3).map((item) => {
+                      const dotColor = item.type === 'routine'
+                        ? 'bg-violet-400 dark:bg-violet-500'
+                        : item.isFavorite
+                          ? 'bg-amber-500 dark:bg-amber-600'
+                          : 'bg-indigo-400 dark:bg-indigo-500';
+                      return (
+                        <span 
+                          key={item.id} 
+                          className={`w-1.5 h-1.5 rounded-full ${dotColor}`}
+                        />
+                      );
+                    })}
+                  </div>
+                  {daySchedules.length > 3 && (
+                    <span className={`text-[8px] font-black leading-none shrink-0 ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`}>
+                      +{daySchedules.length - 3}
+                    </span>
+                  )}
                 </div>
               )}
             </div>

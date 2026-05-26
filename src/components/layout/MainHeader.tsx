@@ -89,6 +89,8 @@ export function MainHeader() {
       navigate("/study/invitation");
     } else if (type.includes("MESSAGE") || type.includes("NOTE")) {
       navigate("/messages");
+    } else if (type.includes("CALENDAR")) {
+      navigate("/schedule");
     } else {
       navigate("/notifications");
     }

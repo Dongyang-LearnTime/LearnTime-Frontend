@@ -8,6 +8,7 @@ import { sendFriendRequestApi, deleteFriendApi, acceptFriendRequestApi, rejectFr
 
 import type { ProfileResponse, ProfileVisibility } from "./types/ProfileTypes";
 import type { PostListResponse } from "../community/types/PostTypes";
+import { getBadgeImage, getTierImage } from "../../utils/gamificationAssets";
 
 export default function ProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -247,21 +248,28 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-1 mb-4">
                 <span className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Tier</span>
                 <div className="flex items-center">
-                  <span className="px-2 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-[rgba(99,102,241,0.1)] dark:text-indigo-300 dark:border-[rgba(99,102,241,0.2)]">
-                    {profile.tierName}
-                  </span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 dark:bg-[rgba(99,102,241,0.1)] border border-indigo-200 dark:border-[rgba(99,102,241,0.2)] rounded-md text-xs font-bold text-indigo-700 dark:text-indigo-300 w-fit">
+                    <img src={getTierImage(profile.tierName)} alt={profile.tierName} className="w-6 h-6" />
+                    <span>{profile.tierName}</span>
+                  </div>
                 </div>
               </div>
             )}
             
             <div className="flex flex-col gap-1">
               <span className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Badges</span>
-              <div className="flex flex-wrap gap-2 mt-1">
+              <div className="flex flex-wrap gap-2.5 mt-2">
                 {profile.badges && profile.badges.length > 0 ? (
                   profile.badges.map((badge, idx) => (
-                    <div key={idx} className="flex items-center gap-1 px-2 py-1 bg-amber-50 dark:bg-[rgba(245,158,11,0.1)] border border-amber-200 dark:border-[rgba(245,158,11,0.2)] rounded-md text-xs font-medium text-amber-700 dark:text-amber-300">
-                      {badge.badgeImageUrl && <img src={badge.badgeImageUrl} alt={badge.badgeName} className="w-4 h-4 rounded-full" />}
-                      <span>{badge.badgeName}</span>
+                    <div key={idx} className="relative group cursor-help">
+                      <img 
+                        src={getBadgeImage(badge.badgeType)} 
+                        alt={badge.displayName} 
+                        className="w-16 h-16 hover:scale-110 transition-transform duration-150" 
+                      />
+                      <span className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-slate-900/90 text-white text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none shadow-md">
+                        {badge.displayName}
+                      </span>
                     </div>
                   ))
                 ) : (

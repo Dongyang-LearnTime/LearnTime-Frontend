@@ -1,12 +1,7 @@
 import type { PostListResponse } from "../../community/types/PostTypes";
+import type { UserBadgeResponse } from "../../../types/UserTypes";
 
 export type ProfileVisibility = "PUBLIC" | "PRIVATE";
-
-export interface UserBadgeResponse {
-  badgeId: number;
-  badgeName: string;
-  badgeImageUrl: string | null;
-}
 
 export interface ProfileResponse {
   userId: number;

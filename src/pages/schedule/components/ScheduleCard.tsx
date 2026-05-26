@@ -22,7 +22,9 @@ export function ScheduleCard({
       className={`group relative flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300
         ${item.type === 'routine'
           ? 'bg-indigo-50/50 dark:bg-indigo-500/5 border-indigo-100 dark:border-indigo-500/20 hover:border-indigo-500/50'
-          : 'bg-white dark:bg-[#0d0d0d] border-gray-100 dark:border-[#1a1a1a] hover:border-indigo-500/30'}
+          : item.isFavorite
+            ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 hover:border-amber-500/60'
+            : 'bg-white dark:bg-[#0d0d0d] border-gray-100 dark:border-[#1a1a1a] hover:border-indigo-500/30'}
       `}
     >
     

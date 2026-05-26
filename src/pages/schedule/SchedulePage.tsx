@@ -113,7 +113,6 @@ export default function SchedulePage() {
           startTime,
           endTime,
           type: 'schedule',
-          completed: dto.isCompleted || false,
           isFavorite: dto.isImportant || false
         };
       });
@@ -153,24 +152,21 @@ export default function SchedulePage() {
     fetchAllData();
   }, [currentYear, currentMonth]);
 
-  // 오늘의 일정 필터링
+  // 오늘의 일정 필터링 (루틴은 제외하고 일반 일정만 필터링)
   const todaySchedules = useMemo(() => {
     return schedules.filter(s => {
       if (s.type === 'schedule') return s.date === todayDateStr;
-      if (s.type === 'routine') return s.repeatDays?.includes(todayDayIndex);
       return false;
     }).sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [schedules, todayDateStr, todayDayIndex]);
+  }, [schedules, todayDateStr]);
 
-  // 선택된 날짜의 상세 일정 필터링
+  // 선택된 날짜의 상세 일정 필터링 (루틴은 제외하고 일반 일정만 필터링)
   const selectedDaySchedules = useMemo(() => {
     if (selectedDay === null) return [];
     const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${selectedDay.toString().padStart(2, '0')}`;
-    const dayOfWeek = new Date(currentYear, currentMonth, selectedDay).getDay();
 
     return schedules.filter(s => {
       if (s.type === 'schedule') return s.date === dateStr;
-      if (s.type === 'routine') return s.repeatDays?.includes(dayOfWeek);
       return false;
     }).sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [schedules, selectedDay, currentYear, currentMonth]);
@@ -247,7 +243,6 @@ export default function SchedulePage() {
           await updateScheduleApi(rawId, {
             content: formData.title || '',
             targetDate,
-            isCompleted: formData.completed || false,
             isImportant: formData.isFavorite || false
           });
         }
@@ -273,7 +268,6 @@ export default function SchedulePage() {
           await createScheduleApi({
             content: formData.title || '',
             targetDate,
-            isCompleted: false,
             isImportant: formData.isFavorite || false
           });
         }
@@ -298,7 +292,6 @@ export default function SchedulePage() {
       await updateScheduleApi(rawId, {
         content: target.title,
         targetDate,
-        isCompleted: !target.completed,
         isImportant: target.isFavorite
       });
       fetchAllData();
@@ -338,7 +331,21 @@ export default function SchedulePage() {
   };
 
   const handleChangeField = (field: keyof Schedule, value: any) => {
-    setFormData((prev: Partial<Schedule>) => ({ ...prev, [field]: value }));
+    setFormData((prev: Partial<Schedule>) => {
+      const updated = { ...prev, [field]: value };
+      
+      // 시작 시간을 설정하면 종료 시간을 시작 시간과 같게 동기화 (시작시간 <= 종료시간 보장)
+      if (field === 'startTime') {
+        updated.endTime = value;
+      }
+      
+      // 종료 시간이 시작 시간보다 이전으로 설정될 경우 시작 시간과 같게 조정 (시작시간 <= 종료시간 조건)
+      if (field === 'endTime' && prev.startTime && value < prev.startTime) {
+        updated.endTime = prev.startTime;
+      }
+      
+      return updated;
+    });
   };
 
   const handleToggleRepeatDay = (dayIndex: number) => {
@@ -362,6 +369,7 @@ export default function SchedulePage() {
           onNextMonth={handleNextMonth}
           onDayClick={handleDayClick}
           calendarNotes={calendarNotes}
+          schedules={schedules}
         />
 
         <div className="flex flex-col gap-6 max-h-225">
