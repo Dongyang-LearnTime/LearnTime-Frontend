@@ -9,6 +9,7 @@ import type {
     PlanCompleteRequest,
     StudyMemberResponse,
     StudyMemberFriendResponse,
+    StudyStudioSummaryResponse,
     UpdateStudyTitleRequest 
 } from "../types/studyTypes";
 
@@ -41,6 +42,15 @@ export const getStudyRecentWeekInfoApi = async (studyId: string): Promise<StudyR
         `/api/study/${studyId}/total/recent-week`
     );
     return response.data
+};
+
+// 학습 스튜디오 첫 화면 통합 조회
+export const getStudyStudioSummaryApi = async (studyId: string, planDate: string): Promise<StudyStudioSummaryResponse> => {
+    const response = await axiosInstance.get<StudyStudioSummaryResponse>(
+        `/api/study/${studyId}/studio-summary`,
+        { params: { planDate } }
+    );
+    return response.data;
 };
 
 // 스터디 일일 진도 내용 조회

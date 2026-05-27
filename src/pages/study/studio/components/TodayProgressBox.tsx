@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getStudyMemberContentApi, addStudyMemberContentApi, updateStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/studyStudioApi';
 import { Card, CardTitle } from '../../../../components/common/Card';
 import { EditIcon, CheckIcon, TrashIcon } from '../../../../components/ui/Icons';
+import type { StudyMemberContentResponse } from '../../types/studyTypes';
 
 export interface StudyScheduleItem {
   studyMemberContentId: number;
@@ -10,6 +11,8 @@ export interface StudyScheduleItem {
 
 interface TodayProgressBoxProps {
   studyId: string;
+  initialData?: StudyMemberContentResponse;
+  skipInitialFetch?: boolean;
 }
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 구하는 헬퍼 함수
@@ -21,7 +24,7 @@ const getTodayString = (): string => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-export function TodayProgressBox({ studyId }: TodayProgressBoxProps) {
+export function TodayProgressBox({ studyId, initialData, skipInitialFetch = false }: TodayProgressBoxProps) {
   const [schedules, setSchedules] = useState<StudyScheduleItem[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -32,6 +35,15 @@ export function TodayProgressBox({ studyId }: TodayProgressBoxProps) {
   const [isHoliday, setIsHoliday] = useState<boolean>(false);
 
   useEffect(() => {
+    if (initialData) {
+      setPlanContent(initialData.planContent);
+      setStudyDailyPlanId(initialData.studyDailyPlanId);
+      setSchedules(initialData.memberContents || []);
+      setIsHoliday(initialData.isHoliday);
+      return;
+    }
+    if (skipInitialFetch) return;
+
     let isMounted = true;
     getStudyMemberContentApi(studyId, getTodayString())
       .then((data) => {
@@ -44,7 +56,7 @@ export function TodayProgressBox({ studyId }: TodayProgressBoxProps) {
       })
       .catch(err => console.error("Failed to load today's plan content:", err));
     return () => { isMounted = false; };
-  }, [studyId]);
+  }, [studyId, initialData, skipInitialFetch]);
 
   // 일정 추가
   const handleAddSchedule = async (e: React.FormEvent) => {
@@ -105,14 +117,11 @@ export function TodayProgressBox({ studyId }: TodayProgressBoxProps) {
 
   return (
     <Card className="h-full flex flex-col relative overflow-hidden group">
-      {/* 배경 장식 */}
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-
       <CardTitle icon={<EditIcon size={18} />}>
         <div className="flex items-center gap-2">
           <span>오늘의 진도</span>
           {isHoliday && (
-            <span className="px-2 py-0.5 text-[10px] font-black bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-md animate-pulse">
+            <span className="px-2 py-0.5 text-[10px] font-black bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 rounded-md">
               공식 휴무일
             </span>
           )}
@@ -133,7 +142,7 @@ export function TodayProgressBox({ studyId }: TodayProgressBoxProps) {
           </div>
           <div className="text-sm font-bold text-gray-900 dark:text-gray-100 whitespace-pre-wrap leading-relaxed">
             {isHoliday ? (
-              <span className="text-rose-600 dark:text-rose-400 font-extrabold flex items-center gap-1.5 animate-pulse">
+              <span className="text-rose-600 dark:text-rose-400 font-extrabold flex items-center gap-1.5">
                 오늘은 스터디가 쉬어가는 공식 휴무일입니다. ☕
               </span>
             ) : (

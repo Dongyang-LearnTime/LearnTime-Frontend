@@ -1,39 +1,41 @@
+import { lazy } from 'react';
 import ProtectedRoute from "./ProtectedRoute";
-import HomePage from "../pages/HomePage";
-import LearnTimeMainPage from "../pages/LearnTimeMainPage";
-import NotFoundPage from "./NotFoundPage";
-import SignupPage from "../pages/auth/SignupPage";
-import LoginPage from "../pages/auth/LoginPage";
-import StudyStudioPage from "../pages/study/studio/StudyStudioPage";
-import StudyInvitationPage from "../pages/study/invitation/StudyInvitationPage";
-import CreateStudyPage from "../pages/study/create/CreateStudyPage";
-import NotesWritePage from "../pages/study/notes/NotesWritePage";
-import StudyNotesListPage from "../pages/study/notes/StudyNotesListPage";
-import NotesEditPage from "../pages/study/notes/NotesEditPage";
-import NotesDetailPage from "../pages/study/notes/NotesDetailPage";
-import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
-import QuizResultPage from "../pages/study/quiz/QuizResultPage";
-import QuizHistoryListPage from "../pages/study/quiz/QuizHistoryListPage";
-import CreatePostPage from "../pages/community/post/CreatePostPage";
-import FriendRequestPage from "../pages/community/friend/FriendRequestPage";
-import NotificationPage from "../pages/notification/notificationPage";
-
 import { MainHeader } from "../components/layout/MainHeader";
 import { StudySidebarLayout } from "../components/layout/StudySidebarLayout";
-import StudyRedirector from "../pages/study/studio/StudyRedirector";
-import StudyEmptyPage from "../pages/study/studio/StudyEmptyPage";
-import UnderConstructionPage from "../pages/UnderConstructionPage";
-import StudyQuizListPage from "../pages/study/quiz/StudyQuizListPage";
-import StudyFeedbackListPage from "../pages/study/feedback/StudyFeedbackListPage";
-import CommunityPage from "../pages/community/CommunityPage";
-import PostDetailPage from "../pages/community/post/PostDetailPage";
-import PostEditPage from "../pages/community/post/PostEditPage";
-import RankingPage from "../pages/community/RankingPage";
-import ProfilePage from "../pages/profile/ProfilePage";
-import MessageListPage from "../pages/message/MessageListPage";
-import SchedulePage from "../pages/schedule/SchedulePage";
-import ExercisePage from "../pages/exercise/ExercisePage";
-import BadgeTierInfoPage from "../pages/community/tire/BadgeTierInfoPage";
+
+const StudyStudioPage = lazy(() => import("../pages/study/studio/StudyStudioPage"));
+const StudyRedirector = lazy(() => import("../pages/study/studio/StudyRedirector"));
+const StudyEmptyPage = lazy(() => import("../pages/study/studio/StudyEmptyPage"));
+
+const HomePage = lazy(() => import("../pages/HomePage"));
+const LearnTimeMainPage = lazy(() => import("../pages/LearnTimeMainPage"));
+const NotFoundPage = lazy(() => import("./NotFoundPage"));
+const SignupPage = lazy(() => import("../pages/auth/SignupPage"));
+const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
+const StudyInvitationPage = lazy(() => import("../pages/study/invitation/StudyInvitationPage"));
+const CreateStudyPage = lazy(() => import("../pages/study/create/CreateStudyPage"));
+const NotesWritePage = lazy(() => import("../pages/study/notes/NotesWritePage"));
+const StudyNotesListPage = lazy(() => import("../pages/study/notes/StudyNotesListPage"));
+const NotesEditPage = lazy(() => import("../pages/study/notes/NotesEditPage"));
+const NotesDetailPage = lazy(() => import("../pages/study/notes/NotesDetailPage"));
+const QuizSolvePage = lazy(() => import("../pages/study/quiz/QuizSolvePage"));
+const QuizResultPage = lazy(() => import("../pages/study/quiz/QuizResultPage"));
+const QuizHistoryListPage = lazy(() => import("../pages/study/quiz/QuizHistoryListPage"));
+const CreatePostPage = lazy(() => import("../pages/community/post/CreatePostPage"));
+const FriendRequestPage = lazy(() => import("../pages/community/friend/FriendRequestPage"));
+const NotificationPage = lazy(() => import("../pages/notification/notificationPage"));
+const UnderConstructionPage = lazy(() => import("../pages/UnderConstructionPage"));
+const StudyQuizListPage = lazy(() => import("../pages/study/quiz/StudyQuizListPage"));
+const StudyFeedbackListPage = lazy(() => import("../pages/study/feedback/StudyFeedbackListPage"));
+const CommunityPage = lazy(() => import("../pages/community/CommunityPage"));
+const PostDetailPage = lazy(() => import("../pages/community/post/PostDetailPage"));
+const PostEditPage = lazy(() => import("../pages/community/post/PostEditPage"));
+const RankingPage = lazy(() => import("../pages/community/RankingPage"));
+const ProfilePage = lazy(() => import("../pages/profile/ProfilePage"));
+const MessageListPage = lazy(() => import("../pages/message/MessageListPage"));
+const SchedulePage = lazy(() => import("../pages/schedule/SchedulePage"));
+const ExercisePage = lazy(() => import("../pages/exercise/ExercisePage"));
+const BadgeTierInfoPage = lazy(() => import("../pages/community/tire/BadgeTierInfoPage"));
 
 export const routes = [
   {

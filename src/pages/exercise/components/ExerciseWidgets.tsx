@@ -602,7 +602,7 @@ export function ExerciseDashboardBox() {
       {/* 차트 영역 (전체 너비 확장) */}
       <div className="space-y-4">
         <h3 className="text-[0.65rem] font-black uppercase tracking-[0.3em] text-gray-400 ml-1">일별 총 중량 (kg)</h3>
-        <div className="w-full h-[280px]">
+        <div className="w-full h-70">
           {isLoading ? (
             <div className="flex justify-center items-center h-full text-xs font-bold text-gray-400 bg-gray-50 dark:bg-[#0a0a0a] rounded-3xl">
               데이터를 불러오는 중...

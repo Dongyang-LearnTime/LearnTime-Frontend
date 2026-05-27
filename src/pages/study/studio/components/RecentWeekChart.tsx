@@ -132,8 +132,6 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
 
   return (
     <Card className="h-full border-0 shadow-none bg-white dark:bg-[#050505] rounded-3xl p-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 relative z-10 gap-4">
         <div>
           <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">주간 몰입도</h3>

@@ -18,11 +18,12 @@ export default function CommunityPage() {
   const [ ranking, setRanking ] = useState<PointRankingResponse[]>([]);
   const [ searchInput, setSearchInput ] = useState('');
   const [ searchKeyword, setSearchKeyword ] = useState('');
+  const [ searchType, setSearchType ] = useState<'CONTENT' | 'AUTHOR'>('CONTENT');
 
-  const fetchPosts = useCallback(async (currentPage: number, keyword: string) => {
+  const fetchPosts = useCallback(async (currentPage: number, keyword: string, type: 'CONTENT' | 'AUTHOR') => {
     try {
       if (keyword.trim()) {
-        const response = await searchPostListApi(keyword, currentPage);
+        const response = await searchPostListApi(keyword, currentPage, type);
         if (currentPage === 0) setPosts(response.content);
         else setPosts(prev => [...prev, ...response.content]);
       } else {
@@ -63,13 +64,13 @@ export default function CommunityPage() {
     }
   };
 
-  // 선언형 아키텍처: searchKeyword 상태 변화 감지 시 자동으로 데이터 갱신
+  // 선언형 아키텍처: searchKeyword, searchType 상태 변화 감지 시 자동으로 데이터 갱신
   useEffect(() => {
     fetchTopPosts();
     fetchRanking();
     fetchNotices();
-    fetchPosts(0, searchKeyword);
-  }, [fetchPosts, searchKeyword]);
+    fetchPosts(0, searchKeyword, searchType);
+  }, [fetchPosts, searchKeyword, searchType]);
 
   // 엔터/클릭 시 검색어 상태만 업데이트하여 선언형 이벤트를 유도
   const triggerSearch = () => {
@@ -118,6 +119,14 @@ export default function CommunityPage() {
           {/* 검색 인풋 영역 */}
           <div className="flex items-center justify-between mb-8">
             <div className="relative flex items-center grow w-full gap-3">
+              <select
+                value={searchType}
+                onChange={(e) => setSearchType(e.target.value as 'CONTENT' | 'AUTHOR')}
+                className="bg-white dark:bg-[#0d0d0d] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl px-4 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 focus:border-indigo-500 outline-none transition-all shadow-sm cursor-pointer"
+              >
+                <option value="CONTENT">제목 + 내용</option>
+                <option value="AUTHOR">작성자</option>
+              </select>
               <div className="relative grow">
                 <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                 <input
@@ -125,7 +134,7 @@ export default function CommunityPage() {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
-                  placeholder="검색어를 입력하세요..."
+                  placeholder={searchType === 'CONTENT' ? "제목 또는 내용으로 검색..." : "작성자 이름으로 검색..."}
                   className="w-full bg-white dark:bg-[#0d0d0d] border border-gray-100 dark:border-[#1a1a1a] rounded-4xl pl-14 pr-24 py-4 text-sm font-bold focus:border-indigo-500 outline-none transition-all shadow-sm"
                 />
                 <button

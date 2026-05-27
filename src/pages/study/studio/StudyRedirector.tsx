@@ -43,7 +43,7 @@ export default function StudyRedirector() {
 
   return (
     <div className="flex items-center justify-center h-[60vh]">
-      <span className="text-sm font-bold text-gray-400 animate-pulse">스터디 정보를 불러오는 중입니다...</span>
+      <span className="text-sm font-bold text-gray-400">스터디 정보를 불러오는 중입니다...</span>
     </div>
   );
 }

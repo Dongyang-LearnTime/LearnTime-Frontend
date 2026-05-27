@@ -106,3 +106,11 @@ export interface TodayStudyPlanResponse {
   planContent: string;
   progressStatus: ProgressStatus;
 }
+
+// 학습 스튜디오 첫 화면 통합 응답
+export interface StudyStudioSummaryResponse {
+  todayPlan: StudyPlanResponse;
+  todayContent: StudyMemberContentResponse;
+  totalIndicator: StudyTotalInfoResponse;
+  recentWeekIndicator: StudyRecentWeekInfoResponse[];
+}

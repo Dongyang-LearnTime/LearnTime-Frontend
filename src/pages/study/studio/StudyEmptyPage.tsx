@@ -7,7 +7,7 @@ export default function StudyEmptyPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center px-4 animate-in fade-in zoom-in-95 duration-500">
+    <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center px-4">
       <div className="w-24 h-24 bg-gray-50 dark:bg-[#111] rounded-3xl flex items-center justify-center text-gray-300 dark:text-gray-700 mb-8 shadow-inner">
         <BookIcon size={48} />
       </div>

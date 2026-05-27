@@ -1,21 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { generateStudyFeedback } from "../api/studyFeedbackApi";
 import StudyLearningMetrics from "./StudyLearningMetrics";
 import StudyProgressInfo from "./StudyProgressInfo";
 import StudyMemberList from "./StudyMemberList";
-import { PlusIcon, SparklesIcon } from "../../../components/ui/Icons";
+import { SparklesIcon, PlayIcon } from "../../../components/ui/Icons";
 import { usePageTitle } from "../../../hooks/usePageTitle";
+import { 
+  getStudyStudioSummaryApi,
+  startStudyDailyPlanApi 
+} from "../api/studyStudioApi";
+import type { StudyPlanResponse, StudyStudioSummaryResponse } from "../types/studyTypes";
 
 export default function StudyStudioPage() {
   const { studyId } = useParams<{ studyId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const studyTitle = searchParams.get("title");
+  
   const [ activeTab, setActiveTab ] = useState<"metrics" | "progress" | "members">("metrics");
   const [ isGeneratingFeedback, setIsGeneratingFeedback ] = useState(false);
 
+  // 오늘 날짜 기준의 진도 계획 정보 상태 관리
+  const [todayPlan, setTodayPlan] = useState<StudyPlanResponse | null>(null);
+  const [studioSummary, setStudioSummary] = useState<StudyStudioSummaryResponse | null>(null);
+  const [isTodayLoading, setIsTodayLoading] = useState(true);
+  const [isStartingToday, setIsStartingToday] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
   usePageTitle(studyTitle ? `학습 스튜디오 - ${studyTitle}` : "학습 스튜디오");
+
+  // 오늘 날짜를 YYYY-MM-DD 형식으로 구하는 헬퍼 함수
+  const getTodayString = (): string => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  // 오늘의 공부 진도 정보 불러오기
+  useEffect(() => {
+    if (!studyId) return;
+    setIsTodayLoading(true);
+    getStudyStudioSummaryApi(studyId, getTodayString())
+      .then((data) => {
+        setStudioSummary(data);
+        setTodayPlan(data.todayPlan);
+      })
+      .catch((err: unknown) => {
+        console.error("Failed to load study studio summary:", err);
+      })
+      .finally(() => {
+        setIsTodayLoading(false);
+      });
+  }, [studyId, refreshKey]);
 
   const handleGenerateFeedback = async () => {
     if (!studyId) return;
@@ -32,12 +71,28 @@ export default function StudyStudioPage() {
     }
   };
 
+  // 오늘의 공부 진도 시작
+  const handleStartTodayPlan = async () => {
+    if (!todayPlan || !todayPlan.studyDailyPlanId) return;
+    setIsStartingToday(true);
+    try {
+      await startStudyDailyPlanApi(todayPlan.studyDailyPlanId);
+      alert("오늘의 공부 진도를 시작합니다. 파이팅!");
+      setRefreshKey(prev => prev + 1);
+    } catch (err: unknown) {
+      console.error("Failed to start today's study plan:", err);
+      alert("진도 시작에 실패했습니다.");
+    } finally {
+      setIsStartingToday(false);
+    }
+  };
+
   if (!studyId) {
     return <div style={{ padding: "16px" }}>스터디 ID가 유효하지 않습니다.</div>;
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* 상단 헤더 영역 */}
       <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -50,6 +105,33 @@ export default function StudyStudioPage() {
           )}
         </div>
         <div className="flex items-center gap-3">
+          {/* 오늘의 진도 시작/상태 버튼 */}
+          {!isTodayLoading && todayPlan && todayPlan.studyDailyPlanId && (
+            <>
+              {todayPlan.progressStatus === "NOT_STARTED" && (
+                <button
+                  onClick={handleStartTodayPlan}
+                  disabled={isStartingToday}
+                  className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30 cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${isStartingToday ? 'opacity-70 cursor-wait' : ''}`}
+                >
+                  <PlayIcon size={16} fill="white" /> 일일 진도 시작
+                </button>
+              )}
+              {todayPlan.progressStatus === "IN_PROGRESS" && (
+                <div className="px-5 sm:px-6 py-2.5 sm:py-3 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-300 rounded-2xl font-bold text-sm flex items-center gap-1.5 shadow-xs select-none">
+                  <span className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full"></span>
+                  오늘 공부 진행 중
+                </div>
+              )}
+              {todayPlan.progressStatus === "COMPLETED" && (
+                <div className="px-5 sm:px-6 py-2.5 sm:py-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 rounded-2xl font-bold text-sm flex items-center gap-1.5 shadow-xs select-none">
+                  <span className="w-2 h-2 bg-emerald-600 dark:bg-emerald-400 rounded-full"></span>
+                  오늘 공부 완료됨
+                </div>
+              )}
+            </>
+          )}
+
           {/* AI 진도 분석 버튼 */}
           <button
             onClick={handleGenerateFeedback}
@@ -66,13 +148,6 @@ export default function StudyStudioPage() {
                 <SparklesIcon size={16} /> AI 진도 분석
               </>
             )}
-          </button>
-          {/* 진도 추가 버튼 */}
-          <button
-            onClick={() => navigate('/study/plan/create')}
-            className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-2xl font-bold text-sm hover:border-indigo-500 transition-all shadow-sm cursor-pointer text-gray-800 dark:text-gray-200"
-          >
-            <PlusIcon size={16} /> 진도 추가
           </button>
         </div>
       </header>
@@ -111,10 +186,16 @@ export default function StudyStudioPage() {
         </button>
       </div>
 
-      {/* 탭 본문 영역 (조건부 렌더링을 통한 마운트 시점 API 호출 유도) */}
+      {/* 탭 본문 영역 */}
       <div>
-        {activeTab === "metrics" && <StudyLearningMetrics studyId={studyId} />}
-        {activeTab === "progress" && <StudyProgressInfo studyId={studyId} />}
+        {activeTab === "metrics" && <StudyLearningMetrics studyId={studyId} summary={studioSummary} isSummaryLoading={isTodayLoading} />}
+        {activeTab === "progress" && (
+          <StudyProgressInfo 
+            studyId={studyId} 
+            refreshTrigger={refreshKey} 
+            onRefreshToday={() => setRefreshKey(prev => prev + 1)} 
+          />
+        )}
         {activeTab === "members" && <StudyMemberList studyId={studyId} />}
       </div>
     </div>

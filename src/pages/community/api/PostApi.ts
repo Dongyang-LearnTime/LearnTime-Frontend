@@ -88,11 +88,16 @@ export const getPostListApi = async (page: number, size: number = 10): Promise<P
 
 
 // 검색된 게시글 목록
-export const searchPostListApi = async (keyword: string, page: number, size: number = 10): Promise<PageResponse<PostListResponse>> => {
+export const searchPostListApi = async (
+    keyword: string, 
+    page: number, 
+    type: 'CONTENT' | 'AUTHOR' = 'CONTENT',
+    size: number = 10
+): Promise<PageResponse<PostListResponse>> => {
         const response = await axiosInstance.get(
         `/api/community/post/search`,     
         {
-            params: { keyword, page, size }
+            params: { keyword, page, type, size }
         }
     );
     return response.data;

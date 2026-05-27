@@ -37,9 +37,6 @@ export default function CoreMetricsChart({ data }: CoreMetricsChartProps) {
 
   return (
     <Card className="h-full flex flex-col relative overflow-hidden group border-0 shadow-none bg-white dark:bg-[#050505] rounded-3xl p-6">
-      {/* 배경 장식 */}
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-pink-500/5 rounded-full blur-3xl pointer-events-none" />
-
       <div className="mb-6 relative z-10">
         <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">핵심 지표</h3>
         <p className="text-xs font-medium text-gray-500">스터디의 전반적인 달성도를 확인합니다.</p>

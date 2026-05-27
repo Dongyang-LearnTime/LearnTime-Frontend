@@ -87,7 +87,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     return (
       <Card className="min-h-50 overflow-hidden group">
         <CardTitle icon={<UsersIcon size={18} />} className="mb-6">스터디 멤버 목록</CardTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="h-28 w-full bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl"></div>
           <div className="h-28 w-full bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl"></div>
           <div className="h-28 w-full bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl"></div>
@@ -194,8 +194,8 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
       {/* 초대 모달 */}
       {isInviteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-sm bg-white dark:bg-[#0a0a0a] rounded-4xl border border-gray-100 dark:border-[#1a1a1a] p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+          <div className="w-full max-w-sm bg-white dark:bg-[#0a0a0a] rounded-4xl border border-gray-100 dark:border-[#1a1a1a] p-6 shadow-xl">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">친구 초대</h3>
               <button onClick={() => setIsInviteModalOpen(false)} className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-full transition-colors">

@@ -115,14 +115,11 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
 
   return (
     <Card className="h-full flex flex-col relative overflow-hidden group">
-      {/* 배경 장식 */}
-      <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-
       <CardTitle icon={<EditIcon size={18} />}>오늘의 진도</CardTitle>
 
       <div className="grow overflow-y-auto pr-2 custom-scrollbar space-y-4 mb-6">
         {isLoading ? (
-          <div className="flex flex-col gap-4 py-4 animate-pulse">
+          <div className="flex flex-col gap-4 py-4">
             <div className="h-6 w-1/3 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
             <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl mt-2"></div>
             <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl"></div>

@@ -90,9 +90,6 @@ export function StopwatchBox() {
 
   return (
     <Card className="flex flex-col items-center h-full p-8 min-h-95 relative overflow-hidden group">
-      {/* 배경 장식 */}
-      <div className="absolute top-0 left-0 -mt-10 -ml-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-
       <h2 className="text-gray-400 text-[0.65rem] font-black uppercase tracking-[0.3em] mt-2 mb-6">스튜디오 타이머</h2>
       <div className="text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter text-glow">
         {h}<span className="text-indigo-500 mx-0.5">:</span>{m}<span className="text-indigo-500 mx-0.5">:</span>{s}
@@ -145,7 +142,7 @@ export function StopwatchBox() {
       {/* 기록된 공부 랩타임 리스트 */}
       <div className="w-full mt-2 border-t border-gray-100 dark:border-[#1a1a1a] pt-4">
         {laps.length > 0 ? (
-          <div className="animate-in fade-in duration-300">
+          <div>
             <div className="flex justify-between items-center text-[0.6rem] text-gray-400 font-bold uppercase tracking-wider mb-3">
               <span>오늘의 기록 ({laps.length})</span>
               <button 

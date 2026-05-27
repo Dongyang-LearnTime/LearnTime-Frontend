@@ -157,7 +157,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
                         </span>
                         {/* 오늘 진도 있음 표시 */}
                         {isExpanded && study.hasTodayPlan && (
-                          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full ml-auto shrink-0 shadow-[0_0_5px_rgba(244,63,94,0.5)] animate-pulse" title="오늘의 진도 있음" />
+                          <span className="w-1.5 h-1.5 bg-rose-500 rounded-full ml-auto shrink-0 shadow-[0_0_5px_rgba(244,63,94,0.5)]" title="오늘의 진도 있음" />
                         )}
                         {!isExpanded && study.hasTodayPlan && (
                           <span className="absolute right-1 top-1 w-2 h-2 bg-rose-500 rounded-full shadow-[0_0_5px_rgba(244,63,94,0.5)] border border-white dark:border-[#050505]" />
@@ -221,13 +221,13 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
       {/* 모바일 화면에서 메뉴 닫기용 오버레이 */}
       {isExpanded && (
         <div 
-          className="fixed inset-0 bg-black/20 dark:bg-black/40 z-10 md:hidden backdrop-blur-sm transition-opacity" 
+          className="fixed inset-0 bg-black/20 dark:bg-black/40 z-10 md:hidden transition-opacity" 
           onClick={() => setIsExpanded(false)}
         />
       )}
 
       {/* 우측 메인 컨텐츠 영역 */}
-      <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-gray-50/30 dark:bg-[#020202] transition-all duration-500 w-full relative">
+      <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-gray-50/30 dark:bg-[#020202] w-full relative">
         {/* 모바일 전용 햄버거 메뉴 띄우기 버튼 */}
         <button 
           onClick={() => setIsExpanded(true)}

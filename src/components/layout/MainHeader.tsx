@@ -23,6 +23,8 @@ export function MainHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isInviteMenuOpen, setIsInviteMenuOpen] = useState(false);
+  const [isNotificationListLoaded, setIsNotificationListLoaded] = useState(false);
+  const [isNotificationListLoading, setIsNotificationListLoading] = useState(false);
   
   const notificationRef = useRef<HTMLDivElement>(null);
   const inviteMenuRef = useRef<HTMLDivElement>(null);
@@ -37,18 +39,16 @@ export function MainHeader() {
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
 
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchUnreadCount = async () => {
       try {
         const countRes = await NotificationApi.getUnreadCount();
         setUnreadCount(Number(countRes.unreadCount));
-        const listRes = await NotificationApi.getNotifications();
-        setNotifications(listRes.content, listRes.hasNext, listRes.nextCursor);
       } catch (error) {
-        console.error("Failed to load initial notification data:", error);
+        console.error("Failed to load unread notification count:", error);
       }
     };
-    fetchInitialData();
-  }, [setNotifications, setUnreadCount]);
+    fetchUnreadCount();
+  }, [setUnreadCount]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -131,6 +131,29 @@ export function MainHeader() {
     }
   };
 
+  const loadNotificationsIfNeeded = async () => {
+    if (isNotificationListLoaded || isNotificationListLoading) return;
+
+    try {
+      setIsNotificationListLoading(true);
+      const listRes = await NotificationApi.getNotifications();
+      setNotifications(listRes.content, listRes.hasNext, listRes.nextCursor);
+      setIsNotificationListLoaded(true);
+    } catch (error) {
+      console.error("Failed to load notification list:", error);
+    } finally {
+      setIsNotificationListLoading(false);
+    }
+  };
+
+  const handleToggleNotification = () => {
+    const nextOpen = !isNotificationOpen;
+    setIsNotificationOpen(nextOpen);
+    if (nextOpen) {
+      void loadNotificationsIfNeeded();
+    }
+  };
+
   const NavItem = ({ to, icon, label, active, onClickOverride, hasToggle, isExpanded }: { to: string; icon: React.ReactNode; label: string; active: boolean; onClickOverride?: () => void; hasToggle?: boolean; isExpanded?: boolean }) => (
     <div
       onClick={() => onClickOverride ? onClickOverride() : navigate(to)}
@@ -152,7 +175,7 @@ export function MainHeader() {
   );
 
   return (
-    <header className="sticky top-4 z-50 max-w-450 w-[calc(100%-2rem)] lg:w-[calc(100%-5rem)] mx-auto bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl border border-white/40 dark:border-slate-800/60 rounded-full shadow-xl shadow-gray-200/50 dark:shadow-black/50 transition-all duration-500 mb-8">
+    <header className="sticky top-4 z-50 max-w-450 w-[calc(100%-2rem)] lg:w-[calc(100%-5rem)] mx-auto bg-white/95 dark:bg-slate-900/95 border border-white/40 dark:border-slate-800/60 rounded-full shadow-md shadow-gray-200/40 dark:shadow-black/40 transition-colors duration-200 mb-8">
       <div className="px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* 로고 영역 */}
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
@@ -189,7 +212,7 @@ export function MainHeader() {
             />
             {/* 수신함 드롭다운 */}
             {isInviteMenuOpen && (
-              <div className="absolute left-0 mt-3 w-48 bg-white/98 dark:bg-[#0c0c0c]/98 backdrop-blur-xl border border-gray-200 dark:border-[#222] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-black/80 overflow-hidden z-50 py-2">
+              <div className="absolute left-0 mt-3 w-48 bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-[#222] rounded-2xl shadow-lg shadow-gray-200/40 dark:shadow-black/70 overflow-hidden z-50 py-2">
                 <button 
                   onClick={() => { setIsInviteMenuOpen(false); navigate("/friend/requests"); }} 
                   className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${currentPath.includes('requests') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white'}`}
@@ -218,12 +241,12 @@ export function MainHeader() {
           {/* 알림창 영역 */}
           <div className="relative" ref={notificationRef}>
             <button
-              onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+              onClick={handleToggleNotification}
               className="relative p-2.5 rounded-full bg-gray-100 dark:bg-[#1a1a1a] text-gray-500 hover:text-black dark:hover:text-white transition-all duration-300"
             >
               <BellIcon size={20} />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -231,7 +254,7 @@ export function MainHeader() {
 
             {/* 알림 드롭다운 창 (투명도 개선: bg-white/95) */}
             {isNotificationOpen && (
-              <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white/98 dark:bg-[#0c0c0c]/98 backdrop-blur-xl border border-gray-200 dark:border-[#222] rounded-3xl shadow-2xl shadow-gray-300/50 dark:shadow-black/80 overflow-hidden z-50">
+              <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white dark:bg-[#0c0c0c] border border-gray-200 dark:border-[#222] rounded-3xl shadow-xl shadow-gray-300/40 dark:shadow-black/70 overflow-hidden z-50">
                 <div className="px-5 py-4 border-b border-gray-100 dark:border-[#1a1a1a] flex items-center justify-between bg-gray-50/80 dark:bg-[#111]/80">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-base text-gray-900 dark:text-white">알림</span>
@@ -249,7 +272,12 @@ export function MainHeader() {
                 </div>
 
                 <div className="max-h-95 overflow-y-auto divide-y divide-gray-100 dark:divide-[#1a1a1a] bg-white dark:bg-[#0a0a0a]">
-                  {notifications.length === 0 ? (
+                  {isNotificationListLoading ? (
+                    <div className="py-12 px-6 flex flex-col items-center justify-center text-center">
+                      <div className="w-8 h-8 border-4 border-indigo-100 border-t-indigo-500 dark:border-indigo-900 dark:border-t-indigo-400 rounded-full animate-spin mb-3"></div>
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">알림을 불러오는 중입니다.</p>
+                    </div>
+                  ) : notifications.length === 0 ? (
                     <div className="py-12 px-6 flex flex-col items-center justify-center text-center">
                       <div className="w-12 h-12 rounded-full bg-gray-50 dark:bg-[#151515] flex items-center justify-center text-gray-400 mb-3"><BellIcon size={24} /></div>
                       <p className="text-sm font-medium text-gray-500 dark:text-gray-400">새로운 알림이 없습니다.</p>
@@ -306,7 +334,7 @@ export function MainHeader() {
 
       {/* 모바일 네비게이션 드롭다운 메뉴 */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-20 left-0 right-0 mx-auto w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-3xl border border-gray-150 dark:border-slate-800/80 rounded-3xl shadow-2xl p-5 flex flex-col gap-3 z-50 animate-in fade-in slide-in-from-top-5 duration-300">
+        <div className="lg:hidden absolute top-20 left-0 right-0 mx-auto w-full bg-white dark:bg-slate-900 border border-gray-150 dark:border-slate-800/80 rounded-3xl shadow-xl p-5 flex flex-col gap-3 z-50">
           <button 
             onClick={() => { setIsMobileMenuOpen(false); navigate("/main/schedule"); }}
             className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold transition-all text-sm text-left ${currentPath.includes('schedule') ? 'bg-gray-900 dark:bg-white text-white dark:text-black' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}

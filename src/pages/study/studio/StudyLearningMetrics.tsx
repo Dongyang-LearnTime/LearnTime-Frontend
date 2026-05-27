@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getStudyTotalInfoApi, getStudyRecentWeekInfoApi } from "../api/studyStudioApi";
-import type { StudyRecentWeekInfoResponse, StudyTotalInfoResponse } from "../types/studyTypes";
+import type { StudyRecentWeekInfoResponse, StudyStudioSummaryResponse, StudyTotalInfoResponse } from "../types/studyTypes";
 import RecentWeekChart from "./components/RecentWeekChart";
 import CoreMetricsChart from "./components/CoreMetricsChart";
 import { StopwatchBox } from "./components/StopwatchBox";
@@ -9,9 +9,11 @@ import { TodayProgressBox } from "./components/TodayProgressBox";
 
 interface StudyLearningMetricsProps {
   studyId: string;
+  summary?: StudyStudioSummaryResponse | null;
+  isSummaryLoading?: boolean;
 }
 
-export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsProps) {
+export default function StudyLearningMetrics({ studyId, summary, isSummaryLoading = false }: StudyLearningMetricsProps) {
   // 1. 최근 일주일 공부 지표 상태 관리
   const [ recentData, setRecentData ] = useState<StudyRecentWeekInfoResponse[] | null>(null);
   const [ isRecentLoading, setIsRecentLoading ] = useState<boolean>(true);
@@ -24,6 +26,21 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
 
   // 마운트 시 각각의 API 호출을 수행
   useEffect(() => {
+    if (summary !== undefined) {
+      if (summary) {
+        setRecentData(summary.recentWeekIndicator);
+        setTotalData(summary.totalIndicator);
+        setIsRecentLoading(false);
+        setIsTotalLoading(false);
+        setRecentError(null);
+        setTotalError(null);
+      } else {
+        setIsRecentLoading(true);
+        setIsTotalLoading(true);
+      }
+      return;
+    }
+
     let isMounted = true;
 
     // 최근 일주일 지표 호출
@@ -63,7 +80,14 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
     return () => {
       isMounted = false;
     };
-  }, [studyId]);
+  }, [studyId, summary]);
+
+  useEffect(() => {
+    if (isSummaryLoading) {
+      setIsRecentLoading(true);
+      setIsTotalLoading(true);
+    }
+  }, [isSummaryLoading]);
 
   return (
     <div className="flex flex-col gap-6 max-w-450 mx-auto w-full">
@@ -71,7 +95,7 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
         {/* 오늘의 진도 (60% 너비) */}
         <section className="lg:col-span-6 min-h-100">
-          <TodayProgressBox studyId={studyId} />
+          <TodayProgressBox studyId={studyId} initialData={summary?.todayContent} skipInitialFetch={summary !== undefined} />
         </section>
 
         {/* 스튜디오 타이머 (40% 너비) */}
@@ -86,11 +110,11 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
         <section className="lg:col-span-8 min-h-87.5">
           {isRecentLoading ? (
             <div className="flex flex-col gap-4 h-full bg-white dark:bg-[#070707] border border-gray-100 dark:border-[#1f1f1f] rounded-4xl p-8">
-              <div className="flex items-center gap-3 mb-4 animate-pulse">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gray-100 dark:bg-[#111] rounded-2xl"></div>
                 <div className="h-6 w-32 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
               </div>
-              <div className="flex-1 w-full bg-gray-50 dark:bg-[#111] rounded-2xl animate-pulse"></div>
+              <div className="flex-1 w-full bg-gray-50 dark:bg-[#111] rounded-2xl"></div>
             </div>
           ) : recentError ? (
             <div className="flex items-center justify-center h-full bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 rounded-4xl">
@@ -109,11 +133,11 @@ export default function StudyLearningMetrics({ studyId }: StudyLearningMetricsPr
         <section className="lg:col-span-4 min-h-87.5">
           {isTotalLoading ? (
             <div className="flex flex-col gap-4 h-full bg-white dark:bg-[#070707] border border-gray-100 dark:border-[#1f1f1f] rounded-4xl p-8">
-              <div className="flex items-center gap-3 mb-4 animate-pulse">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gray-100 dark:bg-[#111] rounded-2xl"></div>
                 <div className="h-6 w-32 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
               </div>
-              <div className="flex flex-col gap-4 flex-1 animate-pulse">
+              <div className="flex flex-col gap-4 flex-1">
                 <div className="h-20 w-full bg-gray-50 dark:bg-[#111] rounded-2xl"></div>
                 <div className="h-20 w-full bg-gray-50 dark:bg-[#111] rounded-2xl"></div>
               </div>

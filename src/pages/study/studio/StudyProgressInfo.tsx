@@ -8,13 +8,25 @@ import BaseModal from "../../../components/common/BaseModal";
 import PlanCompletionForm from "./components/PlanCompletionForm";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import { Card, CardTitle } from "../../../components/common/Card";
-import { BookIcon, TrashIcon } from "../../../components/ui/Icons";
+import { BookIcon, TrashIcon, CalendarIcon } from "../../../components/ui/Icons";
 import { useAuthStore } from "../../../store/useAuthStore";
 import { useStudyStore } from "../../../store/useStudyStore";
 
 interface StudyProgressInfoProps {
   studyId: string;
+  refreshTrigger?: number;
+  onRefreshToday?: () => void;
 }
+
+const dayMap: Record<string, number> = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6
+};
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 구하는 헬퍼 함수
 const getTodayString = (): string => {
@@ -25,7 +37,7 @@ const getTodayString = (): string => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
+export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshToday }: StudyProgressInfoProps) {
   // 쿼리 파라미터 연동
   const [searchParams, setSearchParams] = useSearchParams();
   const planDate = searchParams.get("date") || getTodayString();
@@ -41,6 +53,12 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
   const [isStarting, setIsStarting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 진도 재조정 모달 상태 관리
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+  const [restDays, setRestDays] = useState<string[]>([]);
+  const [restDates, setRestDates] = useState<string[]>([]);
+  const [tempRestDate, setTempRestDate] = useState("");
+
   // 모든 진도 및 방장 여부 조회용 상태
   const userId = useAuthStore((state) => state.userId);
   const navigate = useNavigate();
@@ -50,6 +68,14 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // 재조정 모달 오픈 시 기존 설정 불러오기
+  useEffect(() => {
+    if (isRescheduleModalOpen && progressData) {
+      setRestDays(progressData.restDays || []);
+      setRestDates(progressData.restDates || []);
+    }
+  }, [isRescheduleModalOpen, progressData]);
 
   // (모달 제거됨 — 인라인 편집 방식으로 대체)
 
@@ -92,7 +118,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
     return () => {
       isMounted = false;
     };
-  }, [studyId, planDate]);
+  }, [studyId, planDate, refreshTrigger]);
 
   // 날짜 하루씩 이동 핸들러
   const handleDateChange = (daysToAdd: number) => {
@@ -113,6 +139,9 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
     try {
       await startStudyDailyPlanApi(progressData.studyDailyPlanId);
       setProgressData((prev) => prev ? { ...prev, progressStatus: "IN_PROGRESS" } : null);
+      if (onRefreshToday) {
+        onRefreshToday();
+      }
     } catch (err) {
       alert(getApiErrorUtil(err) || "진도 시작에 실패했습니다.");
     } finally {
@@ -122,6 +151,9 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
 
   const handleCompleteSuccess = () => {
     setProgressData((prev) => prev ? { ...prev, progressStatus: "COMPLETED" } : null);
+    if (onRefreshToday) {
+      onRefreshToday();
+    }
   };
 
   const handleDeleteStudy = async () => {
@@ -207,7 +239,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
 
       <div className="flex-1 flex flex-col justify-center relative z-10">
         {isLoading ? (
-          <div className="flex flex-col gap-4 py-4 animate-pulse">
+          <div className="flex flex-col gap-4 py-4">
             <div className="h-6 w-1/3 bg-gray-200 dark:bg-[#1a1a1a] rounded-lg"></div>
             <div className="h-4 w-1/2 bg-gray-100 dark:bg-[#111] rounded-lg"></div>
             <div className="h-12 w-full bg-gray-100 dark:bg-[#111] rounded-2xl mt-4"></div>
@@ -229,7 +261,16 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
             </div>
             
             {progressData.studyDailyPlanId && (
-              <div className="flex justify-end mt-auto pt-4 border-t border-gray-100 dark:border-[#1a1a1a]">
+              <div className="flex justify-end mt-auto pt-4 border-t border-gray-100 dark:border-[#1a1a1a] gap-3">
+                {isOwner && (
+                  <button
+                    onClick={() => setIsRescheduleModalOpen(true)}
+                    className="px-6 py-3 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] text-gray-800 dark:text-gray-200 font-bold rounded-2xl flex items-center gap-2 hover:border-indigo-500 transition-all shadow-sm cursor-pointer"
+                  >
+                    <CalendarIcon size={16} />
+                    진도 재조정
+                  </button>
+                )}
                 {progressData.progressStatus === "NOT_STARTED" && (
                   <button
                     onClick={handleStartPlan}
@@ -389,6 +430,112 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
               className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-rose-500/20"
             >
               {isDeleting ? "삭제 중..." : "영구 삭제"}
+            </button>
+          </div>
+        </div>
+      </BaseModal>
+
+      {/* 진도 재조정 모달 */}
+      <BaseModal isOpen={isRescheduleModalOpen} onClose={() => setIsRescheduleModalOpen(false)}>
+        <div className="p-6">
+          <h3 className="text-xl font-black text-indigo-600 dark:text-indigo-400 mb-2 flex items-center gap-2">
+            <CalendarIcon size={20} />
+            공부 휴무 일정 재조정
+          </h3>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6">
+            휴무 요일과 예외 날짜를 변경합니다. 기존 완료된 공부 내용은 유지한 채 오늘 이후의 일정 날짜들만 재배치됩니다.
+          </p>
+
+          <div className="space-y-6">
+            {/* 정기 휴무일 (요일 선택) */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold text-gray-700 dark:text-gray-300">정기 휴무일 (반복되는 쉬는 요일)</label>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(dayMap).map(([day, index]) => {
+                  const isSelected = restDays.includes(day);
+                  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => {
+                        setRestDays(prev =>
+                          prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+                        );
+                      }}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-200 ${
+                        isSelected
+                          ? "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 ring-2 ring-rose-500 shadow-sm"
+                          : "bg-gray-100 text-gray-400 dark:bg-[#1a1a1a] dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
+                      }`}
+                    >
+                      {dayNames[index]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 예외 휴무일 (특정 날짜 추가) */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold text-gray-700 dark:text-gray-300">예외 휴무일 (특정 날짜 지정)</label>
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={tempRestDate}
+                  min={getTodayString()}
+                  onChange={(e) => setTempRestDate(e.target.value)}
+                  className="flex-1 max-w-[200px] px-4 py-2.5 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (tempRestDate && !restDates.includes(tempRestDate)) {
+                      setRestDates(prev => [...prev, tempRestDate].sort());
+                      setTempRestDate("");
+                    }
+                  }}
+                  disabled={!tempRestDate || restDates.includes(tempRestDate)}
+                  className="px-5 py-2.5 bg-gray-900 text-white dark:bg-white dark:text-black rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                >
+                  날짜 추가
+                </button>
+              </div>
+
+              {restDates.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3 p-4 bg-gray-50 dark:bg-[#0a0a0a] rounded-xl border border-dashed border-gray-200 dark:border-[#222]">
+                  {restDates.map(date => (
+                    <div key={date} className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#333] rounded-lg text-sm font-medium shadow-sm">
+                      <span className="text-gray-700 dark:text-gray-300">{date}</span>
+                      <button
+                        type="button"
+                        onClick={() => setRestDates(prev => prev.filter(d => d !== date))}
+                        className="text-gray-400 hover:text-rose-500 transition-colors focus:outline-none ml-1"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-8">
+            <button
+              onClick={() => setIsRescheduleModalOpen(false)}
+              className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-[#1a1a1a] dark:hover:bg-[#222] text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors"
+            >
+              취소
+            </button>
+            <button
+              onClick={() => {
+                alert("공부 일정 재조정이 완료되었습니다. (API 미연동)");
+                setIsRescheduleModalOpen(false);
+              }}
+              className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors shadow-md shadow-indigo-500/20"
+            >
+              재조정 적용
             </button>
           </div>
         </div>
