@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardTitle } from '../../../../components/common/Card';
 import { EditIcon, TrashIcon } from '../../../../components/ui/Icons';
-import type { StudyMemberContentResponse } from '../../types/StudyTypes';
-import { addStudyMemberContentApi, updateStudyMemberContentApi, getStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/StudyStudioApi';
+import type { StudyMemberContentResponse } from '../../types/studyTypes';
+import { addStudyMemberContentApi, updateStudyMemberContentApi, getStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/studyStudioApi';
 
 type MemberContentItem = StudyMemberContentResponse['memberContents'][0];
 

@@ -18,6 +18,7 @@ export interface ExerciseRequest {
   bodyParts: string[];
   duration: number;
   content: string;
+  weight: number | null;
 }
 
 export interface ExerciseResponse {
@@ -25,8 +26,9 @@ export interface ExerciseResponse {
   bodyParts: string[];
   duration: number;
   content: string;
-  calories: number;
+  calories: number | null;
   createdAt: string;
+  weight: number | null;
 }
 
 export interface MealRequest {
@@ -53,3 +55,9 @@ export interface WeightResponse {
   bodyFat: number;
   createdAt: string;
 }
+
+export interface WeeklyWeightStatsResponse {
+  date: string;
+  dailyTotalWeight: number;
+}
+

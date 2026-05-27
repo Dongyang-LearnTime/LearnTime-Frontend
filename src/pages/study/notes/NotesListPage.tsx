@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getStudyNoteListApi, type StudyNoteListItem } from '../api/StudyNotesApi';
+import { getStudyNoteListApi, type StudyNoteListItem } from '../api/studyNotesApi';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { formatDateUtil } from '../../../utils/formatDateUtil';
 import { NoteIcon, PlusIcon } from '../../../components/ui/Icons';

@@ -4,11 +4,11 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import { CheckCircle2, PlayCircle, Clock, BookOpen, PenTool } from 'lucide-react';
 import { MessageSquareIcon } from '../components/ui/Icons';
 import { useAuthStore } from '../store/useAuthStore';
-import { getTodayPlans } from './study/api/StudyApi';
-import { getUserSummary, getRecentActivities } from '../api/UserApi';
+import { getTodayPlans } from './study/api/studyApi';
+import { getUserSummary, getRecentActivities } from '../api/userApi';
 import { getTierImage, getBadgeImage } from '../utils/gamificationAssets';
-import type { TodayStudyPlanResponse } from './study/types/StudyTypes';
-import type { UserSummaryResponse, RecentActivityResponse } from '../types/UserTypes';
+import type { TodayStudyPlanResponse } from './study/types/studyTypes';
+import type { UserSummaryResponse, RecentActivityResponse } from '../types/userTypes';
 
 // 헬퍼: 날짜 포맷팅 (방금 전, n분 전, n시간 전, 어제, 그 외엔 YYYY.MM.DD)
 const formatTimeAgo = (dateString: string) => {

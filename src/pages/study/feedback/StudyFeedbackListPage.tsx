@@ -4,8 +4,8 @@ import ListContainer from '../../../components/common/ListContainer';
 import ListItemCard from '../../../components/common/ListItemCard';
 import Pagination from '../../../components/common/Pagination';
 import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
-import { getStudyFeedbackList, generateStudyFeedback } from '../api/StudyFeedbackApi';
-import type { StudyFeedbackResponse } from '../types/StudyFeedBackTypes';
+import { getStudyFeedbackList, generateStudyFeedback } from '../api/studyFeedbackApi';
+import type { StudyFeedbackResponse } from '../types/studyFeedBackTypes';
 import FeedbackDetailDrawer from './components/FeedbackDetailDrawer';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 

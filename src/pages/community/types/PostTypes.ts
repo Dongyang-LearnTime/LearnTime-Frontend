@@ -1,4 +1,4 @@
-import type { StudyTotalInfoResponse } from "../../study/types/StudyTypes";
+import type { StudyTotalInfoResponse } from "../../study/types/studyTypes";
 
 export interface PostCreateRequest {
   title: string;

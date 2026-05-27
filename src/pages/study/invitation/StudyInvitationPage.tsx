@@ -10,7 +10,7 @@ import {
     rejectInvitationApi,
     cancelInvitationApi,
     type StudyInvitationResponse
-} from '../api/StudyInvitationApi';
+} from '../api/studyInvitationApi';
 
 export default function StudyInvitationPage() {
     usePageTitle("learn-time | 스터디 초대");

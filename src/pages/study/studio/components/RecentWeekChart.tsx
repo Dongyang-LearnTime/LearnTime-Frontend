@@ -3,14 +3,13 @@ import {
   ResponsiveContainer,
   ComposedChart,
   Line,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
   Legend,
   CartesianGrid,
 } from "recharts";
-import type { StudyRecentWeekInfoResponse } from "../../types/StudyTypes";
+import type { StudyRecentWeekInfoResponse } from "../../types/studyTypes";
 import { Card } from "../../../../components/common/Card";
 
 interface RecentWeekChartProps {
@@ -87,11 +86,11 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
         // 휴식일 정보 수집 (0: 활동일, 1: 휴식일)
         dayObj[restKey] = isRestDay ? 1 : 0;
         
-        // 지표 종류에 따라 값 대입 (데이터가 없을 경우 null 유지)
+        // 지표 종류에 따라 값 대입 (데이터가 없거나 null일 경우 0으로 강제 보정)
         if (selectedMetric === "focusTime") {
-          dayObj[memberKey] = focusTime ? parseTimeToMinutes(focusTime) : null;
+          dayObj[memberKey] = focusTime ? parseTimeToMinutes(focusTime) : 0;
         } else {
-          dayObj[memberKey] = understandingScore;
+          dayObj[memberKey] = (understandingScore !== null && understandingScore !== undefined) ? understandingScore : 0;
         }
       });
     });
@@ -102,11 +101,19 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
         return new Date(a.planDate as string).getTime() - new Date(b.planDate as string).getTime();
       })
       .map((dayObj) => {
+        // 선택된 모든 멤버 키에 대해 null이거나 undefined이면 0으로 치환합니다.
+        selectedMembers.forEach((memberId) => {
+          const key = `member_${memberId}`;
+          if (dayObj[key] === null || dayObj[key] === undefined) {
+            dayObj[key] = 0;
+          }
+        });
+
         // 선택된 멤버들 중 한 명이라도 휴식일이 있거나, 
-        // 선택된 모든 멤버들의 데이터 값이 null 인지 판별
-        const isAllNull = selectedMembers.every((memberId) => {
+        // 선택된 모든 멤버들의 데이터 값이 0인지 판별 (이전에는 null이었던 판별)
+        const isAllZero = selectedMembers.every((memberId) => {
           const val = dayObj[`member_${memberId}`];
-          return val === null || val === undefined;
+          return val === 0 || val === null || val === undefined;
         });
 
         const hasRestDay = selectedMembers.some((memberId) => {
@@ -114,7 +121,7 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
         });
 
         // 음영 플래그 (1이면 100% 영역 칠해짐, 0이면 칠해지지 않음)
-        const isEmpty = isAllNull || hasRestDay;
+        const isEmpty = isAllZero || hasRestDay;
 
         return {
           ...dayObj,
@@ -215,9 +222,6 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
                 tickLine={false}
                 axisLine={false}
               />
-              {/* 음영 처리를 위한 가상 Y축 */}
-              <YAxis yAxisId="empty" hide domain={[0, 1]} />
-              
               <Tooltip 
                 contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '16px', color: '#fff', fontSize: '12px', fontWeight: 'bold', padding: '12px' }}
                 itemStyle={{ color: '#fff', paddingTop: '4px' }}
@@ -228,17 +232,6 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
               <Legend 
                 wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingTop: '20px' }} 
                 iconType="circle"
-              />
-
-              {/* 배경 음영 처리를 위해 라인 뒤에 바 차트를 배치 */}
-              <Bar
-                yAxisId="empty"
-                dataKey="emptyValue"
-                fill="#f3f4f6"
-                className="dark:fill-[#111]"
-                isAnimationActive={false}
-                legendType="none"
-                tooltipType="none"
               />
 
               {selectedMembers.map((memberId, index) => {

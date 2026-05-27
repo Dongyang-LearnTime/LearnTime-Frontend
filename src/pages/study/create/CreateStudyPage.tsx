@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { usePageTitle } from "../../../hooks/usePageTitle";
-import { extractTocApi, getFriendsApi, type FriendResponse } from "../api/CreateStudyApi";
+import { extractTocApi, getFriendsApi, type FriendResponse } from "../api/createStudyApi";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import TocSection from "./TocSection";
 import StudyBaseInfoForm from "./StudyBaseInfoForm";

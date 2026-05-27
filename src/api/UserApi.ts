@@ -1,5 +1,5 @@
 import { axiosInstance } from '../app/apiClient';
-import type { UserSummaryResponse, RecentActivityResponse, BadgeTierInfoResponse } from '../types/UserTypes';
+import type { UserSummaryResponse, RecentActivityResponse, BadgeTierInfoResponse } from '../types/userTypes';
 
 export const getUserSummary = async () => {
     const response = await axiosInstance.get<UserSummaryResponse>('/api/user/summary');

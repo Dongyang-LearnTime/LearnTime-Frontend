@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { CoffeeIcon, PlusIcon, TrashIcon } from '../../../components/ui/Icons';
 import { Card, CardTitle } from '../../../components/common/Card';
-import { saveMeal, getTodayMeals } from '../api/exerciseApi';
-import type { MealResponse } from '../types/exerciseApi';
+import { saveMeal, getTodayMeals, deleteMealRecord } from '../api/exerciseApi';
+import type { MealResponse } from '../types/exerciseTypes';
 
 export function DietBox() {
   const [items, setItems] = useState<MealResponse[]>([]);
@@ -42,27 +42,41 @@ export function DietBox() {
     }
   };
 
-  const removeItem = (id: number) =>
-    setItems(prev => prev.filter(item => item.id !== id));
+  const removeItem = async (id: number) => {
+    if (window.confirm("기록된 식단을 삭제하시겠습니까?")) {
+      try {
+        await deleteMealRecord(id);
+        setItems(prev => prev.filter(item => item.id !== id));
+      } catch (error) {
+        console.error('Failed to delete meal', error);
+        alert('식단 삭제에 실패했습니다.');
+      }
+    }
+  };
 
   return (
-    <Card className="flex flex-col h-full min-h-[40.625rem]">
-      <CardTitle icon={<CoffeeIcon size={18} />}>In & Out 식단</CardTitle>
+    <Card className="flex flex-col h-full min-h-162.5">
+      <CardTitle icon={<CoffeeIcon size={18} />}>식단</CardTitle>
 
       {/* 일일 총 섭취 요약 배너 */}
-      <div className="mb-8 p-6 bg-gray-50 dark:bg-[#0d0d0d] rounded-4xl border border-gray-100 dark:border-[#1a1a1a]">
-        <div className="flex justify-between items-center mb-6">
-          <span className="text-[0.7rem] font-black text-gray-400 uppercase tracking-widest">일일 총 섭취</span>
-          <span className="text-xl font-black text-rose-500 tracking-tighter">{dailyTotals.cal} <span className="text-[0.7rem] opacity-70">KCAL</span></span>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="text-center p-3 bg-white dark:bg-[#050505] rounded-2xl border border-gray-50 dark:border-[#111]">
-            <p className="text-[0.6rem] font-black text-gray-400 mb-1">칼로리</p>
-            <p className="text-sm font-black text-amber-500">{dailyTotals.cal}kcal</p>
+      <div className="mb-6 p-5 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 rounded-3xl">
+        {/* 주 칼로리 표시 */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-[0.65rem] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">일일 총 섭취</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{dailyTotals.cal}</span>
+            <span className="text-xs font-black text-indigo-500 dark:text-indigo-400">kcal</span>
           </div>
-          <div className="text-center p-3 bg-white dark:bg-[#050505] rounded-2xl border border-gray-50 dark:border-[#111]">
-            <p className="text-[0.6rem] font-black text-gray-400 mb-1">단백질</p>
-            <p className="text-sm font-black text-emerald-500">{dailyTotals.protein}g</p>
+        </div>
+        {/* 칼로리 / 단백질 카드 */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center justify-between p-3 bg-white dark:bg-[#0a0a0a] rounded-2xl border border-indigo-100 dark:border-indigo-900/40">
+            <span className="text-[0.6rem] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">칼로리</span>
+            <span className="text-sm font-black text-rose-500">{dailyTotals.cal}<span className="text-[0.55rem] ml-0.5 text-gray-400">kcal</span></span>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-white dark:bg-[#0a0a0a] rounded-2xl border border-indigo-100 dark:border-indigo-900/40">
+            <span className="text-[0.6rem] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">단백질</span>
+            <span className="text-sm font-black text-emerald-500">{dailyTotals.protein}<span className="text-[0.55rem] ml-0.5 text-gray-400">g</span></span>
           </div>
         </div>
       </div>

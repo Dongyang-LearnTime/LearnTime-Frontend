@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { StudyFeedbackResponse } from '../../types/StudyFeedBackTypes';
-import { updateFeedbackTitle, deleteFeedback } from '../../api/StudyFeedbackApi';
+import type { StudyFeedbackResponse } from '../../types/studyFeedBackTypes';
+import { updateFeedbackTitle, deleteFeedback } from '../../api/studyFeedbackApi';
 
 
 interface FeedbackDetailDrawerProps {

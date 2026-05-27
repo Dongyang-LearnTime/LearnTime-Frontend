@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getStudyTotalInfoApi, getStudyRecentWeekInfoApi } from "../api/StudyStudioApi";
-import type { StudyRecentWeekInfoResponse, StudyTotalInfoResponse } from "../types/StudyTypes";
+import { getStudyTotalInfoApi, getStudyRecentWeekInfoApi } from "../api/studyStudioApi";
+import type { StudyRecentWeekInfoResponse, StudyTotalInfoResponse } from "../types/studyTypes";
 import RecentWeekChart from "./components/RecentWeekChart";
 import CoreMetricsChart from "./components/CoreMetricsChart";
 import { StopwatchBox } from "./components/StopwatchBox";

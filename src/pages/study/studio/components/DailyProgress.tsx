@@ -1,11 +1,12 @@
-import type { StudyPlanResponse } from "../../types/StudyTypes";
-
-import { EditIcon } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import type { StudyPlanResponse } from "../../types/studyTypes";
+import { EditIcon, CheckIcon, XIcon } from "lucide-react";
 
 interface DailyProgressProps {
   data: StudyPlanResponse;
   isOwner?: boolean;
-  onEditTitle?: (type: "title" | "bookTitle", currentValue: string) => void;
+  /** 인라인 편집 완료 시 호출되는 비동기 핸들러. type: 수정 대상, newValue: 새 제목 */
+  onUpdateTitle?: (type: "title" | "bookTitle", newValue: string) => Promise<void>;
 }
 
 interface InfoRowProps {
@@ -48,7 +49,140 @@ function InfoRow({ label, children }: InfoRowProps) {
   );
 }
 
-export default function DailyProgress({ data, isOwner, onEditTitle }: DailyProgressProps) {
+/** 인라인 편집 가능한 제목 셀 컴포넌트 */
+interface InlineTitleCellProps {
+  value: string;
+  isOwner: boolean;
+  isUpdating: boolean;
+  onConfirm: (newValue: string) => Promise<void>;
+  placeholder: string;
+}
+
+function InlineTitleCell({ value, isOwner, isUpdating, onConfirm, placeholder }: InlineTitleCellProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 외부에서 value가 변경될 경우(저장 성공 후 상위에서 상태 갱신) draft 동기화
+  useEffect(() => {
+    if (!isEditing) {
+      setDraft(value);
+    }
+  }, [value, isEditing]);
+
+  // 편집 모드 진입 시 인풋에 자동 포커스
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [isEditing]);
+
+  const handleEnterEditMode = () => {
+    if (!isOwner || isUpdating) return;
+    setDraft(value);
+    setIsEditing(true);
+  };
+
+  const handleConfirm = async () => {
+    const trimmed = draft.trim();
+    if (!trimmed || trimmed === value) {
+      // 변경 없거나 빈 값이면 취소 처리
+      setDraft(value);
+      setIsEditing(false);
+      return;
+    }
+    await onConfirm(trimmed);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setDraft(value);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleConfirm();
+    } else if (e.key === "Escape") {
+      handleCancel();
+    }
+  };
+
+  // onBlur: 확인 버튼 클릭과 충돌하지 않도록 setTimeout으로 처리
+  const handleBlur = () => {
+    setTimeout(() => {
+      if (isEditing) handleConfirm();
+    }, 150);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          maxLength={100}
+          disabled={isUpdating}
+          className="flex-1 px-3 py-1.5 bg-gray-50 dark:bg-[#111] border border-indigo-300 dark:border-indigo-600 rounded-lg text-sm font-bold text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all disabled:opacity-50"
+        />
+        {/* 확인 버튼 */}
+        <button
+          onMouseDown={(e) => e.preventDefault()} // blur가 먼저 실행되는 것을 방지
+          onClick={handleConfirm}
+          disabled={isUpdating}
+          className="p-1.5 text-indigo-600 hover:text-indigo-700 disabled:opacity-50 transition-colors"
+          title="저장"
+        >
+          {isUpdating ? (
+            <div className="w-4 h-4 border-2 border-indigo-400/30 border-t-indigo-600 rounded-full animate-spin" />
+          ) : (
+            <CheckIcon size={14} />
+          )}
+        </button>
+        {/* 취소 버튼 */}
+        <button
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={handleCancel}
+          disabled={isUpdating}
+          className="p-1.5 text-gray-400 hover:text-rose-500 disabled:opacity-50 transition-colors"
+          title="취소 (ESC)"
+        >
+          <XIcon size={14} />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 group/title">
+      <span
+        className={isOwner ? "cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" : ""}
+        onClick={handleEnterEditMode}
+        title={isOwner ? "클릭하여 수정" : undefined}
+      >
+        {value || "정보 없음"}
+      </span>
+      {isOwner && (
+        <button
+          onClick={handleEnterEditMode}
+          className="p-1 text-gray-300 group-hover/title:text-indigo-500 hover:text-indigo-600 opacity-0 group-hover/title:opacity-100 transition-all"
+          title="제목 수정"
+        >
+          <EditIcon size={14} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function DailyProgress({ data, isOwner, onUpdateTitle }: DailyProgressProps) {
   const {
     startDate,
     endDate,
@@ -64,29 +198,51 @@ export default function DailyProgress({ data, isOwner, onEditTitle }: DailyProgr
     bookTitle,
   } = data;
 
+  // 인라인 편집 중 로딩 상태 (두 필드 각각 관리)
+  const [isTitleUpdating, setIsTitleUpdating] = useState(false);
+  const [isBookTitleUpdating, setIsBookTitleUpdating] = useState(false);
+
+  const handleConfirmTitle = async (newValue: string) => {
+    if (!onUpdateTitle) return;
+    setIsTitleUpdating(true);
+    try {
+      await onUpdateTitle("title", newValue);
+    } finally {
+      setIsTitleUpdating(false);
+    }
+  };
+
+  const handleConfirmBookTitle = async (newValue: string) => {
+    if (!onUpdateTitle) return;
+    setIsBookTitleUpdating(true);
+    try {
+      await onUpdateTitle("bookTitle", newValue);
+    } finally {
+      setIsBookTitleUpdating(false);
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-col">
         <InfoRow label="진도 제목">
-          <div className="flex items-center gap-2">
-            <span>{studyTitle || "정보 없음"}</span>
-            {isOwner && onEditTitle && (
-              <button onClick={() => onEditTitle("title", studyTitle || "")} className="p-1 text-gray-400 hover:text-indigo-600 transition-colors" title="제목 수정">
-                <EditIcon size={14} />
-              </button>
-            )}
-          </div>
+          <InlineTitleCell
+            value={studyTitle || ""}
+            isOwner={!!isOwner && !!onUpdateTitle}
+            isUpdating={isTitleUpdating}
+            onConfirm={handleConfirmTitle}
+            placeholder="스터디 진도 제목 입력"
+          />
         </InfoRow>
 
         <InfoRow label="책 제목">
-          <div className="flex items-center gap-2">
-            <span>{bookTitle || "정보 없음"}</span>
-            {isOwner && onEditTitle && (
-              <button onClick={() => onEditTitle("bookTitle", bookTitle || "")} className="p-1 text-gray-400 hover:text-indigo-600 transition-colors" title="책 제목 수정">
-                <EditIcon size={14} />
-              </button>
-            )}
-          </div>
+          <InlineTitleCell
+            value={bookTitle || ""}
+            isOwner={!!isOwner && !!onUpdateTitle}
+            isUpdating={isBookTitleUpdating}
+            onConfirm={handleConfirmBookTitle}
+            placeholder="책 제목 입력"
+          />
         </InfoRow>
 
         <InfoRow label="스터디 기간">

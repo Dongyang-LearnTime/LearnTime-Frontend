@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { PageResponse } from '../types/PaginationType';
+import type { PageResponse } from '../types/paginationType';
 
 interface UsePaginationFetchProps<T> {
   fetchData: (page: number) => Promise<PageResponse<T>>;

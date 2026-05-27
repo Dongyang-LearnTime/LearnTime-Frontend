@@ -1,7 +1,7 @@
 import { axiosInstance } from "../../../app/apiClient";
-import type { CursorResponse } from "../../../types/PaginationType";
+import type { CursorResponse } from "../../../types/paginationType";
 
-import type { CommentCreateRequest, CommentUpdateRequest, CommentResponse } from "../types/CommentTypes";
+import type { CommentCreateRequest, CommentUpdateRequest, CommentResponse } from "../types/commentTypes";
 
 
 // 댓글 목록 조회

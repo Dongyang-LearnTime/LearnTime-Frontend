@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
-import { NotificationApi } from './NotificationApi';
+import { NotificationApi } from './notificationApi';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 
@@ -213,7 +213,7 @@ export default function NotificationPage() {
             {isLoading && notifications.length === 0 ? (
                 <div className="text-center py-20 text-gray-400 font-bold text-sm">알림을 불러오는 중입니다...</div>
             ) : notifications.length === 0 ? (
-                <div className="text-center py-20 bg-gray-50 dark:bg-[#0a0a0a] rounded-[2rem] border border-gray-100 dark:border-[#1a1a1a] text-gray-400 font-bold">
+                <div className="text-center py-20 bg-gray-50 dark:bg-[#0a0a0a] rounded-4xl border border-gray-100 dark:border-[#1a1a1a] text-gray-400 font-bold">
                     수신된 알림이 없습니다.
                 </div>
             ) : (
@@ -228,7 +228,7 @@ export default function NotificationPage() {
                                 : 'bg-indigo-50/50 dark:bg-indigo-950/10 border-indigo-100 dark:border-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-700/50'
                             }`}
                         >
-                            <div className="mt-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                            <div className="mt-1 shrink-0" onClick={e => e.stopPropagation()}>
                                 <input 
                                     type="checkbox" 
                                     className="w-5 h-5 text-indigo-600 bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-gray-700 rounded-lg focus:ring-indigo-500 cursor-pointer accent-indigo-600"

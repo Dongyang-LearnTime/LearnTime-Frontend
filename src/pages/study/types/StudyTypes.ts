@@ -1,4 +1,4 @@
-import type { ProgressStatus, CompletionStatus, StudyMemberRole, StudyMemberStatus } from "../../../types/StudyEnums";
+import type { ProgressStatus, CompletionStatus, StudyMemberRole, StudyMemberStatus } from "../../../types/studyEnums";
 
 // 모든 일일 공부 진도 내용 응답
 export interface StudyDailyPlanResponse {

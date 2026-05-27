@@ -1,5 +1,5 @@
 import { ClockIcon, EditIcon, TrashIcon } from '../../../components/ui/Icons';
-import type { Schedule } from '../types/ScheduleTypes';
+import type { Schedule } from '../types/scheduleTypes';
 import { DAYS } from '../types/constants';
 
 // ScheduleCard 컴포넌트 Props 정의

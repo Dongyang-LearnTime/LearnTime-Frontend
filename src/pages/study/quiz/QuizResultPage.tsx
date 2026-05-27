@@ -4,8 +4,8 @@ import { useParams, useNavigate } from 'react-router';
 import { Loader2, AlertCircle, CheckCircle, XCircle, Award, Trash2 } from 'lucide-react';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 
-import { getQuizResultApi, deleteQuizHistoryApi } from '../api/StudyQuizApi';
-import type { QuizType } from '../../../types/StudyEnums';
+import { getQuizResultApi, deleteQuizHistoryApi } from '../api/studyQuizApi';
+import type { QuizType } from '../../../types/studyEnums';
 
 export interface QuizDetailResponse {
   quizQuestionId: number;

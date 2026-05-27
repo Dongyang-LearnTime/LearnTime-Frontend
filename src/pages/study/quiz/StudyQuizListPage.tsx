@@ -3,8 +3,8 @@ import ListContainer from '../../../components/common/ListContainer';
 import ListItemCard from '../../../components/common/ListItemCard';
 import Pagination from '../../../components/common/Pagination';
 import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
-import { getStudyQuizList } from '../api/StudyQuizApi';
-import type { StudyQuizInfoResponse } from '../types/StudyQuizTypes';
+import { getStudyQuizList } from '../api/studyQuizApi';
+import type { StudyQuizInfoResponse } from '../types/studyQuizTypes';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function StudyQuizListPage() {

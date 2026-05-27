@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { generateStudyFeedback } from "../api/StudyFeedbackApi";
+import { generateStudyFeedback } from "../api/studyFeedbackApi";
 import StudyLearningMetrics from "./StudyLearningMetrics";
 import StudyProgressInfo from "./StudyProgressInfo";
 import StudyMemberList from "./StudyMemberList";

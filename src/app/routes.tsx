@@ -16,7 +16,7 @@ import QuizResultPage from "../pages/study/quiz/QuizResultPage";
 import QuizHistoryListPage from "../pages/study/quiz/QuizHistoryListPage";
 import CreatePostPage from "../pages/community/post/CreatePostPage";
 import FriendRequestPage from "../pages/community/friend/FriendRequestPage";
-import NotificationPage from "../pages/notification/NotificationPage";
+import NotificationPage from "../pages/notification/notificationPage";
 
 import { MainHeader } from "../components/layout/MainHeader";
 import { StudySidebarLayout } from "../components/layout/StudySidebarLayout";

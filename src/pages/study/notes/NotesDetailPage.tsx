@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getStudyNoteDetailApi, deleteStudyNoteApi } from '../api/StudyNotesApi';
+import { getStudyNoteDetailApi, deleteStudyNoteApi } from '../api/studyNotesApi';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import { formatDateUtil } from '../../../utils/formatDateUtil';
 import '../../../styles/NotesEditor.css';
 import DOMPurify from 'dompurify';
-import { generateQuizApi } from '../api/StudyQuizApi';
+import { generateQuizApi } from '../api/studyQuizApi';
 
-import type { StudyNoteDetail } from '../api/StudyNotesApi';
+import type { StudyNoteDetail } from '../api/studyNotesApi';
 
 export default function NotesDetailPage() {
   const { noteId } = useParams<{ noteId: string }>();

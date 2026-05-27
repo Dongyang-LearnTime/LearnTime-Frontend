@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getMyStudyProgresses , type StudyProgressIndicatorResponse } from '../pages/study/api/StudyApi';
+import { getMyStudyProgresses , type StudyProgressIndicatorResponse } from '../pages/study/api/studyApi';
 
 interface StudyStoreState {
     progresses: StudyProgressIndicatorResponse[];

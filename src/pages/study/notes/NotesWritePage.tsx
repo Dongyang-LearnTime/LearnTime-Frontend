@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { submitStudyNotesApi } from '../api/StudyNotesApi';
+import { submitStudyNotesApi } from '../api/studyNotesApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import { NotesEditor } from './tiptap/NotesEditor';
 import { usePageTitle } from '../../../hooks/usePageTitle';

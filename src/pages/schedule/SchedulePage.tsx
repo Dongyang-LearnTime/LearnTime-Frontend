@@ -9,15 +9,15 @@ import {
   DayDetailModal,
   ScheduleModal,
 } from './types/scheduleIndex';
-import type { Schedule, DayOfWeek } from './types/ScheduleTypes';
+import type { Schedule, DayOfWeek } from './types/scheduleTypes';
 import {
   getMonthlySchedulesApi,
   createScheduleApi,
   updateScheduleApi,
   deleteScheduleApi,
-} from './api/ScheduleApi';
+} from './api/scheduleApi';
 
-import { getRoutinesApi, createRoutineApi, updateRoutineApi, deleteRoutineApi } from './api/RoutineApi';
+import { getRoutinesApi, createRoutineApi, updateRoutineApi, deleteRoutineApi } from './api/routineApi';
  
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 구하는 헬퍼 함수
@@ -175,10 +175,12 @@ export default function SchedulePage() {
     return schedules.filter(s => s.type === 'routine').sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [schedules]);
 
-  // 주요 일정(별표) 목록 필터링
+  // 주요 일정(별표) 목록 필터링 (오늘 날짜의 일정만 필터링)
   const majorSchedules = useMemo(() => {
-    return schedules.filter(s => s.isFavorite && s.type === 'schedule').sort((a, b) => a.startTime.localeCompare(b.startTime));
-  }, [schedules]);
+    return schedules
+      .filter(s => s.isFavorite && s.type === 'schedule' && s.date === todayDateStr)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }, [schedules, todayDateStr]);
 
   const handlePrevMonth = () => {
     setViewDate(new Date(currentYear, currentMonth - 1, 1));

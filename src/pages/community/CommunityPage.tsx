@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlusIcon, SearchIcon, SparklesIcon, ThumbsUpIcon, TrophyIcon } from '../../components/ui/Icons';
 import { PostCard } from './components/PostCard';
-import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getRankingApi, getNoticePostsApi } from './api/PostApi';
+import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getRankingApi, getNoticePostsApi } from './api/postApi';
 import { useAuthStore } from '../../store/useAuthStore';
-import type { PostListResponse, PointRankingResponse } from './types/PostTypes';
+import type { PostListResponse, PointRankingResponse } from './types/postTypes';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { CalendarIcon } from '../../../components/ui/Icons';
 import { DAYS } from '../types/constants';
-import type { Schedule } from '../types/ScheduleTypes';
+import type { Schedule } from '../types/scheduleTypes';
 import * as holidaysKr from '@hyunbinseo/holidays-kr';
 
 // CalendarBox 컴포넌트 Props 정의

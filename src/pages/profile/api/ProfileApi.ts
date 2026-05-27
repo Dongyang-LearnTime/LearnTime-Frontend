@@ -1,5 +1,5 @@
 import { axiosInstance } from "../../../app/apiClient";
-import type { ProfileResponse, ProfileUpdateRequest } from "../types/ProfileTypes";
+import type { ProfileResponse, ProfileUpdateRequest } from "../types/profileTypes";
 import imageCompression from "browser-image-compression";
 
 /**

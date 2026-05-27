@@ -1,6 +1,6 @@
 import { CheckIcon, ActivityIcon, StarIcon } from '../../../components/ui/Icons';
 import { ScheduleCard } from './ScheduleCard';
-import type { Schedule } from '../types/ScheduleTypes';
+import type { Schedule } from '../types/scheduleTypes';
 
 // 일정 박스들에서 공용으로 사용되는 Props 정의
 interface ScheduleBoxProps {

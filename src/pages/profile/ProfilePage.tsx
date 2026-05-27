@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProfile, updateProfile } from "./api/ProfileApi";
+import { getProfile, updateProfile } from "./api/profileApi";
 import { useAuthStore } from "../../store/useAuthStore";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import Avatar from "../../components/common/Avatar";
-import { sendFriendRequestApi, deleteFriendApi, acceptFriendRequestApi, rejectFriendRequestApi, cancelFriendRequestApi } from "../community/api/FriendRequestApi";
+import { sendFriendRequestApi, deleteFriendApi, acceptFriendRequestApi, rejectFriendRequestApi, cancelFriendRequestApi } from "../community/api/friendRequestApi";
 
-import type { ProfileResponse, ProfileVisibility } from "./types/ProfileTypes";
-import type { PostListResponse } from "../community/types/PostTypes";
+import type { ProfileResponse, ProfileVisibility } from "./types/profileTypes";
+import type { PostListResponse } from "../community/types/postTypes";
 import { getBadgeImage, getTierImage } from "../../utils/gamificationAssets";
 
 export default function ProfilePage() {

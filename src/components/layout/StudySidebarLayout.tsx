@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PlusIcon, SettingsIcon, BookIcon, NoteIcon, BrainIcon, ChevronRightIcon } from '../ui/Icons';
 import { useStudyStore } from '../../store/useStudyStore';
-import type { StudyProgressIndicatorResponse } from '../../pages/study/api/StudyApi';
+import type { StudyProgressIndicatorResponse } from '../../pages/study/api/studyApi';
 
 interface StudySidebarLayoutProps {
   children: React.ReactNode;

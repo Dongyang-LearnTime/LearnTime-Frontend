@@ -9,8 +9,8 @@ import {
     cancelFriendRequestApi,
     getFriendsApi,
     deleteFriendApi
-} from '../api/FriendRequestApi';
-import type { FriendRequestResponse, FriendResponse } from '../api/FriendRequestApi';
+} from '../api/friendRequestApi';
+import type { FriendRequestResponse, FriendResponse } from '../api/friendRequestApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import RequestListCard from '../../../components/common/RequestListCard';
 

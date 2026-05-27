@@ -3,8 +3,8 @@ import ListContainer from '../../../components/common/ListContainer';
 import ListItemCard from '../../../components/common/ListItemCard';
 import Pagination from '../../../components/common/Pagination';
 import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
-import { getStudyNotesList} from '../api/StudyNotesApi';
-import type { StudyNotesResponse } from '../types/StudyNoteTypes';
+import { getStudyNotesList} from '../api/studyNotesApi';
+import type { StudyNotesResponse } from '../types/studyNoteTypes';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function StudyNotesListPage() {

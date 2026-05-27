@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import type { CompletionStatus } from "../../../../types/StudyEnums";
-import { completeStudyDailyPlanApi } from "../../api/StudyStudioApi";
+import type { CompletionStatus } from "../../../../types/studyEnums";
+import { completeStudyDailyPlanApi } from "../../api/studyStudioApi";
 import { getApiErrorUtil } from "../../../../utils/getApiErrorUtil";
 
 interface PlanCompletionFormProps {

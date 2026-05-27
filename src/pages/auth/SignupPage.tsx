@@ -12,7 +12,7 @@ import ErrorMessageBlock from './componets/ErrorMessageBlock';
 import AuthInput from './componets/AuthInput';
 import { API_BASE_URL } from '../../app/apiClient';
 
-import type { Terms } from '../../types/UserEnums';
+import type { Terms } from '../../types/userEnums';
 
 // 유효성 검사 정규식 설정
 const REGEX = {

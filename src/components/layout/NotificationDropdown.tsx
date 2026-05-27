@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNotificationStore } from "../../store/useNotificationStore";
-import { NotificationApi } from "../../pages/notification/NotificationApi";
+import { NotificationApi } from "../../pages/notification/notificationApi";
 import { useNavigate } from "react-router-dom";
 
 export const NotificationDropdown: React.FC = () => {

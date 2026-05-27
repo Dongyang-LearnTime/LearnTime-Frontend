@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { getStudyPlanApi, startStudyDailyPlanApi, getStudyDailyPlansApi, deleteStudyApi, getStudyMemberListApi, updateStudyTitleApi, updateStudyBookTitleApi } from "../api/StudyStudioApi";
-import { getMyStudyProgresses } from "../api/StudyApi";
-import type { StudyPlanResponse, StudyDailyPlanResponse } from "../types/StudyTypes";
+import { getStudyPlanApi, startStudyDailyPlanApi, getStudyDailyPlansApi, deleteStudyApi, getStudyMemberListApi, updateStudyTitleApi, updateStudyBookTitleApi } from "../api/studyStudioApi";
+import { getMyStudyProgresses } from "../api/studyApi";
+import type { StudyPlanResponse, StudyDailyPlanResponse } from "../types/studyTypes";
 import DailyProgress from "./components/DailyProgress";
 import BaseModal from "../../../components/common/BaseModal";
 import PlanCompletionForm from "./components/PlanCompletionForm";
@@ -10,6 +10,7 @@ import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import { Card, CardTitle } from "../../../components/common/Card";
 import { BookIcon, TrashIcon } from "../../../components/ui/Icons";
 import { useAuthStore } from "../../../store/useAuthStore";
+import { useStudyStore } from "../../../store/useStudyStore";
 
 interface StudyProgressInfoProps {
   studyId: string;
@@ -29,6 +30,9 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const planDate = searchParams.get("date") || getTodayString();
 
+  // 스터디 진도 목록 전역 갱신 훅
+  const fetchProgresses = useStudyStore((state) => state.fetchProgresses);
+
   // 일일 진도 정보 상태 관리
   const [progressData, setProgressData] = useState<StudyPlanResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -47,11 +51,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // 제목 수정 모달 상태
-  const [isEditTitleModalOpen, setIsEditTitleModalOpen] = useState(false);
-  const [editTitleType, setEditTitleType] = useState<"title" | "bookTitle">("title");
-  const [editTitleValue, setEditTitleValue] = useState("");
-  const [isUpdatingTitle, setIsUpdatingTitle] = useState(false);
+  // (모달 제거됨 — 인라인 편집 방식으로 대체)
 
   // 모든 진도 목록 및 스터디 정보 조회
   useEffect(() => {
@@ -137,49 +137,35 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
     }
   };
 
-  const handleOpenEditTitle = (type: "title" | "bookTitle", currentValue: string) => {
-    setEditTitleType(type);
-    setEditTitleValue(currentValue);
-    setIsEditTitleModalOpen(true);
-  };
+  /**
+   * 인라인 편집 완료 핸들러 (DailyProgress 컴포넌트에서 호출)
+   * type: 수정 대상 ('title' | 'bookTitle'), newValue: 새로운 제목 문자열
+   */
+  const handleUpdateTitleDirect = async (type: "title" | "bookTitle", newValue: string) => {
+    const request = {
+      studyId: Number(studyId),
+      title: newValue
+    };
 
-  const handleUpdateTitle = async () => {
-    if (!editTitleValue.trim()) {
-      alert("제목을 입력해주세요.");
-      return;
+    if (type === "title") {
+      await updateStudyTitleApi(request);
+    } else {
+      await updateStudyBookTitleApi(request);
     }
-    
-    setIsUpdatingTitle(true);
-    try {
-      const request = {
-        studyId: Number(studyId),
-        title: editTitleValue.trim()
+
+    // 로컬 상태 즉시 반영
+    setProgressData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        ...(type === "title" ? { studyTitle: newValue } : { bookTitle: newValue })
       };
-      
-      if (editTitleType === "title") {
-        await updateStudyTitleApi(request);
-      } else {
-        await updateStudyBookTitleApi(request);
-      }
-      
-      // Update local state
-      setProgressData(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          ...(editTitleType === "title" ? { studyTitle: editTitleValue.trim() } : { bookTitle: editTitleValue.trim() })
-        };
-      });
-      
-      if (editTitleType === "title") {
-        setStudyTitle(editTitleValue.trim());
-      }
-      
-      setIsEditTitleModalOpen(false);
-    } catch (err) {
-      alert(getApiErrorUtil(err) || "제목 수정에 실패했습니다.");
-    } finally {
-      setIsUpdatingTitle(false);
+    });
+
+    if (type === "title") {
+      setStudyTitle(newValue);
+      // 사이드바 진도 목록을 즉시 리플래시합니다.
+      fetchProgresses();
     }
   };
 
@@ -235,10 +221,10 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
         ) : progressData ? (
           <div className="flex flex-col h-full">
             <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1f1f1f] rounded-3xl p-6 mb-6 shadow-sm">
-              <DailyProgress 
-                data={progressData} 
-                isOwner={isOwner} 
-                onEditTitle={handleOpenEditTitle} 
+              <DailyProgress
+                data={progressData}
+                isOwner={isOwner}
+                onUpdateTitle={handleUpdateTitleDirect}
               />
             </div>
             
@@ -408,48 +394,7 @@ export default function StudyProgressInfo({ studyId }: StudyProgressInfoProps) {
         </div>
       </BaseModal>
 
-      {/* 제목 수정 모달 */}
-      <BaseModal
-        isOpen={isEditTitleModalOpen}
-        onClose={() => !isUpdatingTitle && setIsEditTitleModalOpen(false)}
-        showCloseButton={!isUpdatingTitle}
-      >
-        <div className="p-6">
-          <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">
-            {editTitleType === "title" ? "진도 제목 수정" : "책 제목 수정"}
-          </h3>
-          <p className="text-sm font-medium text-gray-500 mb-6">
-            새로운 {editTitleType === "title" ? "진도 제목을" : "책 제목을"} 입력해주세요.
-          </p>
-
-          <input
-            type="text"
-            value={editTitleValue}
-            onChange={(e) => setEditTitleValue(e.target.value)}
-            placeholder={`${editTitleType === "title" ? "스터디 진도 제목" : "책 제목"} 입력`}
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-xl text-sm font-bold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all dark:text-white mb-6"
-            autoComplete="off"
-            maxLength={100}
-          />
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsEditTitleModalOpen(false)}
-              disabled={isUpdatingTitle}
-              className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-[#1a1a1a] dark:hover:bg-[#222] text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors disabled:opacity-50"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleUpdateTitle}
-              disabled={!editTitleValue.trim() || isUpdatingTitle}
-              className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-indigo-500/20"
-            >
-              {isUpdatingTitle ? "저장 중..." : "저장"}
-            </button>
-          </div>
-        </div>
-      </BaseModal>
+      {/* 제목 수정은 인라인 편집(DailyProgress 내부)으로 처리되어 모달 불필요 */}
     </Card>
   );
 }

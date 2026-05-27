@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getRankingApi } from './api/PostApi';
-import type { PointRankingResponse } from './types/PostTypes';
+import { getRankingApi } from './api/postApi';
+import type { PointRankingResponse } from './types/postTypes';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { TrophyIcon } from '../../components/ui/Icons';
 

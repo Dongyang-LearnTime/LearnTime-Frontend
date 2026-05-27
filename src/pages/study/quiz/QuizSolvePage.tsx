@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Loader2, AlertCircle, Edit2, Trash2, History } from 'lucide-react';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { getQuizDetailApi, submitQuizApi, updateStudyQuizTitleApi, deleteStudyQuizApi } from '../api/StudyQuizApi'
+import { getQuizDetailApi, submitQuizApi, updateStudyQuizTitleApi, deleteStudyQuizApi } from '../api/studyQuizApi'
 import BaseModal from '../../../components/common/BaseModal';
-import type { QuizType, ProgressStatus } from '../../../types/StudyEnums';
+import type { QuizType, ProgressStatus } from '../../../types/studyEnums';
 
 
 export interface SubmittedAnswer {

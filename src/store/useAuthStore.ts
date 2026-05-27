@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Role } from '../types/UserEnums';
+import type { Role } from '../types/userEnums';
 
 interface AuthState {
   accessToken: string | null;

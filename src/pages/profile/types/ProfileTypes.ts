@@ -1,5 +1,5 @@
-import type { PostListResponse } from "../../community/types/PostTypes";
-import type { UserBadgeResponse } from "../../../types/UserTypes";
+import type { PostListResponse } from "../../community/types/postTypes";
+import type { UserBadgeResponse } from "../../../types/userTypes";
 
 export type ProfileVisibility = "PUBLIC" | "PRIVATE";
 

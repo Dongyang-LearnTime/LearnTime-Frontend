@@ -2,9 +2,10 @@ import { useState } from 'react';
 // 운동 탭에 필요한 서브 섹션 컴포넌트 임포트
 import {
   TrainingSessionBox, ExerciseGuideBox, DietBox,
-  AiExerciseGuideBox, BodyCompositionBox, ExerciseDashboardBox,
+  BodyCompositionBox, ExerciseDashboardBox,
   ExerciseReportModal,
 } from './types/exerciseIndex';
+
 
 // 운동 랩 메인 페이지 컴포넌트
 export default function ExercisePage() {
@@ -12,7 +13,7 @@ export default function ExercisePage() {
 
   return (
     <>
-    <div className="relative w-full min-h-screen overflow-hidden bg-gray-50 dark:bg-[#0a0a0a] pb-32">
+    <div className="relative w-full min-h-screen overflow-hidden bg-gray-50 dark:bg-[#141416] pb-32">
       <div className="fixed top-[-10%] left-[-10%] w-lg h-128 bg-rose-400/5 dark:bg-rose-500/5 rounded-full blur-3xl pointer-events-none"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-lg h-128 bg-amber-400/5 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -32,42 +33,35 @@ export default function ExercisePage() {
           {
             // 운동 통계 대시보드 (최상단)
           }
-          <div className="col-span-12 lg:col-span-12">
-            <ExerciseDashboardBox onViewReport={() => setIsReportModalOpen(true)} />
+          <div className="col-span-12">
+            <ExerciseDashboardBox />
           </div>
 
           {
-            // 맞춤형 운동 가이드
+            // 맞춤형 운동 가이드 영상 (7칸)
           }
-          <div className="col-span-12 lg:col-span-8">
+          <div className="col-span-12 lg:col-span-7">
             <ExerciseGuideBox />
           </div>
 
           {
-            // 트레이닝 일정 및 상태
+            // 오늘의 운동 기록 (5칸으로 확장)
           }
-          <div className="col-span-12 lg:col-span-4">
+          <div className="col-span-12 lg:col-span-5">
             <TrainingSessionBox />
           </div>
 
           {
-            // 식단 관리 및 칼로리 통계
+            // 식단 관리 및 칼로리 통계 (7칸 — 2행과 동일 비율)
           }
-          <div className="col-span-12 md:col-span-6 lg:col-span-4">
+          <div className="col-span-12 lg:col-span-7">
             <DietBox />
           </div>
 
           {
-            // AI 추천 운동 피드백
+            // 신체 스펙 및 인바디 데이터 (5칸으로 축소 — 2행과 동일 비율)
           }
-          <div className="col-span-12 md:col-span-6 lg:col-span-4">
-            <AiExerciseGuideBox />
-          </div>
-
-          {
-            // 신체 스펙 및 인바디 데이터
-          }
-          <div className="col-span-12 md:col-span-12 lg:col-span-4">
+          <div className="col-span-12 lg:col-span-5">
             <BodyCompositionBox />
           </div>
         </div>

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
-import { NotificationApi } from '../../pages/notification/NotificationApi';
+import { NotificationApi } from '../../pages/notification/notificationApi';
 import { axiosInstance } from '../../app/apiClient';
 import {
   BookIcon, DumbbellIcon, UsersIcon, SunIcon, MoonIcon, CalendarIcon,
@@ -181,13 +181,13 @@ export function MainHeader() {
             <NavItem 
               to="#" 
               icon={<MessageSquareIcon size={18} />} 
-              label="초대 수신함" 
-              active={currentPath.includes('requests') || currentPath.includes('invitation')} 
+              label="수신함" 
+              active={currentPath.includes('requests') || currentPath.includes('invitation') || currentPath.includes('notifications')} 
               onClickOverride={() => setIsInviteMenuOpen(!isInviteMenuOpen)}
               hasToggle={true}
               isExpanded={isInviteMenuOpen}
             />
-            {/* 초대 수신함 드롭다운 */}
+            {/* 수신함 드롭다운 */}
             {isInviteMenuOpen && (
               <div className="absolute left-0 mt-3 w-48 bg-white/98 dark:bg-[#0c0c0c]/98 backdrop-blur-xl border border-gray-200 dark:border-[#222] rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-black/80 overflow-hidden z-50 py-2">
                 <button 
@@ -201,6 +201,12 @@ export function MainHeader() {
                   className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${currentPath.includes('invitation') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white'}`}
                 >
                   스터디 초대
+                </button>
+                <button 
+                  onClick={() => { setIsInviteMenuOpen(false); navigate("/notifications"); }} 
+                  className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${currentPath.includes('notifications') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#141414] hover:text-gray-900 dark:hover:text-white'}`}
+                >
+                  알림 목록
                 </button>
               </div>
             )}
@@ -333,7 +339,7 @@ export function MainHeader() {
           <hr className="border-gray-100 dark:border-slate-800" />
           
           <div className="flex flex-col gap-2 bg-gray-50/50 dark:bg-slate-950/20 p-3 rounded-2xl border border-gray-100 dark:border-slate-800">
-            <span className="text-[10px] font-extrabold text-gray-400 dark:text-slate-500 uppercase tracking-widest pl-2 mb-1">초대 수신함</span>
+            <span className="text-[10px] font-extrabold text-gray-400 dark:text-slate-500 uppercase tracking-widest pl-2 mb-1">수신함</span>
             <button 
               onClick={() => { setIsMobileMenuOpen(false); navigate("/friend/requests"); }}
               className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${currentPath.includes('requests') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/20' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
@@ -347,6 +353,13 @@ export function MainHeader() {
             >
               <span>스터디 초대</span>
               <MessageSquareIcon size={14} />
+            </button>
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); navigate("/notifications"); }}
+              className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${currentPath.includes('notifications') ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/20' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900'}`}
+            >
+              <span>알림 목록</span>
+              <BellIcon size={14} />
             </button>
           </div>
         </div>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MessageSquareIcon, TrashIcon, EditIcon } from '../../../components/ui/Icons';
-import { getPostApi, deletePostApi, togglePostLikeApi } from '../api/PostApi';
-import { createCommentApi, deleteCommentApi, updateCommentApi } from '../api/CommentApi';
-import type { PostResponse } from '../types/PostTypes';
+import { getPostApi, deletePostApi, togglePostLikeApi } from '../api/postApi';
+import { createCommentApi, deleteCommentApi, updateCommentApi } from '../api/commentApi';
+import type { PostResponse } from '../types/postTypes';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import UserPopover from '../../../components/common/UserPopover';
@@ -141,8 +141,10 @@ export default function PostDetailPage() {
               ) : (
                 <p className="font-black text-lg text-gray-900 dark:text-gray-100">{post.userName}</p>
               )}
-              <p className="text-[0.7rem] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-                {new Date(post.createdAt).toLocaleDateString()}
+              <p className="text-[0.7rem] font-bold text-gray-400 uppercase tracking-widest mt-0.5 flex items-center gap-2">
+                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                <span className="text-gray-300 dark:text-gray-700">•</span>
+                <span>조회수 {post.viewCount}</span>
               </p>
             </div>
           </div>

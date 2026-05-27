@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { sendMessage } from "../api/MessageApi";
+import { sendMessage } from "../api/messageApi";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 
 interface SendMessageModalProps {

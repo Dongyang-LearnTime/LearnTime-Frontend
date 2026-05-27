@@ -1,5 +1,5 @@
 import { axiosInstance } from '../../../app/apiClient';
-import type { CalendarRequest, CalendarResponse, RoutineRequest, RoutineResponse } from '../types/ScheduleTypes';
+import type { CalendarRequest, CalendarResponse, RoutineRequest, RoutineResponse } from '../types/scheduleTypes';
 
 /**
  * 1. 일정(Calendar) 관련 API

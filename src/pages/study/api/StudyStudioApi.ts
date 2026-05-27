@@ -10,7 +10,7 @@ import type {
     StudyMemberResponse,
     StudyMemberFriendResponse,
     UpdateStudyTitleRequest 
-} from "../types/StudyTypes";
+} from "../types/studyTypes";
 
 
 // 일일 공부 진도 정보
@@ -81,7 +81,7 @@ export const deleteStudyApi = async (studyId: string): Promise<void> => {
 
 // 스터디 진도 제목 수정
 export const updateStudyTitleApi = async (request: UpdateStudyTitleRequest): Promise<void> => {
-    await axiosInstance.patch('/api/study/title', request);
+    await axiosInstance.patch('/api/study/study-title', request);
 };
 
 // 스터디 책 제목 수정

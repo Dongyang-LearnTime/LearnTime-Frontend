@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { getBadgeTierInfo } from '../../../api/UserApi';
+import { getBadgeTierInfo } from '../../../api/userApi';
 import { getTierImage, getBadgeImage } from '../../../utils/gamificationAssets';
-import type { BadgeTierInfoResponse } from '../../../types/UserTypes';
+import type { BadgeTierInfoResponse } from '../../../types/userTypes';
 import { ArrowLeft as ArrowLeftIcon, Trophy as TrophyIcon, ShieldCheck as ShieldCheckIcon, Star as StarIcon } from 'lucide-react';
 
 export default function BadgeTierInfoPage() {

@@ -1,6 +1,6 @@
 import { axiosInstance } from "../../../app/apiClient";
-import type { PageResponse } from "../../../types/PaginationType";
-import type { StudyFeedbackResponse, UpdateFeedbackTitleRequest } from "../types/StudyFeedBackTypes";
+import type { PageResponse } from "../../../types/paginationType";
+import type { StudyFeedbackResponse, UpdateFeedbackTitleRequest } from "../types/studyFeedBackTypes";
 
 // 특정 스터디의 피드백 기록을 조회함.
 export const getStudyFeedbackList = async (studyId: number, page: number, size: number = 10): Promise<PageResponse<StudyFeedbackResponse>> => {
