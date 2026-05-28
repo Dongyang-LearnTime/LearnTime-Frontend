@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { NotificationApi } from '../../pages/notification/notificationApi';
 import { axiosInstance } from '../../app/apiClient';
+import { UserSearchBar } from './UserSearchBar';
 import {
   BookIcon, DumbbellIcon, UsersIcon, SunIcon, MoonIcon, CalendarIcon,
   ChevronDownIcon, MenuIcon, XIcon, BellIcon, LayersIcon, MessageSquareIcon
@@ -238,6 +239,11 @@ export function MainHeader() {
 
         {/* 우측 컨트롤 영역 */}
         <div className="flex items-center gap-3">
+          {/* 데스크탑 사용자 검색 창 */}
+          <div className="hidden md:block">
+            <UserSearchBar />
+          </div>
+
           {/* 알림창 영역 */}
           <div className="relative" ref={notificationRef}>
             <button

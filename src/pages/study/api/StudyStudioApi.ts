@@ -10,7 +10,8 @@ import type {
     StudyMemberResponse,
     StudyMemberFriendResponse,
     StudyStudioSummaryResponse,
-    UpdateStudyTitleRequest 
+    UpdateStudyTitleRequest,
+    FocusTimeRequest
 } from "../types/studyTypes";
 
 
@@ -42,8 +43,29 @@ export const getStudyRecentWeekInfoApi = async (studyId: string): Promise<StudyR
         `/api/study/${studyId}/total/recent-week`
     );
     return response.data
+}
+
+// 일일 진도 시작
+export const startStudyDailyPlanApi = async (studyDailyPlanId: number): Promise<void> => {
+    await axiosInstance.patch(`/api/study/daily/${studyDailyPlanId}/start`);
 };
 
+// 일일 진도 완료
+export const completeStudyDailyPlanApi = async (request: PlanCompleteRequest): Promise<string> => {
+    const response = await axiosInstance.patch<string>(`/api/study/daily/completion`, request);
+    return response.data;
+};
+
+// 스터디 멤버 목록 조회
+export const getStudyMemberListApi = async (studyId: string): Promise<StudyMemberResponse[]> => {
+    const response = await axiosInstance.get<StudyMemberResponse[]>(`/api/study/member/${studyId}`);
+    return response.data;
+};
+
+// 일일 진도 집중 시간 등록
+export const registerFocusTimeApi = async (request: FocusTimeRequest): Promise<void> => {
+    await axiosInstance.patch('/api/study/daily/focus-time', request);
+};
 // 학습 스튜디오 첫 화면 통합 조회
 export const getStudyStudioSummaryApi = async (studyId: string, planDate: string): Promise<StudyStudioSummaryResponse> => {
     const response = await axiosInstance.get<StudyStudioSummaryResponse>(
@@ -97,23 +119,6 @@ export const updateStudyTitleApi = async (request: UpdateStudyTitleRequest): Pro
 // 스터디 책 제목 수정
 export const updateStudyBookTitleApi = async (request: UpdateStudyTitleRequest): Promise<void> => {
     await axiosInstance.patch('/api/study/book-title', request);
-};
-
-// 일일 진도 시작
-export const startStudyDailyPlanApi = async (studyDailyPlanId: number): Promise<void> => {
-    await axiosInstance.patch(`/api/study/daily/${studyDailyPlanId}/start`);
-};
-
-// 일일 진도 완료
-export const completeStudyDailyPlanApi = async (request: PlanCompleteRequest): Promise<string> => {
-    const response = await axiosInstance.patch<string>(`/api/study/daily/completion`, request);
-    return response.data;
-};
-
-// 스터디 멤버 목록 조회
-export const getStudyMemberListApi = async (studyId: string): Promise<StudyMemberResponse[]> => {
-    const response = await axiosInstance.get<StudyMemberResponse[]>(`/api/study/member/${studyId}`);
-    return response.data;
 };
 
 // 스터디원 초대용 방장 친구 조회

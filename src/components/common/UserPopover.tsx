@@ -60,7 +60,7 @@ export default function UserPopover({ userId, userName, children, className = "i
 
         {isOpen && (
           <div 
-            className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#21262d] border border-gray-200 dark:border-[#30363d] rounded-md shadow-lg z-50 py-1 text-sm text-gray-800 dark:text-gray-200"
+            className="absolute left-0 mt-2 w-48 bg-white dark:bg-[#21262d] border border-gray-200 dark:border-[#30363d] rounded-md shadow-lg z-50 py-1 text-sm font-normal text-gray-800 dark:text-gray-200"
             onClick={(e) => e.stopPropagation()}
           >
             <Link 

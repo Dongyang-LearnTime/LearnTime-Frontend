@@ -4,6 +4,8 @@ import { getRankingApi } from './api/postApi';
 import type { PointRankingResponse } from './types/postTypes';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { TrophyIcon } from '../../components/ui/Icons';
+import UserPopover from '../../components/common/UserPopover';
+import { getTierImage } from '../../utils/gamificationAssets';
 
 export default function RankingPage() {
     const navigate = useNavigate();
@@ -79,10 +81,17 @@ export default function RankingPage() {
                                                 {overallRank}
                                             </span>
                                         </div>
-                                        <span className="col-span-4 font-bold text-sm text-gray-800 dark:text-gray-200">{user.name}</span>
-                                        <span className="col-span-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 py-1 px-2.5 rounded-lg w-fit mx-auto">
-                                            {user.tierName || '일반'}
-                                        </span>
+                                        <div className="col-span-4 font-bold text-sm text-gray-800 dark:text-gray-200">
+                                            <UserPopover userId={user.userId} userName={user.name}>
+                                                <span className="hover:underline cursor-pointer">{user.name}</span>
+                                            </UserPopover>
+                                        </div>
+                                        <div className="col-span-3 flex justify-center">
+                                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 dark:bg-[rgba(99,102,241,0.1)] border border-indigo-200 dark:border-[rgba(99,102,241,0.2)] rounded-md text-xs font-bold text-indigo-700 dark:text-indigo-300 w-fit">
+                                                <img src={getTierImage(user.tierName || '일반')} alt={user.tierName || '일반'} className="w-5 h-5" />
+                                                <span>{user.tierName || '일반'}</span>
+                                            </div>
+                                        </div>
                                         <span className="col-span-3 text-right text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                                             {user.point.toLocaleString()} PT
                                         </span>

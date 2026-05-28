@@ -6,7 +6,7 @@ import { ModeSection } from '../components/home/section/ModeSection';
 import { PreviewSection } from '../components/home/section/PreviewSection';
 import { GamificationSection } from '../components/home/section/GamificationSection';
 import { CTASection } from '../components/home/section/CTASection';
-import { HomeHeader } from '../components/home/HomeHeader';
+import { GlobalHeader } from '../components/layout/GlobalHeader';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function HomePage() {
@@ -36,7 +36,7 @@ export default function HomePage() {
   return (
     <div className="bg-[#050505] text-white font-sans selection:bg-indigo-500/40 min-h-screen overflow-x-hidden scroll-smooth">
       {/* 상단 네비게이션 헤더 */}
-      <HomeHeader />
+      <GlobalHeader />
 
       {/* 랜딩 페이지 개별 섹션들 */}
       <main className="w-full">

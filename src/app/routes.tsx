@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import ProtectedRoute from "./ProtectedRoute";
-import { MainHeader } from "../components/layout/MainHeader";
+import { GlobalHeader } from "../components/layout/GlobalHeader";
 import { StudySidebarLayout } from "../components/layout/StudySidebarLayout";
 
 const StudyStudioPage = lazy(() => import("../pages/study/studio/StudyStudioPage"));
@@ -43,7 +43,7 @@ export const routes = [
     noLayout: true,
     element: (
       <ProtectedRoute fallback={<HomePage />}>
-        <MainHeader />
+        <GlobalHeader />
         <LearnTimeMainPage />
       </ProtectedRoute>
     )
@@ -64,7 +64,7 @@ export const routes = [
     path: "/notifications",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <NotificationPage />
       </ProtectedRoute>
     )
@@ -73,7 +73,7 @@ export const routes = [
     path: "/profile/:userId",
     element: (
       <>
-        <MainHeader />
+        <GlobalHeader />
         <ProfilePage />
       </>
     )
@@ -82,7 +82,7 @@ export const routes = [
     path: "/badge-tier-info",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <BadgeTierInfoPage />
       </ProtectedRoute>
     )
@@ -91,7 +91,7 @@ export const routes = [
     path: "/messages",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <MessageListPage />
       </ProtectedRoute>
     )
@@ -100,7 +100,7 @@ export const routes = [
     path: "/study",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudyRedirector />
       </ProtectedRoute>
     )
@@ -109,7 +109,7 @@ export const routes = [
     path: "/study/studio",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudyRedirector />
       </ProtectedRoute>
     )
@@ -118,7 +118,7 @@ export const routes = [
     path: "/study/empty",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <StudyEmptyPage />
         </StudySidebarLayout>
@@ -129,7 +129,7 @@ export const routes = [
     path: "/study/:studyId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <StudyStudioPage />
         </StudySidebarLayout>
@@ -140,7 +140,7 @@ export const routes = [
     path: "/study/invitation",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <StudyInvitationPage />
         </StudySidebarLayout>
@@ -151,7 +151,7 @@ export const routes = [
     path: "/study/plan/create",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <CreateStudyPage />
         </StudySidebarLayout>
@@ -162,7 +162,7 @@ export const routes = [
     path: "/study/notes/write/:studyId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <NotesWritePage />
         </StudySidebarLayout>
@@ -173,7 +173,7 @@ export const routes = [
     path: "/study/notes/list/:studyId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <StudyNotesListPage />
         </StudySidebarLayout>
@@ -184,7 +184,7 @@ export const routes = [
     path: "/study/notes/:noteId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <NotesDetailPage />
         </StudySidebarLayout>
@@ -195,7 +195,7 @@ export const routes = [
     path: "/study/notes/edit/:noteId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <NotesEditPage />
         </StudySidebarLayout>
@@ -206,7 +206,7 @@ export const routes = [
     path: "/study/quiz/:quizId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <QuizSolvePage />
         </StudySidebarLayout>
@@ -217,7 +217,7 @@ export const routes = [
     path: "/study/quiz/history/:quizHistoryId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <QuizResultPage />
         </StudySidebarLayout>
@@ -228,7 +228,7 @@ export const routes = [
     path: "/study/quiz/history/list/:studyQuizId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <QuizHistoryListPage />
         </StudySidebarLayout>
@@ -239,7 +239,7 @@ export const routes = [
     path: "/study/quiz/list/:studyId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <StudyQuizListPage />
         </StudySidebarLayout>
@@ -250,7 +250,7 @@ export const routes = [
     path: "/study/feedback/list/:studyId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <StudySidebarLayout>
           <StudyFeedbackListPage />
         </StudySidebarLayout>
@@ -261,7 +261,7 @@ export const routes = [
     path: "/community",
     element: (
       <>
-        <MainHeader />
+        <GlobalHeader />
         <CommunityPage />
       </>
     )
@@ -270,7 +270,7 @@ export const routes = [
     path: "/community/ranking",
     element: (
       <>
-        <MainHeader />
+        <GlobalHeader />
         <RankingPage />
       </>
     )
@@ -279,7 +279,7 @@ export const routes = [
     path: "/community/post/create",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <CreatePostPage />
       </ProtectedRoute>
     )
@@ -288,7 +288,7 @@ export const routes = [
     path: "/community/post/:postId",
     element: (
       <>
-        <MainHeader />
+        <GlobalHeader />
         <PostDetailPage />
       </>
     )
@@ -297,7 +297,7 @@ export const routes = [
     path: "/community/post/edit/:postId",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <PostEditPage />
       </ProtectedRoute>
     )
@@ -306,7 +306,7 @@ export const routes = [
     path: "/friend/requests",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <FriendRequestPage />
       </ProtectedRoute>
     )
@@ -315,7 +315,7 @@ export const routes = [
     path: "/schedule",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <SchedulePage />
       </ProtectedRoute>
     )
@@ -324,7 +324,7 @@ export const routes = [
     path: "/exercise",
     element: (
       <ProtectedRoute>
-        <MainHeader />
+        <GlobalHeader />
         <ExercisePage />
       </ProtectedRoute>
     )
