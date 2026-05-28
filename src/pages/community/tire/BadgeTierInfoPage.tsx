@@ -4,7 +4,29 @@ import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getBadgeTierInfo } from '../../../api/userApi';
 import { getTierImage, getBadgeImage } from '../../../utils/gamificationAssets';
 import type { BadgeTierInfoResponse } from '../../../types/userTypes';
-import { ArrowLeft as ArrowLeftIcon, Trophy as TrophyIcon, ShieldCheck as ShieldCheckIcon, Star as StarIcon } from 'lucide-react';
+import { ArrowLeft as ArrowLeftIcon, Trophy as TrophyIcon, ShieldCheck as ShieldCheckIcon, Star as StarIcon, X as XIcon } from 'lucide-react';
+import { useAuthStore } from '../../../store/useAuthStore';
+
+// 로그인하지 않은 사용자 또는 API 조회 실패 시 사용할 정적 마일스톤 등급 데이터
+const FALLBACK_TIERS = [
+  { tierName: '자전거', minPoint: 0 },
+  { tierName: '자동차', minPoint: 1000 },
+  { tierName: '헬리콥터', minPoint: 3000 },
+  { tierName: '비행기', minPoint: 10000 },
+  { tierName: '우주선', minPoint: 30000 }
+];
+
+// 로그인하지 않은 사용자 또는 API 조회 실패 시 사용할 정적 도전 배지 데이터
+const FALLBACK_BADGES = [
+  { badgeType: 'FIRST_STEP', displayName: '첫 걸음', description: '첫 스터디 일정을 생성했습니다.' },
+  { badgeType: 'DILIGENT_PLANNER', displayName: '성실한 계획러', description: '30일 동안 스터디를 계획하고 실행했습니다.' },
+  { badgeType: 'EXCELLENT_STRATEGIST', displayName: '탁월한 전략가', description: '90일 동안 스터디를 성실히 지속했습니다.' },
+  { badgeType: 'TRUE_J_MBTI', displayName: '완벽한 계획형(J)', description: '180일 스터디 달성을 이루어냈습니다.' },
+  { badgeType: 'HUMAN_GPT', displayName: '퀴즈 정복자', description: 'AI 생성 퀴즈를 10번 이상 풀었습니다.' },
+  { badgeType: 'TRIPITAKA_COREANA', displayName: '기록의 달인', description: '학습 노트를 80개 이상 작성했습니다.' },
+  { badgeType: 'EARLY_BIRD', displayName: '얼리버드', description: '오전 6시 이전에 첫 학습을 시작했습니다.' },
+  { badgeType: 'MIRACLE_MORNING_ADDICT', displayName: '미라클 모닝 중독', description: '오전 6시 이전 학습을 5회 이상 성공했습니다.' }
+];
 
 export default function BadgeTierInfoPage() {
   usePageTitle('업적 및 등급 상세');
@@ -12,20 +34,43 @@ export default function BadgeTierInfoPage() {
   const [data, setData] = useState<BadgeTierInfoResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'TIER' | 'BADGE'>('TIER');
+  const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description?: string } | null>(null);
+
+  // Zustand 스토어에서 인증 여부 조회
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!isAuthenticated) {
+        // 로그아웃 상태인 경우 즉시 로컬 정적 데이터 공급
+        setData({
+          allTiers: FALLBACK_TIERS,
+          allBadges: FALLBACK_BADGES,
+          currentTierName: '자전거',
+          acquiredBadges: []
+        });
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const res = await getBadgeTierInfo();
         setData(res);
       } catch (error) {
         console.error('Failed to load badge and tier information:', error);
+        // API 조회 실패 시 정적 백업 데이터로 노출 보장
+        setData({
+          allTiers: FALLBACK_TIERS,
+          allBadges: FALLBACK_BADGES,
+          currentTierName: '자전거',
+          acquiredBadges: []
+        });
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [isAuthenticated]);
 
   if (isLoading) {
     return (
@@ -69,27 +114,52 @@ export default function BadgeTierInfoPage() {
       </div>
 
       {/* 현재 티어 개요 요약 카드 */}
-      <div className="w-full bg-linear-to-br from-indigo-500 to-purple-600 text-white rounded-4xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between mb-10 shadow-lg shadow-indigo-500/10 relative overflow-hidden">
-        <div className="absolute right-[-5%] top-[-10%] w-60 h-60 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-        <div className="z-10 text-center sm:text-left">
-          <span className="inline-block px-3 py-1 bg-white/20 border border-white/20 rounded-full text-[10px] font-black tracking-wider uppercase mb-3">
-            My Status
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-black mb-2 flex items-center justify-center sm:justify-start gap-2">
-            현재 획득 등급: <span className="underline decoration-indigo-200 decoration-4 underline-offset-4">{data.currentTierName}</span>
-          </h2>
-          <p className="text-xs text-indigo-100 font-bold">
-            획득한 도전 배지: {data.acquiredBadges.length}개 / 전체 {data.allBadges.length}개
-          </p>
+      {isAuthenticated ? (
+        <div className="w-full bg-linear-to-br from-indigo-500 to-purple-600 text-white rounded-4xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between mb-10 shadow-lg shadow-indigo-500/10 relative overflow-hidden">
+          <div className="absolute right-[-5%] top-[-10%] w-60 h-60 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="z-10 text-center sm:text-left">
+            <span className="inline-block px-3 py-1 bg-white/20 border border-white/20 rounded-full text-[10px] font-black tracking-wider uppercase mb-3">
+              My Status
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black mb-2 flex items-center justify-center sm:justify-start gap-2">
+              현재 획득 등급: <span className="underline decoration-indigo-200 decoration-4 underline-offset-4">{data.currentTierName}</span>
+            </h2>
+            <p className="text-xs text-indigo-100 font-bold">
+              획득한 도전 배지: {data.acquiredBadges.length}개 / 전체 {data.allBadges.length}개
+            </p>
+          </div>
+          <div className="mt-6 sm:mt-0 z-10 shrink-0 flex items-center justify-center">
+            <img 
+              src={getTierImage(data.currentTierName)} 
+              alt={data.currentTierName} 
+              className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-lg transform hover:scale-105 transition-transform duration-300"
+            />
+          </div>
         </div>
-        <div className="mt-6 sm:mt-0 z-10 shrink-0 flex items-center justify-center">
-          <img 
-            src={getTierImage(data.currentTierName)} 
-            alt={data.currentTierName} 
-            className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-lg transform hover:scale-105 transition-transform duration-300"
-          />
+      ) : (
+        <div className="w-full bg-linear-to-br from-gray-800 to-slate-900 text-white rounded-4xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between mb-10 shadow-lg shadow-slate-900/10 relative overflow-hidden">
+          <div className="absolute right-[-5%] top-[-10%] w-60 h-60 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="z-10 text-center sm:text-left">
+            <span className="inline-block px-3 py-1 bg-white/10 border border-white/10 rounded-full text-[10px] font-black tracking-wider uppercase mb-3">
+              Welcome to Learn Time
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black mb-2">
+              로그인하고 등급 및 배지를 확인해 보세요!
+            </h2>
+            <p className="text-xs text-slate-300 font-bold mb-4 sm:mb-0">
+              학습 시간을 채우고 마일스톤 등급을 업그레이드하여 다양한 학습 도전 과제 배지를 모으실 수 있습니다.
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0 z-10 shrink-0 flex items-center justify-center">
+            <button
+              onClick={() => navigate('/login')}
+              className="px-6 py-3 bg-white text-gray-900 hover:bg-gray-100 transition-all font-black text-sm rounded-2xl shadow-xl hover:scale-105 active:scale-95 duration-200 cursor-pointer"
+            >
+              로그인하러 가기
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 탭 네비게이션 */}
       <div className="flex border-b border-gray-100 dark:border-[#1a1a1a] mb-8 gap-4">
@@ -119,7 +189,7 @@ export default function BadgeTierInfoPage() {
       {activeTab === 'TIER' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {data.allTiers.map((tier, idx) => {
-            const isCurrent = tier.tierName.toLowerCase() === data.currentTierName.toLowerCase();
+            const isCurrent = isAuthenticated && tier.tierName.toLowerCase() === data.currentTierName.toLowerCase();
             return (
               <div 
                 key={idx}
@@ -130,9 +200,16 @@ export default function BadgeTierInfoPage() {
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${
-                    isCurrent ? 'bg-indigo-100/80 dark:bg-indigo-950/40' : 'bg-gray-50 dark:bg-[#111]'
-                  }`}>
+                  <div 
+                    onClick={() => setSelectedImage({
+                      src: getTierImage(tier.tierName),
+                      title: tier.tierName,
+                      description: `달성 조건: ${tier.minPoint.toLocaleString()} XP 이상`
+                    })}
+                    className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-inner cursor-pointer hover:scale-105 transition-transform duration-200 ${
+                      isCurrent ? 'bg-indigo-100/80 dark:bg-indigo-950/40' : 'bg-gray-50 dark:bg-[#111]'
+                    }`}
+                  >
                     <img 
                       src={getTierImage(tier.tierName)} 
                       alt={tier.tierName} 
@@ -192,11 +269,18 @@ export default function BadgeTierInfoPage() {
                   </div>
                 )}
 
-                <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 shrink-0 transition-transform group-hover:scale-105 duration-300 ${
-                  isAcquired 
-                    ? 'bg-indigo-50/50 dark:bg-indigo-950/20 shadow-sm' 
-                    : 'bg-gray-100 dark:bg-gray-900/50 filter grayscale contrast-50 opacity-40'
-                }`}>
+                <div 
+                  onClick={() => setSelectedImage({
+                    src: getBadgeImage(badge.badgeType),
+                    title: badge.displayName,
+                    description: badge.description
+                  })}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 shrink-0 transition-transform hover:scale-105 duration-300 cursor-pointer ${
+                    isAcquired 
+                      ? 'bg-indigo-50/50 dark:bg-indigo-950/20 shadow-sm' 
+                      : 'bg-gray-100 dark:bg-gray-900/50 filter grayscale contrast-50 opacity-40'
+                  }`}
+                >
                   <img 
                     src={getBadgeImage(badge.badgeType)} 
                     alt={badge.displayName} 
@@ -232,6 +316,33 @@ export default function BadgeTierInfoPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* 팝업 모달창 (리워드/등급 확대 보기) */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-4xl p-8 max-w-sm w-full flex flex-col items-center text-center shadow-2xl relative transition-transform duration-300 transform scale-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+            >
+              <XIcon size={20} />
+            </button>
+            <div className="w-36 h-36 rounded-3xl bg-gray-50 dark:bg-[#111] flex items-center justify-center mb-6 shadow-inner p-4">
+              <img src={selectedImage.src} alt={selectedImage.title} className="w-28 h-28 object-contain animate-pulse-subtle" />
+            </div>
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">{selectedImage.title}</h3>
+            {selectedImage.description && (
+              <p className="text-sm font-bold text-gray-500 dark:text-gray-400 leading-relaxed">{selectedImage.description}</p>
+            )}
+          </div>
         </div>
       )}
     </div>

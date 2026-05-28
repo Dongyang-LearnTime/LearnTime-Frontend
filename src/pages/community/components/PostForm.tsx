@@ -8,6 +8,7 @@ export interface PostFormPayload {
     isNotice: boolean;
     newImages: File[];
     deletedImages: string[];
+    studyId?: number;
 }
 
 interface PostFormProps {
@@ -15,6 +16,8 @@ interface PostFormProps {
     initialContent?: string;
     initialIsNotice?: boolean;
     initialImages?: string[];
+    studyId?: number;
+    studyTitle?: string | null;
     onSubmit: (payload: PostFormPayload) => Promise<void>;
     submitButtonText: string;
     submittingText: string;
@@ -29,6 +32,8 @@ export default function PostForm({
     initialContent = '',
     initialIsNotice = false,
     initialImages = DEFAULT_IMAGES,
+    studyId,
+    studyTitle,
     onSubmit,
     submitButtonText,
     submittingText,
@@ -112,7 +117,8 @@ export default function PostForm({
             content,
             isNotice,
             newImages,
-            deletedImages
+            deletedImages,
+            studyId
         });
     };
 
@@ -125,6 +131,14 @@ export default function PostForm({
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             
+            {studyTitle && (
+                <div className="flex items-center gap-3.5 p-4.5 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/20 dark:border-indigo-500/30 rounded-2xl transition-all duration-300">
+                    <span className="text-xs font-black bg-indigo-600 dark:bg-indigo-500 text-white px-2.5 py-1.5 rounded-xl uppercase tracking-wider">공부 인증 연동</span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{studyTitle}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-bold ml-auto hidden sm:inline">글 등록 시 스터디 핵심 지표 스냅샷이 게시글에 첨부됩니다.</span>
+                </div>
+            )}
+
             {role === 'ROLE_ADMIN' && (
                 <div className="flex items-center gap-3.5 p-4.5 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl transition-all duration-300">
                     <input

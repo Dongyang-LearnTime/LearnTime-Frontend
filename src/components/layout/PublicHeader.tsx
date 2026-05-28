@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../common/Button';
-import { LayersIcon, MenuIcon, XIcon, UsersIcon } from '../ui/Icons';
+import { LayersIcon, MenuIcon, XIcon, UsersIcon, StarIcon } from '../ui/Icons';
 import { UserSearchBar } from './UserSearchBar';
 
 export function PublicHeader() {
@@ -10,12 +10,7 @@ export function PublicHeader() {
   const isHomePage = pathname === '/';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  /**
-   * HeroSection 높이(≈ 80vh)를 지나면 isScrolled = true.
-   * - false: 다크 배경 위 → 반투명 + 흰 글씨
-   * - true : 밝은 섹션 위 → 불투명 흰 배경 + 어두운 글씨
-   */
-  // 홈(/) 외 페이지는 마운트 시점부터 라이트 테마로 초기화
+
   const [isScrolled, setIsScrolled] = useState(!isHomePage);
 
   useEffect(() => {
@@ -61,7 +56,7 @@ export function PublicHeader() {
   return (
     <>
     <header
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] lg:w-[calc(100%-5rem)] max-w-[80rem] backdrop-blur-xl border rounded-full shadow-lg transition-all duration-500 ${headerBg}`}
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] lg:w-[calc(100%-5rem)] max-w-7xl backdrop-blur-xl border rounded-full shadow-lg transition-all duration-500 ${headerBg}`}
     >
       <div className="px-6 lg:px-8 h-16 flex items-center justify-between">
 
@@ -101,6 +96,15 @@ export function PublicHeader() {
             </svg>
             <span className="text-[0.95rem] font-bold tracking-tight whitespace-nowrap">
               랭킹
+            </span>
+          </div>
+          <div
+            onClick={() => navigate('/badge-tier-info')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full cursor-pointer transition-all duration-300 ${navText}`}
+          >
+            <StarIcon size={18} />
+            <span className="text-[0.95rem] font-bold tracking-tight whitespace-nowrap">
+              마일스톤
             </span>
           </div>
         </nav>
@@ -154,6 +158,13 @@ export function PublicHeader() {
               <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
             </svg>
             <span>랭킹</span>
+          </button>
+          <button
+            onClick={() => { setIsMobileMenuOpen(false); navigate('/badge-tier-info'); }}
+            className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold transition-all text-sm text-left ${isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}
+          >
+            <StarIcon size={18} />
+            <span>마일스톤</span>
           </button>
           <hr className={isScrolled ? 'border-gray-200' : 'border-slate-800'} />
           <div className="flex flex-col gap-2">

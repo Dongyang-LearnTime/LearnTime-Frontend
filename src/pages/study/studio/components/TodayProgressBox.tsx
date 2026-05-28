@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getStudyMemberContentApi, addStudyMemberContentApi, updateStudyMemberContentApi, deleteStudyMemberContentApi, registerFocusTimeApi } from '../../api/studyStudioApi';
+import { getStudyMemberContentApi, addStudyMemberContentApi, updateStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/studyStudioApi';
 import { Card, CardTitle } from '../../../../components/common/Card';
-import { EditIcon, CheckIcon, TrashIcon, PlayIcon, PauseIcon, ClockIcon } from '../../../../components/ui/Icons';
+import { EditIcon, CheckIcon, TrashIcon } from '../../../../components/ui/Icons';
 import type { StudyMemberContentResponse } from '../../types/studyTypes';
 
 export interface StudyScheduleItem {
@@ -34,10 +34,6 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isHoliday, setIsHoliday] = useState<boolean>(false);
 
-  // 스톱워치 상태
-  const [timerActive, setTimerActive] = useState<boolean>(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
-
   useEffect(() => {
     if (initialData) {
       setPlanContent(initialData.planContent);
@@ -61,40 +57,6 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
       .catch(err => console.error("Failed to load today's plan content:", err));
     return () => { isMounted = false; };
   }, [studyId, initialData, skipInitialFetch]);
-
-  // 스톱워치 타이머 로직
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (timerActive) {
-      interval = setInterval(() => {
-        setElapsedSeconds((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [timerActive]);
-
-  const formatTime = (totalSeconds: number) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  };
-
-  const handleFocusTimeSubmit = async () => {
-    if (!studyDailyPlanId) return;
-    try {
-      await registerFocusTimeApi({
-        studyDailyPlanId,
-        focusTime: formatTime(elapsedSeconds)
-      });
-      alert("집중 시간이 성공적으로 등록되었습니다.");
-      setTimerActive(false);
-      setElapsedSeconds(0);
-    } catch (err) {
-      console.error(err);
-      alert("집중 시간 등록에 실패했습니다. (이미 완료된 일정이거나 네트워크 오류일 수 있습니다)");
-    }
-  };
 
   // 일정 추가
   const handleAddSchedule = async (e: React.FormEvent) => {
@@ -165,40 +127,6 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
           )}
         </div>
       </CardTitle>
-
-      {/* 집중 시간 타이머 */}
-      {!isHoliday && studyDailyPlanId && (
-        <div className="mb-4 flex items-center justify-between p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-[#222]">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-              <ClockIcon size={16} />
-            </div>
-            <div>
-              <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Focus Time</div>
-              <div className="text-lg font-black tracking-widest text-gray-900 dark:text-white tabular-nums leading-none mt-0.5">
-                {formatTime(elapsedSeconds)}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setTimerActive(!timerActive)}
-              className={`p-2 rounded-xl transition-all ${timerActive ? 'bg-amber-100 text-amber-600 hover:bg-amber-200' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
-              title={timerActive ? "일시정지" : "시작"}
-            >
-              {timerActive ? <PauseIcon size={14} /> : <PlayIcon size={14} />}
-            </button>
-            {elapsedSeconds > 0 && (
-              <button
-                onClick={handleFocusTimeSubmit}
-                className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-all font-bold text-xs"
-              >
-                저장
-              </button>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* planContent 또는 휴일 표시 영역 */}
       {(planContent || isHoliday) && (

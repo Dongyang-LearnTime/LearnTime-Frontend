@@ -79,6 +79,7 @@
 }
 
 @theme inline {
+  --spacing-450: 1152px;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

@@ -3,7 +3,7 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import type { Event as PolyfillEvent, MessageEvent as PolyfillMessageEvent } from "event-source-polyfill";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNotificationStore } from "../store/useNotificationStore";
-import type { NotificationResponse } from "../app/notification/api/NotificationApi";
+import type { NotificationResponse } from "../pages/notification/notificationApi";
 
 import { API_BASE_URL } from "../app/apiClient";
 

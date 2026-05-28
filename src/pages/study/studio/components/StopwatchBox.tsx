@@ -13,67 +13,21 @@
 import { useState, useEffect } from 'react';
 import { PauseIcon, PlayIcon, ResetIcon, SaveIcon } from '../../../../components/ui/Icons';
 import { Card } from '../../../../components/common/Card';
+import { registerFocusTimeApi } from '../../api/studyStudioApi';
 
-interface LapRecord {
-  id: string;
-  time: number;
-  timestamp: string;
-  date: string;
+interface StopwatchBoxProps {
+  studyDailyPlanId: number | null | undefined;
 }
 
-export function StopwatchBox() {
+export function StopwatchBox({ studyDailyPlanId }: StopwatchBoxProps) {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [laps, setLaps] = useState<LapRecord[]>([]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
     if (isRunning) interval = setInterval(() => setTime(prev => prev + 1), 1000);
     return () => { if (interval) clearInterval(interval); };
   }, [isRunning]);
-
-  // 컴포넌트 마운트 시 로컬스토리지에서 공부 기록 불러오기 및 오늘 날짜 필터링
-  useEffect(() => {
-    const savedLaps = localStorage.getItem('study_laps');
-    if (savedLaps) {
-      try {
-        const parsed = JSON.parse(savedLaps) as LapRecord[];
-        const todayStr = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
-        const todayLaps = parsed.filter(lap => lap.date === todayStr);
-        setLaps(todayLaps);
-        
-        // 지난 날짜 기록이 있으면 로컬스토리지 정리
-        if (todayLaps.length !== parsed.length) {
-          localStorage.setItem('study_laps', JSON.stringify(todayLaps));
-        }
-      } catch (e) {
-        console.error('Failed to parse study laps', e);
-      }
-    }
-  }, []);
-
-  // 현재 경과 시간을 랩타임으로 기록 저장
-  const handleSaveLap = () => {
-    if (time === 0) return;
-    const now = new Date();
-    const newLap: LapRecord = {
-      id: now.getTime().toString(),
-      time: time,
-      timestamp: now.toTimeString().split(' ')[0], // hh:mm:ss
-      date: now.toLocaleDateString('sv-SE'),
-    };
-    const updated = [...laps, newLap];
-    setLaps(updated);
-    localStorage.setItem('study_laps', JSON.stringify(updated));
-  };
-
-  // 모든 랩타임 기록 삭제
-  const handleClearLaps = () => {
-    if (confirm('오늘의 모든 공부 기록을 삭제하시겠습니까?')) {
-      setLaps([]);
-      localStorage.removeItem('study_laps');
-    }
-  };
 
   // 시간 포맷팅 헬퍼 함수
   const fmt = (n: number) => String(n).padStart(2, '0');
@@ -82,6 +36,27 @@ export function StopwatchBox() {
     const m = fmt(Math.floor((timeInSecs % 3600) / 60));
     const s = fmt(timeInSecs % 60);
     return `${h}:${m}:${s}`;
+  };
+
+  // 백엔드 API에 집중시간 전송/등록
+  const handleFocusTimeSubmit = async () => {
+    if (!studyDailyPlanId) {
+      alert("일일 진도 일정을 먼저 시작하셔야 집중 시간을 등록할 수 있습니다.");
+      return;
+    }
+    if (time === 0) return;
+    try {
+      await registerFocusTimeApi({
+        studyDailyPlanId,
+        focusTime: formatTime(time)
+      });
+      alert("오늘의 공부 집중 시간이 성공적으로 등록되었습니다. 수고하셨습니다!");
+      setIsRunning(false);
+      setTime(0);
+    } catch (err) {
+      console.error(err);
+      alert("집중 시간 등록에 실패했습니다. (이미 완료되었거나 오늘 계획이 없을 수 있습니다)");
+    }
   };
 
   const h = fmt(Math.floor(time / 3600));
@@ -97,27 +72,19 @@ export function StopwatchBox() {
       <div className="flex gap-4 mb-6">
         {/* 시작 / 일시정지 */}
         <button
-          onClick={() => {
-            if (isRunning) {
-              // 정지할 때 현재까지의 기록을 자동 저장
-              handleSaveLap();
-              setIsRunning(false);
-            } else {
-              setIsRunning(true);
-            }
-          }}
+          onClick={() => setIsRunning(!isRunning)}
           className="w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-2xl flex items-center justify-center active:scale-90 transition-all shadow-xl shadow-indigo-500/10 hover:bg-gray-900 dark:hover:bg-gray-100 cursor-pointer"
-          title={isRunning ? "일시정지 (자동 저장)" : "시작"}
+          title={isRunning ? "일시정지" : "시작"}
         >
           {isRunning ? <PauseIcon size={20} /> : <PlayIcon size={20} />}
         </button>
 
-        {/* 공부 시간 기록 저장 (수동 버튼) */}
+        {/* 공부 시간 서버 등록 저장 버튼 */}
         <button
-          onClick={handleSaveLap}
-          disabled={time === 0}
+          onClick={handleFocusTimeSubmit}
+          disabled={time === 0 || !studyDailyPlanId}
           className="w-14 h-14 border border-gray-200 dark:border-[#222] rounded-2xl flex items-center justify-center active:scale-90 transition-all text-gray-500 dark:text-gray-400 hover:text-indigo-600 hover:border-indigo-600 dark:hover:text-indigo-400 dark:hover:border-indigo-500 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-          title="시간 강제 기록"
+          title="집중시간 서버 등록"
         >
           <SaveIcon size={20} />
         </button>
@@ -125,7 +92,7 @@ export function StopwatchBox() {
         {/* 타이머 초기화 */}
         <button
           onClick={() => {
-            if (time > 0 && confirm('타이머를 초기화하시겠습니까?')) {
+            if (time > 0 && confirm('타이머를 초기화하시겠습니까? (측정된 시간은 저장되지 않습니다)')) {
               setIsRunning(false);
               setTime(0);
             } else if (time === 0) {
@@ -139,45 +106,14 @@ export function StopwatchBox() {
         </button>
       </div>
 
-      {/* 기록된 공부 랩타임 리스트 */}
-      <div className="w-full mt-2 border-t border-gray-100 dark:border-[#1a1a1a] pt-4">
-        {laps.length > 0 ? (
-          <div>
-            <div className="flex justify-between items-center text-[0.6rem] text-gray-400 font-bold uppercase tracking-wider mb-3">
-              <span>오늘의 기록 ({laps.length})</span>
-              <button 
-                onClick={handleClearLaps} 
-                className="hover:text-rose-500 transition-colors cursor-pointer text-[0.55rem] font-bold"
-              >
-                전체 삭제
-              </button>
-            </div>
-            <div className="max-h-40 overflow-y-auto pr-1 space-y-2">
-              {laps.map((lap, idx) => {
-                const segmentTime = idx === 0 ? lap.time : lap.time - laps[idx - 1].time;
-                return (
-                  <div 
-                    key={lap.id} 
-                    className="flex justify-between items-center px-4 py-2.5 bg-gray-50/50 dark:bg-[#080808]/50 border border-gray-100/50 dark:border-[#151515] rounded-xl text-sm font-semibold hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-all"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-[0.65rem] text-indigo-500 font-black">기록 0{idx + 1}</span>
-                      <span className="text-[0.55rem] text-gray-400 dark:text-gray-500 font-medium">{lap.timestamp}</span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-sm text-gray-900 dark:text-gray-100 font-mono font-black tracking-tight">{formatTime(segmentTime)}</span>
-                      <span className="text-[0.55rem] text-gray-400 font-bold font-mono">누적: {formatTime(lap.time)}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-6 text-xs text-gray-400 dark:text-gray-500 font-medium">
-            오늘 누적된 공부 기록이 없습니다.
-          </div>
-        )}
+      {/* 안내 문구 가이드 영역 */}
+      <div className="w-full mt-2 border-t border-gray-100 dark:border-[#1a1a1a] pt-6 text-center">
+        <p className="text-xs text-gray-400 dark:text-gray-500 font-bold leading-relaxed max-w-[240px] mx-auto">
+          오늘의 목표 달성을 위해 몰입해 보세요!
+        </p>
+        <p className="text-[10px] text-gray-300 dark:text-gray-600 font-medium leading-relaxed max-w-[240px] mx-auto mt-1">
+          공부를 마친 후 저장 버튼(<span className="inline-flex items-center text-indigo-400 dark:text-indigo-500"><SaveIcon size={10} /></span>)을 누르면 오늘의 집중 시간이 기록됩니다.
+        </p>
       </div>
     </Card>
   );

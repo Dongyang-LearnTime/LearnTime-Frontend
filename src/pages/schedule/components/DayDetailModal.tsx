@@ -27,8 +27,6 @@ export function DayDetailModal({
   selectedDay,
   currentYear,
   currentMonth,
-  calendarNotes,
-  updateCalendarNote,
   selectedDaySchedules,
   onOpenAddModal,
   onToggleComplete,
@@ -39,7 +37,6 @@ export function DayDetailModal({
 
   // 날짜별 키 생성
   const dateKey = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${selectedDay.toString().padStart(2, '0')}`;
-  const noteValue = calendarNotes[dateKey] || '';
   
   // 영어 월 표시를 위한 날짜 객체
   const monthDate = new Date(currentYear, currentMonth, 1);

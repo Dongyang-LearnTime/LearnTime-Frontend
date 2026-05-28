@@ -36,6 +36,7 @@ const MessageListPage = lazy(() => import("../pages/message/MessageListPage"));
 const SchedulePage = lazy(() => import("../pages/schedule/SchedulePage"));
 const ExercisePage = lazy(() => import("../pages/exercise/ExercisePage"));
 const BadgeTierInfoPage = lazy(() => import("../pages/community/tire/BadgeTierInfoPage"));
+const MyPage = lazy(() => import("../pages/mypage/MyPage"));
 
 export const routes = [
   {
@@ -79,12 +80,21 @@ export const routes = [
     )
   },
   {
-    path: "/badge-tier-info",
+    path: "/mypage",
     element: (
       <ProtectedRoute>
         <GlobalHeader />
-        <BadgeTierInfoPage />
+        <MyPage />
       </ProtectedRoute>
+    )
+  },
+  {
+    path: "/badge-tier-info",
+    element: (
+      <>
+        <GlobalHeader />
+        <BadgeTierInfoPage />
+      </>
     )
   },
   {

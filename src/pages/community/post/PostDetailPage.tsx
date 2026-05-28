@@ -185,6 +185,96 @@ export default function PostDetailPage() {
             </div>
           )}
 
+          {/* 공부 지표 스냅샷 카드 */}
+          {post.studyTotalIndicator && (
+            <div className="mb-12 p-6 sm:p-8 bg-linear-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/10 dark:to-purple-950/10 border border-indigo-100/80 dark:border-indigo-900/30 rounded-3xl transition-all duration-300 hover:scale-[1.01] hover:shadow-xl hover:shadow-indigo-500/5 backdrop-blur-xs">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                  </svg>
+                </span>
+                <div>
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white">학습 공부 인증</h3>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">게시글 작성 시점의 스터디 핵심 지표 스냅샷입니다.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {/* 총 집중 시간 */}
+                <div className="bg-white/60 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+                  <span className="text-xs font-bold text-gray-400 dark:text-gray-500 flex items-center gap-1.5 mb-2">
+                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>총 학습 집중 시간
+                  </span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className="text-2xl font-black text-gray-900 dark:text-white">
+                      {Math.floor(post.studyTotalIndicator.totalFocusedTime / 3600)}
+                    </span>
+                    <span className="text-xs font-black text-gray-500">시간</span>
+                    <span className="text-2xl font-black text-gray-900 dark:text-white ml-1">
+                      {Math.floor((post.studyTotalIndicator.totalFocusedTime % 3600) / 60)}
+                    </span>
+                    <span className="text-xs font-black text-gray-500">분</span>
+                  </div>
+                </div>
+
+                {/* 진도 완료율 */}
+                <div className="bg-white/60 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+                  <span className="text-xs font-bold text-gray-400 dark:text-gray-500 flex items-center gap-1.5 mb-2">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>진도 완료율
+                  </span>
+                  <div className="mt-1">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-2xl font-black text-gray-900 dark:text-white">
+                        {post.studyTotalIndicator.studyCompletionRate}
+                      </span>
+                      <span className="text-xs font-black text-gray-500">%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
+                      <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${post.studyTotalIndicator.studyCompletionRate}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 진도 성공률 */}
+                <div className="bg-white/60 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+                  <span className="text-xs font-bold text-gray-400 dark:text-gray-500 flex items-center gap-1.5 mb-2">
+                    <span className="w-1.5 h-1.5 bg-violet-500 rounded-full"></span>진도 성공률
+                  </span>
+                  <div className="mt-1">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-2xl font-black text-gray-900 dark:text-white">
+                        {post.studyTotalIndicator.studySuccessRate}
+                      </span>
+                      <span className="text-xs font-black text-gray-500">%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
+                      <div className="bg-violet-500 h-full rounded-full transition-all duration-500" style={{ width: `${post.studyTotalIndicator.studySuccessRate}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 퀴즈 정답률 */}
+                <div className="bg-white/60 dark:bg-white/5 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+                  <span className="text-xs font-bold text-gray-400 dark:text-gray-500 flex items-center gap-1.5 mb-2">
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>퀴즈 정답률
+                  </span>
+                  <div className="mt-1">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-2xl font-black text-gray-900 dark:text-white">
+                        {post.studyTotalIndicator.quizCorrectRate}
+                      </span>
+                      <span className="text-xs font-black text-gray-500">%</span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
+                      <div className="bg-amber-500 h-full rounded-full transition-all duration-500" style={{ width: `${post.studyTotalIndicator.quizCorrectRate}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 본문과 댓글 영역 사이: 추천 토글 버튼 */}
           <div className="flex justify-center border-b border-gray-100 dark:border-[#1a1a1a] pb-10 mb-10">
             <button 

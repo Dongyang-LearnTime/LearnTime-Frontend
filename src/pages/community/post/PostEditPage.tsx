@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { usePageTitle } from '../../../hooks/usePageTitle';
@@ -10,6 +10,8 @@ interface PostData {
     title: string;
     content: string;
     images: string[];
+    studyId?: number;
+    studyTitle?: string | null;
 }
 
 export default function PostEditPage() {
@@ -31,7 +33,9 @@ export default function PostEditPage() {
                 setPostData({
                     title: data.title,
                     content: data.content,
-                    images: data.images || []
+                    images: data.images || [],
+                    studyId: data.studyId,
+                    studyTitle: data.studyTitle
                 });
             } catch (error) {
                 console.error('Failed to fetch post for edit:', error);
@@ -55,7 +59,8 @@ export default function PostEditPage() {
                 title: payload.title, 
                 content: payload.content, 
                 isNotice: payload.isNotice, 
-                deletedImageUrls: payload.deletedImages 
+                deletedImageUrls: payload.deletedImages,
+                studyId: payload.studyId
             };
             await updatePostApi(Number(postId), request, payload.newImages);
             
@@ -99,6 +104,8 @@ export default function PostEditPage() {
                                 initialTitle={postData.title}
                                 initialContent={postData.content}
                                 initialImages={postData.images}
+                                studyId={postData.studyId}
+                                studyTitle={postData.studyTitle}
                                 onSubmit={handleSubmit}
                                 submitButtonText="수정 완료"
                                 submittingText="수정 중..."

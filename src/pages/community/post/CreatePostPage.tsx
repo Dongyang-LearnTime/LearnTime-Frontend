@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { createPostApi } from '../api/postApi';
@@ -8,6 +8,11 @@ import PostForm, { type PostFormPayload } from '../components/PostForm';
 
 export default function CreatePostPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    const studyIdParam = searchParams.get('studyId');
+    const studyTitleParam = searchParams.get('studyTitle');
+    const studyId = studyIdParam ? Number(studyIdParam) : undefined;
 
     const [ postError , setPostError ] = useState<string>('');
     const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
@@ -22,12 +27,13 @@ export default function CreatePostPage() {
             const request = { 
                 title: payload.title, 
                 content: payload.content, 
-                isNotice: payload.isNotice 
+                isNotice: payload.isNotice,
+                studyId: payload.studyId
             };
-            await createPostApi(request, payload.newImages);
+            const postId = await createPostApi(request, payload.newImages);
             
             alert('게시글이 성공적으로 등록되었습니다!');
-            navigate(-1); // 이전 페이지로 복귀
+            navigate(`/community/post/${postId}`); // 생성된 상세 보기로 이동
         } catch (error) {
             const errorMessage = getApiErrorUtil(error);
             setPostError(errorMessage);
@@ -63,6 +69,8 @@ export default function CreatePostPage() {
                         submittingText="등록 중..."
                         isSubmitting={isSubmitting}
                         error={postError}
+                        studyId={studyId}
+                        studyTitle={studyTitleParam}
                     />
                 </div>
             </div>

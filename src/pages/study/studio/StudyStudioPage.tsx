@@ -4,7 +4,7 @@ import { generateStudyFeedback } from "../api/studyFeedbackApi";
 import StudyLearningMetrics from "./StudyLearningMetrics";
 import StudyProgressInfo from "./StudyProgressInfo";
 import StudyMemberList from "./StudyMemberList";
-import { SparklesIcon, PlayIcon } from "../../../components/ui/Icons";
+import { SparklesIcon, PlayIcon, RocketIcon } from "../../../components/ui/Icons";
 import { usePageTitle } from "../../../hooks/usePageTitle";
 import { 
   getStudyStudioSummaryApi,
@@ -87,12 +87,19 @@ export default function StudyStudioPage() {
     }
   };
 
+  // 공부 내용 커뮤니티에 공유하기
+  const handleShareStudy = () => {
+    if (!studyId) return;
+    const titleParam = studyTitle ? `&studyTitle=${encodeURIComponent(studyTitle)}` : "";
+    navigate(`/community/post/create?studyId=${studyId}${titleParam}`);
+  };
+
   if (!studyId) {
     return <div style={{ padding: "16px" }}>스터디 ID가 유효하지 않습니다.</div>;
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="w-full max-w-7xl mx-auto py-2">
       {/* 상단 헤더 영역 */}
       <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -131,6 +138,14 @@ export default function StudyStudioPage() {
               )}
             </>
           )}
+
+          {/* 공부 공유 버튼 */}
+          <button
+            onClick={handleShareStudy}
+            className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <RocketIcon size={16} /> 공부 공유하기
+          </button>
 
           {/* AI 진도 분석 버튼 */}
           <button

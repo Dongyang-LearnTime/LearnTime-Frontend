@@ -90,7 +90,7 @@ export default function StudyLearningMetrics({ studyId, summary, isSummaryLoadin
   }, [isSummaryLoading]);
 
   return (
-    <div className="flex flex-col gap-6 max-w-450 mx-auto w-full">
+    <div className="flex flex-col gap-6 w-full">
       {/* 1. 현재 학습 집중 구간 (상단) */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
         {/* 오늘의 진도 (60% 너비) */}
@@ -100,7 +100,7 @@ export default function StudyLearningMetrics({ studyId, summary, isSummaryLoadin
 
         {/* 스튜디오 타이머 (40% 너비) */}
         <section className="lg:col-span-4 min-h-100">
-          <StopwatchBox />
+          <StopwatchBox studyDailyPlanId={summary?.todayContent?.studyDailyPlanId} />
         </section>
       </div>
 

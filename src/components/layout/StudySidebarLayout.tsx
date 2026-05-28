@@ -66,7 +66,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
   };
 
   return (
-    <div className="flex flex-1 overflow-hidden max-w-450 mx-auto w-full relative">
+    <div className="flex flex-1 w-full relative items-start">
       {/* 
         왼쪽 사이드바 (노션 스타일 + 반응형 빡세게) 
         - isExpanded에 따라 width가 변동됨
@@ -74,7 +74,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
       */}
       <aside 
         className={`z-20 flex flex-col border-r border-gray-200 dark:border-[#222] bg-white dark:bg-[#050505] transition-all duration-300 ease-in-out shadow-[2px_0_10px_rgba(0,0,0,0.02)] dark:shadow-[2px_0_10px_rgba(0,0,0,0.2)]
-          ${isExpanded ? 'w-64 absolute md:relative h-full' : 'w-0 md:w-15 overflow-hidden'}
+          ${isExpanded ? 'w-64 absolute md:sticky md:top-16 h-[calc(100vh-64px)]' : 'w-0 md:w-15 overflow-hidden md:sticky md:top-16 h-[calc(100vh-64px)]'}
         `}
       >
         <div className={`p-4 flex items-center border-b border-gray-100 dark:border-[#1a1a1a] transition-all duration-300 ${isExpanded ? 'justify-between px-6' : 'justify-center'}`}>
@@ -227,7 +227,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
       )}
 
       {/* 우측 메인 컨텐츠 영역 */}
-      <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-gray-50/30 dark:bg-[#020202] w-full relative">
+      <main className="flex-1 p-4 lg:p-8 bg-gray-50/30 dark:bg-[#020202] w-full relative min-h-[calc(100vh-64px)]">
         {/* 모바일 전용 햄버거 메뉴 띄우기 버튼 */}
         <button 
           onClick={() => setIsExpanded(true)}

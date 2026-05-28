@@ -12,6 +12,7 @@ export interface PostUpdateRequest {
     content: string; 
     deletedImageUrls: string[]; 
     isNotice: boolean; 
+    studyId?: number;
 }
 
 export interface PostResponse {
@@ -63,6 +64,8 @@ export interface PostUpdateDetailResponse {
     title: string;
     content: string;
     images: string[];
+    studyId?: number;
+    studyTitle?: string | null;
 }
 
 
