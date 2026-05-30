@@ -24,12 +24,16 @@ export default function StudyQuizListPage() {
   const getStatusText = (status: string) => {
     if (status === 'COMPLETED') return '완료';
     if (status === 'PENDING') return '대기중';
+    if (status === 'NOT_STARTED') return '미완료';
+    if (status === 'IN_PROGRESS') return '진행중';
     return status;
   };
 
   const getStatusColor = (status: string) => {
     if (status === 'COMPLETED') return 'emerald';
     if (status === 'PENDING') return 'amber';
+    if (status === 'NOT_STARTED') return 'gray';
+    if (status === 'IN_PROGRESS') return 'indigo';
     return 'gray';
   };
 

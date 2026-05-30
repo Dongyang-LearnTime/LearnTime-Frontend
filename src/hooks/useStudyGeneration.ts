@@ -11,7 +11,7 @@ import type { StudyForm, BookToc } from '../pages/study/create/CreateStudyPage';
 
 // 폴링 관련 상수 (대문자로 관리)
 const POLLING_INTERVAL_MS = 2500;  // 2.5초 간격
-const POLLING_TIMEOUT_MS  = 30000; // 최대 30초 타임아웃
+const POLLING_TIMEOUT_MS  = 15000; // 최대 15초 타임아웃
 
 export function useStudyGeneration() {
     const navigate = useNavigate();
@@ -91,7 +91,12 @@ export function useStudyGeneration() {
         setGenerationError('');
 
         try {
-            const studyId = await createStudyPlanApi(studyForm, bookToc, studyMemberList);
+            // 빠른 응답으로 인한 UI 깜빡임(Flickering) 방지를 위해 최소 1초 대기 보장
+            const [studyId] = await Promise.all([
+                createStudyPlanApi(studyForm, bookToc, studyMemberList),
+                new Promise(resolve => setTimeout(resolve, 1000))
+            ]);
+            
             pollingStartedAt.current = Date.now(); // 타임아웃 타이머 시작
             setPendingStudyId(studyId);            // 이 순간부터 useQuery 폴링 활성화
         } catch (error: unknown) {

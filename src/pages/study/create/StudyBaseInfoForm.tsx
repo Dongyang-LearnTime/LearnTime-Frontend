@@ -176,7 +176,7 @@ export default function StudyBaseInfoForm({
                             min={studyForm.startDate || today}
                             max={studyForm.endDate}
                             onChange={(e) => setTempRestDate(e.target.value)}
-                            className="flex-1 max-w-[200px] px-4 py-2.5 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
+                            className="flex-1 max-w-50 px-4 py-2.5 bg-gray-50 dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white"
                         />
                         <button
                             type="button"
@@ -235,4 +235,4 @@ export default function StudyBaseInfoForm({
             </div>
         </section>
     );
-}
+}

@@ -138,7 +138,12 @@ function CreateStudyPageInner() {
             setIsUploadingUpload(true); // 요청 시작
             setFileError('');
             
-            const data = await extractTocApi(file);
+            // 빠른 응답으로 인한 UI 깜빡임 방지 (최소 1초 대기)
+            const [data] = await Promise.all([
+                extractTocApi(file),
+                new Promise(resolve => setTimeout(resolve, 1000))
+            ]);
+            
             setBookToc(data);
 
         } catch (error: unknown) {
@@ -295,7 +300,7 @@ function CreateStudyPageInner() {
                         </div>
                         
                         {isDropdownOpen && !studyMember.length.toString().includes(MAX_STUDY_MEMBERS.toString()) && (
-                            <ul className="absolute z-20 w-full mt-2 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#222] rounded-xl shadow-xl max-h-[180px] overflow-y-auto custom-scrollbar">
+                            <ul className="absolute z-20 w-full mt-2 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-[#222] rounded-xl shadow-xl max-h-45 overflow-y-auto custom-scrollbar">
                                 {friendList.filter(f => f.name.includes(friendSearchTerm) && !studyMember.includes(f.userId)).length > 0 ? (
                                     friendList
                                         .filter(f => f.name.includes(friendSearchTerm) && !studyMember.includes(f.userId))
@@ -327,7 +332,7 @@ function CreateStudyPageInner() {
                     </div>
 
                     <div 
-                        className={`flex-1 min-h-[140px] border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center transition-all cursor-pointer relative overflow-hidden group
+                        className={`flex-1 min-h-35 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center transition-all cursor-pointer relative overflow-hidden group
                             ${file 
                                 ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20' 
                                 : 'border-gray-300 dark:border-[#333] bg-gray-50 dark:bg-[#0a0a0a] hover:border-indigo-400 dark:hover:border-indigo-600'
@@ -347,7 +352,7 @@ function CreateStudyPageInner() {
                                 <div className="w-12 h-12 bg-white dark:bg-[#1a1a1a] rounded-full flex items-center justify-center text-indigo-500 shadow-sm mb-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
                                 </div>
-                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate max-w-[200px]">{file.name}</p>
+                                <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate max-w-50">{file.name}</p>
                                 <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium hover:underline">다른 파일 선택</p>
                             </div>
                         ) : (
@@ -400,9 +405,9 @@ function CreateStudyPageInner() {
                     type="button"
                     disabled={isBusy}
                     className="
-                        w-full sm:w-auto min-w-[280px]
+                        w-full sm:w-auto min-w-70
                         px-8 py-5
-                        bg-gradient-to-r from-violet-600 to-indigo-600
+                        bg-linear-to-r from-violet-600 to-indigo-600
                         hover:from-violet-500 hover:to-indigo-500
                         text-white font-black text-lg
                         rounded-2xl shadow-xl shadow-indigo-500/20

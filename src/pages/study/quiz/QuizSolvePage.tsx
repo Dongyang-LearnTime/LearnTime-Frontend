@@ -24,6 +24,12 @@ export interface QuizDetail {
   questions: QuizQuestion[];
 }
 
+const PROGRESS_STATUS_MAP: Record<string, string> = {
+  NOT_STARTED: '미완료',
+  IN_PROGRESS: '진행중',
+  COMPLETED: '완료',
+};
+
 export default function QuizSolvePage() {
   const [ quizData, setQuizData ] = useState<QuizDetail | null>(null);
   const [ isLoading, setIsLoading ] = useState<boolean>(true);
@@ -192,7 +198,7 @@ export default function QuizSolvePage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <span className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full tracking-wider">
-                  {quizData.quizStatus}
+                  {PROGRESS_STATUS_MAP[quizData.quizStatus] || quizData.quizStatus}
                 </span>
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
