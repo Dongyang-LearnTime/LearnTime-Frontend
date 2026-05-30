@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getMyStudyProgresses , type StudyProgressIndicatorResponse } from '../pages/study/api/studyApi';
+import { getApiErrorUtil } from '../utils/getApiErrorUtil';
 
 interface StudyStoreState {
     progresses: StudyProgressIndicatorResponse[];
@@ -17,9 +18,9 @@ export const useStudyStore = create<StudyStoreState>((set) => ({
         try {
             const data = await getMyStudyProgresses();
             set({ progresses: data, isLoading: false });
-        } catch (error: any) {
+        } catch (error) {
             set({ 
-                error: error.response?.data?.message || '공부 진도 목록을 불러오는 중 오류가 발생했습니다.', 
+                error: getApiErrorUtil(error, '공부 진도 목록을 불러오는 중 오류가 발생했습니다.'), 
                 isLoading: false 
             });
         }

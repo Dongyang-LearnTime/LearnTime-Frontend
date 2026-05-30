@@ -16,3 +16,16 @@ export const getTodayPlans = async (): Promise<TodayStudyPlanResponse[]> => {
     const response = await axiosInstance.get<TodayStudyPlanResponse[]>('/api/study/daily/today-plans');
     return response.data;
 };
+
+export interface StudyArchiveResponse {
+    studyId: number;
+    studyTitle: string;
+    role: string;
+    status: string;
+    joinedAt: string;
+}
+
+export const getMyArchivedStudiesApi = async (): Promise<StudyArchiveResponse[]> => {
+    const response = await axiosInstance.get<StudyArchiveResponse[]>('/api/study/archive');
+    return response.data;
+};

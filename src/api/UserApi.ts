@@ -1,6 +1,5 @@
 import { axiosInstance } from '../app/apiClient';
 import type { UserSummaryResponse, RecentActivityResponse, BadgeTierInfoResponse } from '../types/userTypes';
-import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostsResponse, MyCommentsResponse } from '../types/myPageTypes';
 
 export const getUserSummary = async () => {
     const response = await axiosInstance.get<UserSummaryResponse>('/api/user/summary');
@@ -17,41 +16,37 @@ export const getBadgeTierInfo = async (): Promise<BadgeTierInfoResponse> => {
     return response.data;
 };
 
-// ===== 마이페이지 API =====
-
-export const getMyInfo = async (): Promise<MyPageInfoResponse> => {
-    const response = await axiosInstance.get<MyPageInfoResponse>('/api/user/me');
-    return response.data;
+// ===== 차단 API =====
+export const blockUserApi = async (blockedId: number) => {
+    await axiosInstance.post(`/api/user/block/${blockedId}`);
 };
 
-export const getMyPageSummary = async (): Promise<MyPageSummaryResponse> => {
-    const response = await axiosInstance.get<MyPageSummaryResponse>('/api/user/me/summary');
-    return response.data;
+export const unblockUserApi = async (blockedId: number) => {
+    await axiosInstance.delete(`/api/user/block/${blockedId}`);
 };
 
-export const updateMyName = async (name: string) => {
-    const response = await axiosInstance.patch('/api/user/me/name', { name });
-    return response.data;
-};
+export interface MyBlockedUserListResponse {
+    blockedId: number;
+    userId: number;
+    name: string;
+    profileImageUrl: string | null;
+    tierName: string;
+    blockedAt: string;
+}
 
-export const updateMyPassword = async (currentPassword: string, newPassword: string) => {
-    await axiosInstance.patch('/api/user/me/password', { currentPassword, newPassword });
-};
+export interface BlockedUsersPageResponse {
+    content: MyBlockedUserListResponse[];
+    pageNumber: number;
+    pageSize: number;
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
+}
 
-export const deleteMyAccount = async (confirmation: string) => {
-    await axiosInstance.delete('/api/user/me', { data: { confirmation } });
-};
-
-export const getMyPosts = async (page: number, size = 10): Promise<MyPostsResponse> => {
-    const response = await axiosInstance.get<MyPostsResponse>('/api/user/me/posts', {
+export const getMyBlockedUsers = async (page: number, size = 10): Promise<BlockedUsersPageResponse> => {
+    const response = await axiosInstance.get<BlockedUsersPageResponse>('/api/user/me/blocks', {
         params: { page, size, sort: 'createdAt,desc' },
     });
     return response.data;
 };
 
-export const getMyComments = async (page: number, size = 10): Promise<MyCommentsResponse> => {
-    const response = await axiosInstance.get<MyCommentsResponse>('/api/user/me/comments', {
-        params: { page, size, sort: 'createdAt,desc' },
-    });
-    return response.data;
-};

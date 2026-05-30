@@ -81,15 +81,6 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
           <span className={`text-xs font-black uppercase tracking-widest text-gray-400 whitespace-nowrap transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>내 스터디</span>
           
           <div className="flex items-center gap-1">
-            {isExpanded && (
-              <button 
-                onClick={() => navigate('/study/plan/create')}
-                className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer shrink-0"
-                title="새 스터디 생성"
-              >
-                <PlusIcon size={14} />
-              </button>
-            )}
             <button 
               onClick={() => setIsExpanded(!isExpanded)}
               className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors text-gray-400 hover:text-gray-900 dark:hover:text-white cursor-pointer shrink-0 hidden md:block"
@@ -98,6 +89,19 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
             </button>
           </div>
         </div>
+
+        {/* 노션 스타일 공부 진도 생성 버튼 — 상단 고정 */}
+        {isExpanded && (
+          <div className="px-3 pt-3 pb-1">
+            <button
+              onClick={() => navigate('/study/plan/create')}
+              className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-xs font-bold text-gray-400 dark:text-gray-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer group"
+            >
+              <PlusIcon size={14} className="shrink-0 group-hover:scale-110 transition-transform duration-200" />
+              <span>공부 진도 생성</span>
+            </button>
+          </div>
+        )}
 
         <nav className="flex-1 py-3 px-2 overflow-y-auto custom-scrollbar overflow-x-hidden">
           {isLoading ? (
@@ -199,6 +203,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
               })}
             </div>
           )}
+
         </nav>
 
 

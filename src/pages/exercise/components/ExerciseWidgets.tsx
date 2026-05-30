@@ -165,14 +165,16 @@ export function ExerciseGuideBox() {
 interface ExerciseSaveModalProps {
   onClose: () => void;
   onSaveSuccess: () => void;
+  isFirstExerciseToday: boolean;
 }
 
-function ExerciseSaveModal({ onClose, onSaveSuccess }: ExerciseSaveModalProps) {
+function ExerciseSaveModal({ onClose, onSaveSuccess, isFirstExerciseToday }: ExerciseSaveModalProps) {
   const [duration, setDuration] = useState('');
   const [weight, setWeight] = useState('');
   const [bodyParts, setBodyParts] = useState<string[]>([]);
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const togglePart = (part: string) => {
     setBodyParts(prev => prev.includes(part) ? prev.filter(p => p !== part) : [...prev, part]);
@@ -188,10 +190,17 @@ function ExerciseSaveModal({ onClose, onSaveSuccess }: ExerciseSaveModalProps) {
         bodyParts,
         content
       });
-      onSaveSuccess();
-      onClose();
+      
+      const resultMsg = isFirstExerciseToday ? "포인트 10지급 완료!" : "기록이 완료되었습니다!";
+      setSuccessMessage(resultMsg);
+      
+      setTimeout(() => {
+        onSaveSuccess();
+        onClose();
+      }, 2000);
     } catch (err) {
       console.error('Failed to save exercise', err);
+      alert('운동 기록 저장에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -203,6 +212,34 @@ function ExerciseSaveModal({ onClose, onSaveSuccess }: ExerciseSaveModalProps) {
     setBodyParts([]);
     setContent('');
   };
+
+  if (successMessage) {
+    return createPortal(
+      <div 
+        className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
+      >
+        <div 
+          className="bg-white dark:bg-[#1a1a1f] w-full max-w-lg rounded-[3rem] border border-gray-100 dark:border-[#1a1a1a] shadow-2xl p-8 relative animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col items-center justify-center py-12 text-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center mb-6 text-green-600 dark:text-green-400 animate-bounce">
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={3}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2" id="completion-success-title">완료되었습니다!</h3>
+          <p className="text-base font-bold text-gray-600 dark:text-gray-400" id="completion-success-message">{successMessage}</p>
+        </div>
+      </div>,
+      document.body
+    );
+  }
 
   return createPortal(
     <div 
@@ -318,6 +355,11 @@ export function TrainingSessionBox() {
     fetchExercises();
   }, []);
 
+  const isFirstExerciseToday = useMemo(() => {
+    const todayStr = new Date().toDateString();
+    return !exercises.some(ex => new Date(ex.createdAt).toDateString() === todayStr);
+  }, [exercises]);
+
   const handleDelete = async (id: number) => {
     if (window.confirm("이 운동 기록을 삭제하시겠습니까?")) {
       try {
@@ -382,6 +424,7 @@ export function TrainingSessionBox() {
         <ExerciseSaveModal 
           onClose={() => setIsModalOpen(false)} 
           onSaveSuccess={fetchExercises} 
+          isFirstExerciseToday={isFirstExerciseToday}
         />
       )}
     </Card>

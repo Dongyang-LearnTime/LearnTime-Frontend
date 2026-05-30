@@ -124,8 +124,8 @@ export default function PostDetailPage() {
         &larr; 커뮤니티 목록으로 돌아가기
       </button>
 
-      <div className="bg-white dark:bg-[#0a0a0a] rounded-[3rem] border border-gray-100 dark:border-[#1a1a1a] shadow-xl overflow-hidden flex flex-col">
-        <header className="p-8 sm:p-10 border-b border-gray-100 dark:border-[#1a1a1a] flex justify-between items-center bg-gray-50/50 dark:bg-[#050505]/50">
+      <div className="bg-white dark:bg-[#0a0a0a] rounded-[3rem] border border-gray-100 dark:border-[#1a1a1a] shadow-xl flex flex-col">
+        <header className="p-8 sm:p-10 border-b border-gray-100 dark:border-[#1a1a1a] flex justify-between items-center bg-gray-50/50 dark:bg-[#050505]/50 rounded-t-[2.9rem]">
           <div className="flex items-center gap-4">
             <Avatar 
               src={post.userProfileImageUrl}
@@ -135,7 +135,7 @@ export default function PostDetailPage() {
             />
             <div>
               {post.userId ? (
-                <UserPopover userId={post.userId} userName={post.userName}>
+                <UserPopover userId={post.userId} userName={post.userName} hasBlocked={post.hasBlocked}>
                   <p className="font-black text-lg text-gray-900 dark:text-gray-100 hover:underline cursor-pointer">{post.userName}</p>
                 </UserPopover>
               ) : (
@@ -340,7 +340,7 @@ export default function PostDetailPage() {
                   <div key={comment.commentId} className="bg-gray-50/80 dark:bg-[#050505] p-6 sm:p-8 rounded-4xl border border-gray-100 dark:border-[#1a1a1a] relative group">
                     <div className="flex justify-between items-center mb-4">
                       {comment.authorId ? (
-                        <UserPopover userId={comment.authorId} userName={comment.authorName}>
+                        <UserPopover userId={comment.authorId} userName={comment.authorName} hasBlocked={comment.hasBlocked}>
                           <span className="font-black text-sm text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline">{comment.authorName}</span>
                         </UserPopover>
                       ) : (

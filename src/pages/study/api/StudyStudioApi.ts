@@ -144,3 +144,13 @@ export const changeStudyOwnerApi = async (studyId: number, newOwnerMemberId: num
     });
 };
 
+// 스터디 탈퇴
+export const leaveStudyApi = async (studyId: number): Promise<void> => {
+    await axiosInstance.delete(`/api/study/member/${studyId}/leave`);
+};
+
+// 스터디원 강퇴 (방장 전용)
+export const kickStudyMemberApi = async (studyId: number, userIdToKick: number): Promise<void> => {
+    await axiosInstance.delete(`/api/study/member/${studyId}/kick/${userIdToKick}`);
+};
+

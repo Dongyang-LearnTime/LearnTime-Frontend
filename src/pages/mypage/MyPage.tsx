@@ -4,13 +4,17 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { useAuthStore } from '../../store/useAuthStore';
 import {
     User, FileText, MessageSquare, Heart, Coins, Settings,
-    ChevronRight, LogOut, Trash2, Eye, Edit3, Lock
+    ChevronRight, LogOut, Trash2, Eye, Edit3, Lock, UserX, Archive
 } from 'lucide-react';
 import {
     getMyInfo, getMyPageSummary, updateMyName, updateMyPassword,
     deleteMyAccount, getMyPosts, getMyComments
-} from '../../api/userApi';
+} from './api/mypageApi';
 import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostItem, MyCommentItem } from '../../types/myPageTypes';
+import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
+
+import BlockedUserList from './BlockedUserList';
+import ArchivedStudyList from './ArchivedStudyList';
 
 // ─────────────── 날짜 포맷 헬퍼 ───────────────
 const fmt = (iso: string) => {
@@ -50,7 +54,7 @@ function Pagination({ current, total, onChange }: { current: number; total: numb
 }
 
 // ─────────────── 탭 타입 ───────────────
-type Tab = 'info' | 'posts' | 'comments';
+type Tab = 'info' | 'posts' | 'comments' | 'blocks' | 'archive';
 
 export default function MyPage() {
     usePageTitle('마이페이지');
@@ -97,6 +101,13 @@ export default function MyPage() {
                 setSummary(s);
             } catch { /* noop */ }
             finally { setInfoLoading(false); }
+
+            // URL 쿼리로 탭 지정 가능하게
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab') as Tab;
+            if (['info', 'posts', 'comments', 'blocks', 'archive'].includes(tabParam)) {
+                setActiveTab(tabParam);
+            }
         })();
     }, []);
 
@@ -104,7 +115,7 @@ export default function MyPage() {
     useEffect(() => {
         if (activeTab !== 'posts') return;
         setPostsLoading(true);
-        getMyPosts(postPage).then(r => {
+        getMyPosts(postPage, 10).then(r => {
             setPosts(r.content);
             setPostTotalPages(r.totalPages);
         }).finally(() => setPostsLoading(false));
@@ -114,7 +125,7 @@ export default function MyPage() {
     useEffect(() => {
         if (activeTab !== 'comments') return;
         setCommentsLoading(true);
-        getMyComments(commentPage).then(r => {
+        getMyComments(commentPage, 10).then(r => {
             setComments(r.content);
             setCommentTotalPages(r.totalPages);
         }).finally(() => setCommentsLoading(false));
@@ -129,8 +140,8 @@ export default function MyPage() {
             if (data?.accessToken) useAuthStore.getState().setAccessToken(data.accessToken);
             setInfo(prev => prev ? { ...prev, userName: newName.trim() } : prev);
             setShowEditName(false); setNewName('');
-        } catch (e: any) {
-            setFormError(e?.response?.data?.message || '이름 변경에 실패했습니다.');
+        } catch (e) {
+            setFormError(getApiErrorUtil(e, '이름 변경에 실패했습니다.'));
         } finally { setFormLoading(false); }
     };
 
@@ -143,8 +154,8 @@ export default function MyPage() {
             await updateMyPassword(currentPw, newPw);
             clearAuth();
             navigate('/login');
-        } catch (e: any) {
-            setFormError(e?.response?.data?.message || '비밀번호 변경에 실패했습니다.');
+        } catch (e) {
+            setFormError(getApiErrorUtil(e, '비밀번호 변경에 실패했습니다.'));
         } finally { setFormLoading(false); }
     };
 
@@ -156,8 +167,8 @@ export default function MyPage() {
             await deleteMyAccount(deleteInput);
             clearAuth();
             navigate('/');
-        } catch (e: any) {
-            setFormError(e?.response?.data?.message || '탈퇴 처리 중 오류가 발생했습니다.');
+        } catch (e) {
+            setFormError(getApiErrorUtil(e, '탈퇴 처리 중 오류가 발생했습니다.'));
         } finally { setFormLoading(false); }
     };
 
@@ -175,7 +186,14 @@ export default function MyPage() {
         { id: 'info', label: '내 정보', icon: <User size={15} /> },
         { id: 'posts', label: '내 게시글', icon: <FileText size={15} /> },
         { id: 'comments', label: '내 댓글', icon: <MessageSquare size={15} /> },
+        { id: 'blocks', label: '차단 관리', icon: <UserX size={15} /> },
+        { id: 'archive', label: '스터디 아카이브', icon: <Archive size={15} /> },
     ];
+
+    const handleTabChange = (id: Tab) => {
+        setActiveTab(id);
+        navigate(`/mypage?tab=${id}`, { replace: true });
+    };
 
     return (
         <div className="relative min-h-screen bg-gray-50 dark:bg-[#0a0a0a] pb-24">
@@ -210,11 +228,11 @@ export default function MyPage() {
                 )}
 
                 {/* ─── 탭 ─── */}
-                <div className="flex gap-1 mb-6 bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl p-1 shadow-sm w-fit">
+                <div className="flex flex-wrap gap-1 mb-6 bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl p-1 shadow-sm w-fit">
                     {tabs.map(t => (
                         <button
                             key={t.id}
-                            onClick={() => setActiveTab(t.id)}
+                            onClick={() => handleTabChange(t.id)}
                             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${activeTab === t.id
                                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30'
                                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -358,7 +376,7 @@ export default function MyPage() {
                         {commentsLoading ? (
                             <div className="p-6 space-y-3">
                                 {[...Array(5)].map((_, i) => (
-                                    <div key={i} className="h-14 rounded-xl bg-gray-100 dark:bg-white/5 animate-pulse" />
+                                    <div key={i} className="h-16 rounded-xl bg-gray-100 dark:bg-white/5 animate-pulse" />
                                 ))}
                             </div>
                         ) : comments.length === 0 ? (
@@ -400,6 +418,12 @@ export default function MyPage() {
                         )}
                     </div>
                 )}
+
+                {/* ─── 차단 관리 탭 ─── */}
+                {activeTab === 'blocks' && <BlockedUserList />}
+
+                {/* ─── 스터디 아카이브 탭 ─── */}
+                {activeTab === 'archive' && <ArchivedStudyList />}
             </div>
 
             {/* ══════════ 이름 변경 모달 ══════════ */}

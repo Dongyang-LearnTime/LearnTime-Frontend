@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getStudyMemberListApi, getStudyOwnerFriendListApi, inviteStudyMemberApi, changeStudyOwnerApi } from "../api/studyStudioApi";
+import { getStudyMemberListApi, getStudyOwnerFriendListApi, inviteStudyMemberApi, changeStudyOwnerApi, leaveStudyApi, kickStudyMemberApi } from "../api/studyStudioApi";
 import type { StudyMemberResponse, StudyMemberFriendResponse } from "../types/studyTypes";
 import { Card, CardTitle } from "../../../components/common/Card";
 import { UsersIcon, PlusIcon, XIcon } from "../../../components/ui/Icons";
@@ -22,6 +22,11 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
   const [friends, setFriends] = useState<StudyMemberFriendResponse[]>([]);
   const [isFriendsLoading, setIsFriendsLoading] = useState(false);
   const [friendSearchTerm, setFriendSearchTerm] = useState("");
+
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [leaveInput, setLeaveInput] = useState("");
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -83,6 +88,34 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     }
   };
 
+  const handleLeaveStudy = async () => {
+    if (leaveInput !== "스터디 탈퇴") return;
+    setIsLeaving(true);
+    setLeaveError(null);
+    try {
+      await leaveStudyApi(Number(studyId));
+      alert("스터디에서 탈퇴했습니다.");
+      window.location.href = "/"; // 메인화면으로 이동
+    } catch (err) {
+      const errorMsg = getApiErrorUtil(err) || "탈퇴 처리 중 오류가 발생했습니다.";
+      setLeaveError(errorMsg);
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
+  const handleKickMember = async (memberIdToKick: number, memberName: string) => {
+    if (!window.confirm(`${memberName} 님을 스터디에서 강퇴하시겠습니까?`)) return;
+    try {
+      await kickStudyMemberApi(Number(studyId), memberIdToKick);
+      alert(`${memberName} 님이 강퇴되었습니다.`);
+      setMembers(members.map(m => m.userId === memberIdToKick ? { ...m, status: "WITHDRAWN" } : m));
+    } catch (err) {
+      const errorMsg = getApiErrorUtil(err) || "강퇴 처리 중 오류가 발생했습니다.";
+      alert(errorMsg);
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="min-h-50 overflow-hidden group">
@@ -114,20 +147,34 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
       <Card className="relative group border-0 shadow-none bg-transparent">
         <div className="flex items-center justify-between mb-6 relative z-10">
           <CardTitle icon={<UsersIcon size={18} />} className="mb-0">스터디 멤버</CardTitle>
-          {isOwner && (
-            <button
-              onClick={handleOpenInviteModal}
-              disabled={!canInvite}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all shadow-sm ${
-                canInvite 
-                  ? "bg-linear-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-400 hover:to-violet-400 hover:-translate-y-0.5 hover:shadow-indigo-500/30 cursor-pointer" 
-                  : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 cursor-not-allowed"
-              }`}
-              title={!canInvite ? "최대 활성화 멤버 4명을 초과할 수 없습니다." : "친구 초대"}
-            >
-              <PlusIcon size={16} /> 새로운 멤버 초대
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {!isOwner && (
+              <button
+                onClick={() => {
+                  setLeaveInput("");
+                  setLeaveError(null);
+                  setIsLeaveModalOpen(true);
+                }}
+                className="px-4 py-2 rounded-xl text-sm font-black transition-all bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-900/40 cursor-pointer"
+              >
+                스터디 탈퇴
+              </button>
+            )}
+            {isOwner && (
+              <button
+                onClick={handleOpenInviteModal}
+                disabled={!canInvite}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all shadow-sm ${
+                  canInvite 
+                    ? "bg-linear-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-400 hover:to-violet-400 hover:-translate-y-0.5 hover:shadow-indigo-500/30 cursor-pointer" 
+                    : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 cursor-not-allowed"
+                }`}
+                title={!canInvite ? "최대 활성화 멤버 4명을 초과할 수 없습니다." : "친구 초대"}
+              >
+                <PlusIcon size={16} /> 새로운 멤버 초대
+              </button>
+            )}
+          </div>
         </div>
         
         {members.length === 0 ? (
@@ -151,7 +198,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <UserPopover userId={member.userId} userName={member.userName}>
+                    <UserPopover userId={member.userId} userName={member.userName} hasBlocked={member.hasBlocked}>
                       <h4 className="text-sm font-black text-gray-900 dark:text-white truncate cursor-pointer hover:underline">{member.userName}</h4>
                     </UserPopover>
                     {member.studyMemberRole === "OWNER" && (
@@ -172,17 +219,28 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                       <span className="text-gray-300 dark:text-gray-700">•</span>
                       <span>{new Date(member.joinedAt).toLocaleDateString()} 가입</span>
                     </div>
-                    {/* 방장일 때만 다른 사용자에게 방장 위임 버튼 표시 */}
+                    {/* 방장일 때만 다른 사용자에게 방장 위임 버튼 및 강퇴 버튼 표시 */}
                     {isOwner && Number(member.userId) !== Number(userId) && member.status === "ACTIVE" && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleChangeOwner(member.userId, member.userName);
-                        }}
-                        className="opacity-100 sm:opacity-0 sm:group-hover/card:opacity-100 px-2 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-md hover:bg-indigo-100 transition-all cursor-pointer shrink-0"
-                      >
-                        방장 위임
-                      </button>
+                      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover/card:opacity-100 transition-all">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleChangeOwner(member.userId, member.userName);
+                          }}
+                          className="px-2 py-1 text-xs font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-md hover:bg-indigo-100 transition-all cursor-pointer shrink-0"
+                        >
+                          방장 위임
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleKickMember(member.userId, member.userName);
+                          }}
+                          className="px-2 py-1 text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/30 dark:text-rose-400 rounded-md hover:bg-rose-100 transition-all cursor-pointer shrink-0"
+                        >
+                          강퇴
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -272,6 +330,54 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                 })}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 스터디 탈퇴 모달 */}
+      {isLeaveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+          <div className="w-full max-w-sm bg-white dark:bg-[#0a0a0a] rounded-4xl border border-gray-100 dark:border-[#1a1a1a] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                스터디 탈퇴
+              </h3>
+              <button onClick={() => setIsLeaveModalOpen(false)} className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-full transition-colors cursor-pointer">
+                <XIcon size={18} />
+              </button>
+            </div>
+
+            <div className="text-sm text-gray-500 dark:text-gray-400 bg-rose-50/50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30 rounded-2xl p-4 mb-4">
+              <p className="font-bold text-rose-600 dark:text-rose-400 mb-1">정말로 스터디를 탈퇴하시겠습니까?</p>
+              <p className="text-xs">탈퇴 시 본 스터디의 학습 기록, 필기 목록, 퀴즈 기록 등 모든 데이터에 더 이상 접근할 수 없습니다.</p>
+            </div>
+
+            <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+              탈퇴를 확인하려면 아래에 <span className="text-rose-500 font-black">스터디 탈퇴</span>라고 정확히 입력하세요.
+            </p>
+
+            <input
+              type="text"
+              value={leaveInput}
+              onChange={(e) => setLeaveInput(e.target.value)}
+              placeholder="스터디 탈퇴"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500/50 mb-3 transition-all"
+            />
+
+            {leaveError && <p className="text-xs text-red-500 font-bold mb-3">{leaveError}</p>}
+
+            <div className="flex gap-2">
+              <button onClick={() => setIsLeaveModalOpen(false)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                취소
+              </button>
+              <button
+                onClick={handleLeaveStudy}
+                disabled={leaveInput !== "스터디 탈퇴" || isLeaving}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {isLeaving ? "처리 중..." : "탈퇴하기"}
+              </button>
+            </div>
           </div>
         </div>
       )}

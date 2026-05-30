@@ -62,8 +62,6 @@ export interface StudyMemberContentResponse {
   }[];
 }
 
-
-
 // 일일 진도 완료 요청
 export interface PlanCompleteRequest {
   studyDailyPlanId: number;
@@ -79,6 +77,7 @@ export interface StudyMemberResponse {
   userId: number;
   userName: string;
   profileImageUrl: string | null; 
+  hasBlocked: boolean | null;
   status: StudyMemberStatus;
 }
 

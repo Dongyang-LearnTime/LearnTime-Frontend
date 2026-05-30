@@ -42,11 +42,11 @@ export default function CoreMetricsChart({ data }: CoreMetricsChartProps) {
         <p className="text-xs font-medium text-gray-500">스터디의 전반적인 달성도를 확인합니다.</p>
       </div>
 
-      <div className="flex-grow flex flex-col justify-center relative z-10">
+      <div className="grow flex flex-col justify-center relative z-10">
         {/* 누적 집중 시간을 핵심 수치로 돋보이게 배치 */}
         <div className="mb-8 text-center bg-gray-50 dark:bg-[#0a0a0a] rounded-2xl p-6 border border-gray-100 dark:border-[#1a1a1a]">
           <span className="block text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-2">총 누적 집중 시간</span>
-          <span className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-mono tracking-tighter drop-shadow-sm">
+          <span className="text-3xl font-black bg-clip-text text-transparent bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 font-mono tracking-tighter drop-shadow-sm">
             {formatFocusedTime(totalFocusedTime)}
           </span>
         </div>

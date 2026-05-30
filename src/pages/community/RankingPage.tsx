@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getRankingApi } from './api/postApi';
+import { getRankingApi } from '../community/api/communityApi';
 import type { PointRankingResponse } from './types/postTypes';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { TrophyIcon } from '../../components/ui/Icons';
@@ -82,7 +82,7 @@ export default function RankingPage() {
                                             </span>
                                         </div>
                                         <div className="col-span-4 font-bold text-sm text-gray-800 dark:text-gray-200">
-                                            <UserPopover userId={user.userId} userName={user.name}>
+                                            <UserPopover userId={user.userId} userName={user.name} hasBlocked={user.hasBlocked}>
                                                 <span className="hover:underline cursor-pointer">{user.name}</span>
                                             </UserPopover>
                                         </div>

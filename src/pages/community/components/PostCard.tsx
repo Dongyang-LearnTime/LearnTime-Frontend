@@ -29,7 +29,7 @@ export function PostCard({
           <div>
             <div className="flex items-center gap-2">
               {post.userId ? (
-                <UserPopover userId={post.userId} userName={post.userName}>
+                <UserPopover userId={post.userId} userName={post.userName} hasBlocked={post.hasBlocked}>
                   <span className="font-black text-[1rem] hover:underline cursor-pointer">{post.userName}</span>
                 </UserPopover>
               ) : (

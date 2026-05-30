@@ -20,6 +20,7 @@ export interface PostResponse {
     userId: number | null; // 작성자 식별자(ID), 탈퇴한 경우 null
     userName: string; // 작성자 이름 또는 닉네임, 탈퇴한 경우 "탈퇴한 사용자"
     userProfileImageUrl: string | null; // 작성자의 프로필 사진 
+    hasBlocked: boolean | null; // 로그인 한 사용자의 작성자 차단 여부
     title: string; // 게시글 제목
     content: string; // 게시글 본문 내용
     createdAt: string; // 게시글 생성 일시 (ISO Date String)
@@ -39,7 +40,8 @@ export interface PostListResponse {
     postId: number;
     userId: number | null;
     userName: string;
-    userProfileImageUrl: string | null; // 작성자의 프로필 사진 
+    userProfileImageUrl: string | null;
+    hasBlocked: boolean | null;
     title: string;
     viewCount: number;
     likeCount: number;
@@ -53,6 +55,7 @@ export interface CommentResponse {
     commentId: number;
     authorId: number | null;
     authorName: string;
+    hasBlocked: boolean | null;
     content: string;
     createdAt: string; 
     updatedAt: string; 
@@ -76,4 +79,5 @@ export interface PointRankingResponse {
     point: number;
     tierName: string;
     rank: number;
+    hasBlocked: boolean | null;
 }
