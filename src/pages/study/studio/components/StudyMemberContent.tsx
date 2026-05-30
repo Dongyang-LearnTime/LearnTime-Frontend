@@ -3,6 +3,7 @@ import { Card, CardTitle } from '../../../../components/common/Card';
 import { EditIcon, TrashIcon } from '../../../../components/ui/Icons';
 import type { StudyMemberContentResponse } from '../../types/studyTypes';
 import { addStudyMemberContentApi, updateStudyMemberContentApi, getStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/studyStudioApi';
+import FormattedPlanContent from './FormattedPlanContent';
 
 type MemberContentItem = StudyMemberContentResponse['memberContents'][0];
 
@@ -135,8 +136,8 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
         ) : (
           <>
             {planContent && (
-              <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-xl text-sm font-semibold">
-                🎯 {planContent}
+              <div className="mb-6 p-4 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl shadow-sm text-sm">
+                <FormattedPlanContent planContent={planContent} />
               </div>
             )}
 

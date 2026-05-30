@@ -3,7 +3,6 @@ import { getStudyTotalInfoApi, getStudyRecentWeekInfoApi } from "../api/studyStu
 import type { StudyRecentWeekInfoResponse, StudyStudioSummaryResponse, StudyTotalInfoResponse } from "../types/studyTypes";
 import RecentWeekChart from "./components/RecentWeekChart";
 import CoreMetricsChart from "./components/CoreMetricsChart";
-import { StopwatchBox } from "./components/StopwatchBox";
 import { TodayProgressBox } from "./components/TodayProgressBox";
 
 
@@ -92,16 +91,9 @@ export default function StudyLearningMetrics({ studyId, summary, isSummaryLoadin
   return (
     <div className="flex flex-col gap-6 w-full">
       {/* 1. 현재 학습 집중 구간 (상단) */}
-      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-        {/* 오늘의 진도 (60% 너비) */}
-        <section className="lg:col-span-6 min-h-100">
-          <TodayProgressBox studyId={studyId} initialData={summary?.todayContent} skipInitialFetch={summary !== undefined} />
-        </section>
-
-        {/* 스튜디오 타이머 (40% 너비) */}
-        <section className="lg:col-span-4 min-h-100">
-          <StopwatchBox studyDailyPlanId={summary?.todayContent?.studyDailyPlanId} />
-        </section>
+      <div className="w-full">
+        {/* 오늘의 진도 (100% 너비) */}
+        <TodayProgressBox studyId={studyId} initialData={summary?.todayContent} skipInitialFetch={summary !== undefined} />
       </div>
 
       {/* 2. 데이터/지표 피드백 구간 (하단) */}

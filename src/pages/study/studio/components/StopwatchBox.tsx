@@ -64,49 +64,57 @@ export function StopwatchBox({ studyDailyPlanId }: StopwatchBoxProps) {
   const s = fmt(time % 60);
 
   return (
-    <Card className="flex flex-col items-center h-full p-8 min-h-95 relative overflow-hidden group">
-      <h2 className="text-gray-400 text-[0.65rem] font-black uppercase tracking-[0.3em] mt-2 mb-6">스튜디오 타이머</h2>
-      <div className="text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter text-glow">
-        {h}<span className="text-indigo-500 mx-0.5">:</span>{m}<span className="text-indigo-500 mx-0.5">:</span>{s}
+    <Card className="flex flex-col items-center justify-between h-full p-8 min-h-95 relative overflow-hidden group">
+      {/* 1. 상단 라벨 */}
+      <h2 className="text-gray-400 text-[0.65rem] font-black uppercase tracking-[0.3em] mt-2">스튜디오 타이머</h2>
+      
+      {/* 2. 중앙 컨테이너 (남은 공간을 채우고 수직 중앙 정렬) */}
+      <div className="flex-1 flex flex-col items-center justify-center my-6">
+        <div className="text-6xl font-black text-gray-900 dark:text-white mb-8 tracking-tighter text-glow">
+          {h}<span className="text-indigo-500 mx-0.5">:</span>{m}<span className="text-indigo-500 mx-0.5">:</span>{s}
+        </div>
+        <div className="flex gap-4">
+          {/* 시작 / 일시정지 */}
+          <button
+            type="button"
+            onClick={() => setIsRunning(!isRunning)}
+            className="w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-2xl flex items-center justify-center active:scale-90 transition-all shadow-xl shadow-indigo-500/10 hover:bg-gray-900 dark:hover:bg-gray-100 cursor-pointer"
+            title={isRunning ? "일시정지" : "시작"}
+          >
+            {isRunning ? <PauseIcon size={20} /> : <PlayIcon size={20} />}
+          </button>
+
+          {/* 공부 시간 서버 등록 저장 버튼 */}
+          <button
+            type="button"
+            onClick={handleFocusTimeSubmit}
+            disabled={time === 0 || !studyDailyPlanId}
+            className="w-14 h-14 border border-gray-200 dark:border-[#222] rounded-2xl flex items-center justify-center active:scale-90 transition-all text-gray-500 dark:text-gray-400 hover:text-indigo-600 hover:border-indigo-600 dark:hover:text-indigo-400 dark:hover:border-indigo-500 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+            title="집중시간 서버 등록"
+          >
+            <SaveIcon size={20} />
+          </button>
+
+          {/* 타이머 초기화 */}
+          <button
+            type="button"
+            onClick={() => {
+              if (time > 0 && confirm('타이머를 초기화하시겠습니까? (측정된 시간은 저장되지 않습니다)')) {
+                setIsRunning(false);
+                setTime(0);
+              } else if (time === 0) {
+                setIsRunning(false);
+              }
+            }}
+            className="w-14 h-14 border border-gray-200 dark:border-[#222] rounded-2xl flex items-center justify-center active:scale-90 transition-all text-gray-500 dark:text-gray-400 hover:text-indigo-600 hover:border-indigo-600 dark:hover:text-indigo-400 dark:hover:border-indigo-500 cursor-pointer"
+            title="초기화"
+          >
+            <ResetIcon size={20} />
+          </button>
+        </div>
       </div>
-      <div className="flex gap-4 mb-6">
-        {/* 시작 / 일시정지 */}
-        <button
-          onClick={() => setIsRunning(!isRunning)}
-          className="w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-2xl flex items-center justify-center active:scale-90 transition-all shadow-xl shadow-indigo-500/10 hover:bg-gray-900 dark:hover:bg-gray-100 cursor-pointer"
-          title={isRunning ? "일시정지" : "시작"}
-        >
-          {isRunning ? <PauseIcon size={20} /> : <PlayIcon size={20} />}
-        </button>
 
-        {/* 공부 시간 서버 등록 저장 버튼 */}
-        <button
-          onClick={handleFocusTimeSubmit}
-          disabled={time === 0 || !studyDailyPlanId}
-          className="w-14 h-14 border border-gray-200 dark:border-[#222] rounded-2xl flex items-center justify-center active:scale-90 transition-all text-gray-500 dark:text-gray-400 hover:text-indigo-600 hover:border-indigo-600 dark:hover:text-indigo-400 dark:hover:border-indigo-500 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-          title="집중시간 서버 등록"
-        >
-          <SaveIcon size={20} />
-        </button>
-
-        {/* 타이머 초기화 */}
-        <button
-          onClick={() => {
-            if (time > 0 && confirm('타이머를 초기화하시겠습니까? (측정된 시간은 저장되지 않습니다)')) {
-              setIsRunning(false);
-              setTime(0);
-            } else if (time === 0) {
-              setIsRunning(false);
-            }
-          }}
-          className="w-14 h-14 border border-gray-200 dark:border-[#222] rounded-2xl flex items-center justify-center active:scale-90 transition-all text-gray-500 dark:text-gray-400 hover:text-indigo-600 hover:border-indigo-600 dark:hover:text-indigo-400 dark:hover:border-indigo-500 cursor-pointer"
-          title="초기화"
-        >
-          <ResetIcon size={20} />
-        </button>
-      </div>
-
-      {/* 안내 문구 가이드 영역 */}
+      {/* 3. 안내 문구 가이드 영역 (하단에 밀착 고정) */}
       <div className="w-full mt-2 border-t border-gray-100 dark:border-[#1a1a1a] pt-6 text-center">
         <p className="text-xs text-gray-400 dark:text-gray-500 font-bold leading-relaxed max-w-[240px] mx-auto">
           오늘의 목표 달성을 위해 몰입해 보세요!

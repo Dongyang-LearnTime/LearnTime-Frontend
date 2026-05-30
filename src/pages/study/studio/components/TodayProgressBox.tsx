@@ -3,6 +3,7 @@ import { getStudyMemberContentApi, addStudyMemberContentApi, updateStudyMemberCo
 import { Card, CardTitle } from '../../../../components/common/Card';
 import { EditIcon, CheckIcon, TrashIcon } from '../../../../components/ui/Icons';
 import type { StudyMemberContentResponse } from '../../types/studyTypes';
+import FormattedPlanContent from './FormattedPlanContent';
 
 export interface StudyScheduleItem {
   studyMemberContentId: number;
@@ -146,7 +147,7 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
                 오늘은 스터디가 쉬어가는 공식 휴무일입니다. ☕
               </span>
             ) : (
-              planContent
+              <FormattedPlanContent planContent={planContent} />
             )}
           </div>
         </div>

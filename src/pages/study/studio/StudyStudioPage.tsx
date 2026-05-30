@@ -11,6 +11,8 @@ import {
   startStudyDailyPlanApi 
 } from "../api/studyStudioApi";
 import type { StudyPlanResponse, StudyStudioSummaryResponse } from "../types/studyTypes";
+import { useStopwatchStore } from "../../../store/useStopwatchStore";
+import { FloatingStopwatch } from "./components/FloatingStopwatch";
 
 export default function StudyStudioPage() {
   const { studyId } = useParams<{ studyId: string }>();
@@ -47,6 +49,15 @@ export default function StudyStudioPage() {
       .then((data) => {
         setStudioSummary(data);
         setTodayPlan(data.todayPlan);
+        
+        // 전역 스톱워치에 일일 계획 ID 및 상태 연동
+        if (data.todayPlan && data.todayPlan.studyDailyPlanId) {
+          useStopwatchStore.getState().setStudyDailyPlanId(data.todayPlan.studyDailyPlanId);
+          useStopwatchStore.getState().setProgressStatus(data.todayPlan.progressStatus);
+        } else {
+          useStopwatchStore.getState().setStudyDailyPlanId(null);
+          useStopwatchStore.getState().setProgressStatus(null);
+        }
       })
       .catch((err: unknown) => {
         console.error("Failed to load study studio summary:", err);
@@ -213,6 +224,9 @@ export default function StudyStudioPage() {
         )}
         {activeTab === "members" && <StudyMemberList studyId={studyId} />}
       </div>
+
+      {/* 플로팅 스톱워치 */}
+      <FloatingStopwatch />
     </div>
   );
 }

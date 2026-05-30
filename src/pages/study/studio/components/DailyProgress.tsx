@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { StudyPlanResponse } from "../../types/studyTypes";
 import { EditIcon, CheckIcon, XIcon } from "lucide-react";
+import FormattedPlanContent from "./FormattedPlanContent";
 
 interface DailyProgressProps {
   data: StudyPlanResponse;
@@ -268,7 +269,7 @@ export default function DailyProgress({ data, isOwner, onUpdateTitle }: DailyPro
 
         <InfoRow label="학습 계획 내용">
           <div className="bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1a1a1a] rounded-2xl p-4 shadow-sm text-sm">
-            {planContent || "등록된 학습 계획이 없습니다."}
+            <FormattedPlanContent planContent={planContent} />
           </div>
         </InfoRow>
 
