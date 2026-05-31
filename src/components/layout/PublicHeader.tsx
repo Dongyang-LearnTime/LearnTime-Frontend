@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../common/Button';
-import { LayersIcon, MenuIcon, XIcon, UsersIcon, StarIcon } from '../ui/Icons';
+import { MenuIcon, XIcon, UsersIcon, StarIcon } from '../ui/Icons';
+import siteLogo from '../../assets/site-logo.svg';
 import { UserSearchBar } from './UserSearchBar';
 
 export function PublicHeader() {
@@ -31,8 +32,6 @@ export function PublicHeader() {
     : 'bg-white/10 border-white/20 shadow-black/30';
 
   const logoText = isScrolled ? 'text-gray-900' : 'text-white';
-  const logoBg   = isScrolled ? 'bg-gray-900' : 'bg-white';
-  const logoIcon = isScrolled ? 'text-white'   : 'text-gray-900';
 
   const navText  = isScrolled
     ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -65,10 +64,10 @@ export function PublicHeader() {
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate('/')}
         >
-          <div className={`w-9 h-9 ${logoBg} rounded-xl flex items-center justify-center shadow-lg shrink-0 transition-colors duration-500`}>
-            <LayersIcon className={`${logoIcon} transition-colors duration-500`} size={20} />
+          <div className="w-9 h-9 bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-transparent rounded-xl flex items-center justify-center shadow-lg shrink-0 transition-all duration-500">
+            <img src={siteLogo} className="w-7 h-7 dark:invert transition-all duration-500" alt="Logo" />
           </div>
-          <span className={`text-xl font-extrabold tracking-tight uppercase hidden sm:block transition-colors duration-500 ${logoText}`}>
+          <span className={`text-xl font-extrabold tracking-tight [word-spacing:-0.15em] hidden sm:block transition-colors duration-500 ${logoText}`}>
             Learn Time
           </span>
         </div>

@@ -1,5 +1,6 @@
 // 홈 화면의 3가지 핵심 모드(Study, Health, God-Life)별 특화 기능 리스트 섹션 컴포넌트
-import { BookIcon, DumbbellIcon, LayersIcon } from '../../ui/Icons';
+import { BookIcon, DumbbellIcon } from '../../ui/Icons';
+import siteLogo from '../../../assets/site-logo.svg';
 
 const MODES = [
   {
@@ -16,7 +17,7 @@ const MODES = [
   },
   {
     title: 'God-Life Mode',
-    icon: <LayersIcon size={32} />,
+    icon: <img src={siteLogo} className="w-8 h-8 invert" alt="God-Life Logo" />,
     color: 'border-emerald-500',
     features: ['일정 체크리스트', '데일리 루틴 제안', '우선순위 관리', '습관 형성 트래킹'],
   },

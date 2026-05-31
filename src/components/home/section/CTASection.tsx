@@ -1,7 +1,7 @@
 // 홈 화면 하단의 회원가입/로그인 유도(CTA) 섹션 컴포넌트
 import { Link } from 'react-router-dom';
 import { Button } from '../../common/Button';
-import { LayersIcon } from '../../ui/Icons';
+import siteLogo from '../../../assets/site-logo.svg';
 
 export const CTASection = () => {
   return (
@@ -9,7 +9,7 @@ export const CTASection = () => {
       <div className="max-w-4xl text-center space-y-12 md:space-y-20">
         <div className="reveal-content space-y-8">
           <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto shadow-2xl">
-            <LayersIcon className="text-white" size={32} />
+            <img src={siteLogo} className="w-11 h-11 invert" alt="Logo" />
           </div>
           <h2 className="text-5xl md:text-8xl font-black tracking-tightest uppercase italic leading-[0.9] mb-6">
             START YOUR <br />

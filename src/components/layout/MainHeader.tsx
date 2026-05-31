@@ -2,13 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuthStore } from '../../store/useAuthStore';
+import siteLogo from '../../assets/site-logo.svg';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { NotificationApi } from '../../pages/notification/notificationApi';
 import { axiosInstance } from '../../app/apiClient';
 import { UserSearchBar } from './UserSearchBar';
 import {
   BookIcon, DumbbellIcon, UsersIcon, SunIcon, MoonIcon, CalendarIcon,
-  ChevronDownIcon, MenuIcon, XIcon, BellIcon, LayersIcon, MessageSquareIcon
+  ChevronDownIcon, MenuIcon, XIcon, BellIcon, MessageSquareIcon
 } from '../ui/Icons';
 import { UserCircle } from 'lucide-react';
 
@@ -194,10 +195,10 @@ export function MainHeader() {
 
           {/* 로고 */}
           <div className="flex items-center gap-3 cursor-pointer shrink-0" onClick={() => navigate('/')}>
-            <div className="w-10 h-10 bg-gray-900 dark:bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
-              <LayersIcon className="text-white dark:text-gray-900" size={20} />
+            <div className="w-10 h-10 bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-transparent rounded-xl flex items-center justify-center shadow-sm shrink-0">
+              <img src={siteLogo} className="w-7.5 h-7.5 dark:invert" alt="Logo" />
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white uppercase hidden sm:block">Learn Time</span>
+            <span className="text-xl font-extrabold tracking-tight [word-spacing:-0.15em] text-gray-900 dark:text-white hidden sm:block">Learn Time</span>
           </div>
 
           {/* 우측 컨트롤 */}

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { useAuthStore } from '../../store/useAuthStore.ts';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { LayersIcon } from '../../components/ui/Icons';
+import siteLogo from '../../assets/site-logo.svg';
 
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated.ts';
 import { axiosInstance } from '../../app/apiClient.ts';
@@ -77,10 +77,10 @@ export default function LoginPage() {
         {/* 헤더 섹션 */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gray-900 dark:bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-black/10 dark:shadow-white/10 group-hover:scale-105 transition-transform duration-300 shrink-0">
-              <LayersIcon className="text-white dark:text-gray-900" size={24} />
+            <div className="w-10 h-10 bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-transparent rounded-2xl flex items-center justify-center shadow-xl shadow-black/10 dark:shadow-white/10 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <img src={siteLogo} className="w-7.5 h-7.5 dark:invert" alt="Logo" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white uppercase group-hover:scale-105 transition-transform duration-300">
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight [word-spacing:-0.15em] text-gray-900 dark:text-white group-hover:scale-105 transition-transform duration-300">
               Learn Time
             </h1>
           </Link>
