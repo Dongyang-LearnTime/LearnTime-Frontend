@@ -322,7 +322,7 @@ export default function BadgeTierInfoPage() {
       {/* 팝업 모달창 (리워드/등급 확대 보기) */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+          className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
           onClick={() => setSelectedImage(null)}
         >
           <div 

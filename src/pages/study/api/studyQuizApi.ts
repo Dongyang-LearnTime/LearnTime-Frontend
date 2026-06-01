@@ -1,8 +1,8 @@
 import { axiosInstance } from "../../../app/apiClient";
 import type { QuizDetail, SubmittedAnswer } from "../quiz/QuizSolvePage";
 import type { StudyQuizResultResponse } from "../quiz/QuizResultPage";
-import type { PageResponse } from "../../../types/paginationType";
-import type { QuizHistoryListItem, StudyQuizInfoResponse, QuizHistoryInfoResponse, UpdateQuizTitleRequest } from "../types/studyQuizTypes"
+import type { PageResponse } from "../../../types/PaginationType";
+import type { QuizHistoryListItem, StudyQuizInfoResponse, QuizHistoryInfoResponse, UpdateQuizTitleRequest } from "../types/StudyQuizTypes"
 
 export const updateStudyQuizTitleApi = async (request: UpdateQuizTitleRequest): Promise<void> => {
   await axiosInstance.patch(`/api/study/quiz/title`, request);

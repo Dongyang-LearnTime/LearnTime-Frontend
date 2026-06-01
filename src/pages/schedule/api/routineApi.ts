@@ -1,5 +1,5 @@
 import { axiosInstance } from '../../../app/apiClient';
-import type { RoutineRequest, RoutineResponse } from '../types/scheduleTypes';
+import type { RoutineRequest, RoutineResponse } from '../types/ScheduleTypes';
 
 
 // 루틴 목록 전체 조회

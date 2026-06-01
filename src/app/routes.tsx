@@ -21,7 +21,7 @@ const QuizResultPage = lazy(() => import("../pages/study/quiz/QuizResultPage"));
 const QuizHistoryListPage = lazy(() => import("../pages/study/quiz/QuizHistoryListPage"));
 const CreatePostPage = lazy(() => import("../pages/community/post/CreatePostPage"));
 const FriendRequestPage = lazy(() => import("../pages/community/friend/FriendRequestPage"));
-const NotificationPage = lazy(() => import("../pages/notification/notificationPage"));
+const NotificationPage = lazy(() => import("../pages/notification/NotificationPage"));
 const UnderConstructionPage = lazy(() => import("../pages/UnderConstructionPage"));
 const StudyQuizListPage = lazy(() => import("../pages/study/quiz/StudyQuizListPage"));
 const StudyFeedbackListPage = lazy(() => import("../pages/study/feedback/StudyFeedbackListPage"));

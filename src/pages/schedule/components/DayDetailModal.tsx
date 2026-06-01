@@ -1,6 +1,6 @@
 import { XIcon, CalendarIcon } from '../../../components/ui/Icons';
 import { ScheduleCard } from './ScheduleCard';
-import type { Schedule } from '../types/scheduleTypes';
+import type { Schedule } from '../types/ScheduleTypes';
 import { DAYS } from '../types/constants';
 import * as holidaysKr from '@hyunbinseo/holidays-kr';
 

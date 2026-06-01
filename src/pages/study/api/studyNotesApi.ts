@@ -1,6 +1,6 @@
 import { axiosInstance } from "../../../app/apiClient";
-import type { PageResponse } from "../../../types/paginationType";
-import type { StudyNotesResponse, StudyNoteListItem } from "../types/studyNoteTypes";
+import type { PageResponse } from "../../../types/PaginationType";
+import type { StudyNotesResponse, StudyNoteListItem } from "../types/StudyNoteTypes";
 export type { StudyNotesResponse, StudyNoteListItem };
 
 
