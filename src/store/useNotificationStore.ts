@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { NotificationReferenceType, NotificationType } from '../types/NotificationEnums';
+import type { NotificationReferenceType, NotificationType } from '../types/notificationEnums';
 
 
 export interface NotificationResponse {
@@ -21,11 +21,17 @@ interface NotificationState {
   nextCursor: number | null;                // 다음 조회를 위한 기준 커서 식별자
 
   // --- 액션 (Actions) ---
-  /**
-   * 서버로부터 페이징 조회된 최초/추가 알림 목록을 스토어에 세팅합니다.
-   */
   setNotifications: (
     notifications: NotificationResponse[],
+    hasNext: boolean,
+    nextCursor: number | null
+  ) => void;
+
+  /**
+   * 커서 기반 페이징으로 추가 조회된 알림 목록을 기존 목록에 병합합니다.
+   */
+  appendNotifications: (
+    newNotifications: NotificationResponse[],
     hasNext: boolean,
     nextCursor: number | null
   ) => void;
@@ -65,6 +71,18 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       notifications,
       hasNext,
       nextCursor,
+    }),
+
+  appendNotifications: (newNotifications, hasNext, nextCursor) =>
+    set((state) => {
+      // 중복 알림 방지를 위해 기존 ID 목록과 비교 (옵션)
+      const existingIds = new Set(state.notifications.map((n) => n.notificationId));
+      const filtered = newNotifications.filter((n) => !existingIds.has(n.notificationId));
+      return {
+        notifications: [...state.notifications, ...filtered],
+        hasNext,
+        nextCursor,
+      };
     }),
 
   addNotificationToTop: (notification) =>

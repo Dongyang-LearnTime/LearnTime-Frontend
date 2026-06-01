@@ -1,4 +1,8 @@
 import { axiosInstance } from "../../../app/apiClient";
+import type { PageResponse } from "../../../types/paginationType";
+import type { StudyNotesResponse, StudyNoteListItem } from "../types/studyNoteTypes";
+export type { StudyNotesResponse, StudyNoteListItem };
+
 
 export interface StudyNoteData {
   studyId: string | undefined;
@@ -49,3 +53,19 @@ export const deleteStudyNoteApi = async (noteId: string): Promise<void> => {
   );
 };
 
+export const getStudyNoteListApi = async (studyId: string): Promise<StudyNoteListItem[]> => {
+  const response = await axiosInstance.get<StudyNoteListItem[]>(
+    `/api/study/notes?studyId=${studyId}`
+  );
+  return response.data;
+};
+
+export const getStudyNotesList = async (studyId: number, page: number, size: number = 10): Promise<PageResponse<StudyNotesResponse>> => {
+  const response = await axiosInstance.get<PageResponse<StudyNotesResponse>>(
+    `/api/study/notes/list/${studyId}`,
+    {
+      params: { page, size }
+    }
+  );
+  return response.data;
+};

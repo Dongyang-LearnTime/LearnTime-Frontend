@@ -1,90 +1,121 @@
+import { lazy } from 'react';
+import { Outlet } from 'react-router';
 import ProtectedRoute from "./ProtectedRoute";
-import Home from "../pages/Home";
-import NotFoundPage from "./NotFoundPage";
-import SignupPage from "../pages/auth/SignupPage";
-import LoginPage from "../pages/auth/LoginPage";
-import CreateStudyPage from "../pages/study/create/CreateStudyPage";
-import NotesWritePage from "../pages/study/notes/NotesWritePage";
-import NotesEditPage from "../pages/study/notes/NotesEditPage";
-import NotesDetailPage from "../pages/study/notes/NotesDetailPage";
-import QuizSolvePage from "../pages/study/quiz/QuizSolvePage";
-import QuizResultPage from "../pages/study/quiz/QuizResultPage";
-import CreatePostPage from "../pages/community/post/CreatePostPage";
+import { GlobalHeader } from "../components/layout/GlobalHeader";
+import { StudySidebarLayout } from "../components/layout/StudySidebarLayout";
 
+// 페이지 컴포넌트 지연 로딩 (Lazy Loading)
+const HomePage = lazy(() => import("../pages/HomePage"));
+const LearnTimeMainPage = lazy(() => import("../pages/LearnTimeMainPage"));
+const NotFoundPage = lazy(() => import("./NotFoundPage"));
+const SignupPage = lazy(() => import("../pages/auth/SignupPage"));
+const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
+const StudyInvitationPage = lazy(() => import("../pages/study/invitation/StudyInvitationPage"));
+const CreateStudyPage = lazy(() => import("../pages/study/create/CreateStudyPage"));
+const NotesWritePage = lazy(() => import("../pages/study/notes/NotesWritePage"));
+const StudyNotesListPage = lazy(() => import("../pages/study/notes/StudyNotesListPage"));
+const NotesEditPage = lazy(() => import("../pages/study/notes/NotesEditPage"));
+const NotesDetailPage = lazy(() => import("../pages/study/notes/NotesDetailPage"));
+const QuizSolvePage = lazy(() => import("../pages/study/quiz/QuizSolvePage"));
+const QuizResultPage = lazy(() => import("../pages/study/quiz/QuizResultPage"));
+const QuizHistoryListPage = lazy(() => import("../pages/study/quiz/QuizHistoryListPage"));
+const CreatePostPage = lazy(() => import("../pages/community/post/CreatePostPage"));
+const FriendRequestPage = lazy(() => import("../pages/community/friend/FriendRequestPage"));
+const NotificationPage = lazy(() => import("../pages/notification/notificationPage"));
+const UnderConstructionPage = lazy(() => import("../pages/UnderConstructionPage"));
+const StudyQuizListPage = lazy(() => import("../pages/study/quiz/StudyQuizListPage"));
+const StudyFeedbackListPage = lazy(() => import("../pages/study/feedback/StudyFeedbackListPage"));
+const CommunityPage = lazy(() => import("../pages/community/CommunityPage"));
+const PostDetailPage = lazy(() => import("../pages/community/post/PostDetailPage"));
+const PostEditPage = lazy(() => import("../pages/community/post/PostEditPage"));
+const RankingPage = lazy(() => import("../pages/community/RankingPage"));
+const ProfilePage = lazy(() => import("../pages/profile/ProfilePage"));
+const MessageListPage = lazy(() => import("../pages/message/MessageListPage"));
+const SchedulePage = lazy(() => import("../pages/schedule/SchedulePage"));
+const ExercisePage = lazy(() => import("../pages/exercise/ExercisePage"));
+const BadgeTierInfoPage = lazy(() => import("../pages/community/tire/BadgeTierInfoPage"));
+const MyPage = lazy(() => import("../pages/mypage/MyPage"));
+const StudyRedirector = lazy(() => import("../pages/study/studio/StudyRedirector"));
+const StudyEmptyPage = lazy(() => import("../pages/study/studio/StudyEmptyPage"));
+const StudyStudioPage = lazy(() => import("../pages/study/studio/StudyStudioPage"));
 
-// App.tsx에서 사용할 라우트 설정 배열
-// ProtectedRoute => 로그인 필요한 페이지에 사용
 export const routes = [
+  // 레이아웃이 없는 비인증/인증 분기 페이지
   {
     path: "/",
-    element: <Home />
-  },
-  {
-    path: "*", // 정해진 링크 외의 다른 링크
-    element: <NotFoundPage />
-  },
-  {
-    path: "/signup",
-    element: <SignupPage />,
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/study/plan/create",
-    element:
-      <ProtectedRoute>
-        <CreateStudyPage />
+    noLayout: true,
+    element: (
+      <ProtectedRoute fallback={<HomePage />}>
+        <GlobalHeader />
+        <LearnTimeMainPage />
       </ProtectedRoute>
+    )
   },
+  { path: "*", element: <NotFoundPage /> },
+  { path: "/signup", element: <SignupPage /> },
+  { path: "/login", element: <LoginPage /> },
+
+  // 공통 헤더만 필요한 인증 불필요 (Public) 그룹
   {
-    path: "/study/notes/write/:studyId",
-    element:
-      <ProtectedRoute>
-        <NotesWritePage />
-      </ProtectedRoute>
+    element: (
+      <>
+        <GlobalHeader />
+        <Outlet />
+      </>
+    ),
+    children: [
+      { path: "/profile/:userId", element: <ProfilePage /> },
+      { path: "/badge-tier-info", element: <BadgeTierInfoPage /> },
+      { path: "/community", element: <CommunityPage /> },
+      { path: "/community/ranking", element: <RankingPage /> },
+      { path: "/community/post/:postId", element: <PostDetailPage /> },
+    ]
   },
+
+  // 인증 가드 + 공통 헤더가 필요한 인증 필수 (Private) 그룹
   {
-    path: "/study/notes/:noteId",
-    element:
+    element: (
       <ProtectedRoute>
-        <NotesDetailPage />
+        <GlobalHeader />
+        <Outlet />
       </ProtectedRoute>
-  },
-  {
-    path: "/study/notes/edit/:noteId",
-    element:
-      <ProtectedRoute>
-        <NotesEditPage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/study/quiz/:quizId",
-    element:
-      <ProtectedRoute>
-        <QuizSolvePage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/study/quiz/history/:quizHistoryId",
-    element:
-      <ProtectedRoute>
-        <QuizResultPage />
-      </ProtectedRoute>
-  },
-  {
-    path: "/community/post/create",
-    element:
-      <ProtectedRoute>
-        <CreatePostPage />
-      </ProtectedRoute>
-  },
-  // { 관리자 페이지 예상
-  //   path : "/admin",
-  //   element : 
-  //   <ProtectedRoute requiredRole={Role.ROLE_ADMIN}>
-  //     <AdminPage />
-  //   </ProtectedRoute>
-  // }
+    ),
+    children: [
+      { path: "/notifications", element: <NotificationPage /> },
+      { path: "/mypage", element: <MyPage /> },
+      { path: "/messages", element: <MessageListPage /> },
+      { path: "/community/post/create", element: <CreatePostPage /> },
+      { path: "/community/post/edit/:postId", element: <PostEditPage /> },
+      { path: "/friend/requests", element: <FriendRequestPage /> },
+      { path: "/schedule", element: <SchedulePage /> },
+      { path: "/exercise", element: <ExercisePage /> },
+      { path: "/study", element: <StudyRedirector /> },
+      { path: "/study/studio", element: <StudyRedirector /> },
+      { path: "/main/settings", element: <UnderConstructionPage /> },
+
+      // 인증 가드 + 공통 헤더 + 스터디 전용 사이드바가 모두 필요한 그룹 
+      {
+        element: (
+          <StudySidebarLayout>
+            <Outlet />
+          </StudySidebarLayout>
+        ),
+        children: [
+          { path: "/study/empty", element: <StudyEmptyPage /> },
+          { path: "/study/:studyId", element: <StudyStudioPage /> },
+          { path: "/study/invitation", element: <StudyInvitationPage /> },
+          { path: "/study/plan/create", element: <CreateStudyPage /> },
+          { path: "/study/notes/write/:studyId", element: <NotesWritePage /> },
+          { path: "/study/notes/list/:studyId", element: <StudyNotesListPage /> },
+          { path: "/study/notes/:noteId", element: <NotesDetailPage /> },
+          { path: "/study/notes/edit/:noteId", element: <NotesEditPage /> },
+          { path: "/study/quiz/:quizId", element: <QuizSolvePage /> },
+          { path: "/study/quiz/history/:quizHistoryId", element: <QuizResultPage /> },
+          { path: "/study/quiz/history/list/:studyQuizId", element: <QuizHistoryListPage /> },
+          { path: "/study/quiz/list/:studyId", element: <StudyQuizListPage /> },
+          { path: "/study/feedback/list/:studyId", element: <StudyFeedbackListPage /> },
+        ]
+      }
+    ]
+  }
 ];

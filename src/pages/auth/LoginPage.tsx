@@ -1,8 +1,9 @@
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router'; 
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { useAuthStore } from '../../store/useAuthStore.ts';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import siteLogo from '../../assets/site-logo.svg';
 
 import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated.ts';
 import { axiosInstance } from '../../app/apiClient.ts';
@@ -23,8 +24,6 @@ export default function LoginPage() {
   const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
   const [ loginError, setLoginError ] = useState<string>('');
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  
-  const [ isPending, startTransition ] = useTransition();
   const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
 
   // 페이지 제목 변경
@@ -44,11 +43,10 @@ export default function LoginPage() {
 
       const { accessToken } = response.data; // 응답 Body에서 Access Token 추출 후 Zustand 메모리 스토어에 저장
       
-      startTransition(() => {
-        setAccessToken(accessToken);
-        localStorage.setItem('login_hint', 'true');
-        navigate('/'); // 임시 링크, 수정 가능 
-      });
+      // 반응성 지연을 막기 위해 startTransition 제거 (동기적 상태 업데이트 및 라우팅 보장)
+      setAccessToken(accessToken);
+      localStorage.setItem('login_hint', 'true');
+      navigate('/'); // 임시 링크, 수정 가능
       
     } catch (error: unknown) {
       const errorMessage = getApiErrorUtil(error);
@@ -64,24 +62,27 @@ export default function LoginPage() {
 
   // 공통 입력창 스타일
   const inputStyle = `
-    appearance-none block w-full px-4 py-3 border-2 border-gray-200 rounded-xl 
-    placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 
-    focus:border-indigo-500 transition-all duration-200 text-sm sm:text-base
+    appearance-none block w-full px-4 py-3 border-2 border-gray-200 dark:border-[#333] rounded-xl bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white
+    placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900/50
+    focus:border-indigo-500 dark:focus:border-indigo-500 transition-all duration-200 text-sm sm:text-base
   `;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center py-8 sm:py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-[#050505] dark:via-[#0a0a0a] dark:to-[#050505] flex items-center justify-center py-8 sm:py-12 px-4">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         
         {/* 헤더 섹션 */}
         <div className="text-center">
-          <Link to="/" className="inline-block group">
-            <h1 className="text-3xl sm:text-4xl font-extrabold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
-              Learn-Time
+          <Link to="/" className="inline-flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-transparent rounded-2xl flex items-center justify-center shadow-xl shadow-black/10 dark:shadow-white/10 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <img src={siteLogo} className="w-7.5 h-7.5 dark:invert" alt="Logo" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight [word-spacing:-0.15em] text-gray-900 dark:text-white group-hover:scale-105 transition-transform duration-300">
+              Learn Time
             </h1>
           </Link>
-          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">다시 시작해볼까요?</h2>
-          <p className="mt-2 text-xs sm:text-sm text-gray-600">
+          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">다시 시작해볼까요?</h2>
+          <p className="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             계정이 없으신가요?{' '}
             <Link to="/signup" className="font-semibold text-indigo-600 hover:text-indigo-500 underline-offset-4 hover:underline">
               회원가입하기
@@ -90,12 +91,12 @@ export default function LoginPage() {
         </div>
 
         {/* 폼 카드 */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-4xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10 border border-white/20">
+        <div className="bg-white/80 dark:bg-[#111]/80 backdrop-blur-sm rounded-4xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10 border border-white/20 dark:border-white/10">
           <form className="space-y-5 sm:space-y-6" onSubmit={handleLogin}>
             
             {/* 이메일 입력 */}
             <div className="space-y-1.5 sm:space-y-2">
-              <label htmlFor="user-email" className="block text-xs sm:text-sm font-semibold text-gray-700 ml-1">이메일</label>
+              <label htmlFor="user-email" className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">이메일</label>
               <input
                 id="user-email" name="email" type="email" required
                 value={email} 
@@ -107,7 +108,7 @@ export default function LoginPage() {
 
             {/* 비밀번호 입력 */}
             <div className="space-y-1.5 sm:space-y-2">
-              <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-gray-700 ml-1">비밀번호</label>
+              <label htmlFor="password" className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">비밀번호</label>
               <div className="relative">
                 <input
                   id="password" name="password" required
@@ -172,7 +173,7 @@ export default function LoginPage() {
 
           {/* 소셜 로그인 구분선 */}
           <div className="relative my-6 sm:my-8">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100"></span></div>
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100 dark:border-[#333]"></span></div>
           </div>
 
           <SocialLogin isDark={false} />

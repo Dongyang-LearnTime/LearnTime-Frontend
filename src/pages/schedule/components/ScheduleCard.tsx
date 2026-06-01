@@ -1,0 +1,74 @@
+import { ClockIcon, EditIcon, TrashIcon } from '../../../components/ui/Icons';
+import type { Schedule } from '../types/scheduleTypes';
+import { DAYS } from '../types/constants';
+
+// ScheduleCard 컴포넌트 Props 정의
+interface ScheduleCardProps {
+  item: Schedule;
+  showCheck?: boolean;
+  onToggleComplete?: (id: string) => void;
+  onOpenEdit: (item: Schedule) => void;
+  onDelete: (id: string) => void;
+}
+
+// 개별 일정 또는 반복 루틴 정보를 보여주는 개별 일정 카드 컴포넌트
+export function ScheduleCard({
+  item,
+  onOpenEdit,
+  onDelete,
+}: ScheduleCardProps) {
+  return (
+    <div 
+      className={`group relative flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300
+        ${item.type === 'routine'
+          ? 'bg-indigo-50/50 dark:bg-indigo-500/5 border-indigo-100 dark:border-indigo-500/20 hover:border-indigo-500/50'
+          : item.isFavorite
+            ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30 hover:border-amber-500/60'
+            : 'bg-white dark:bg-[#0d0d0d] border-gray-100 dark:border-[#1a1a1a] hover:border-indigo-500/30'}
+      `}
+    >
+    
+      <div className="grow min-w-0">
+        <h4 className="font-black text-[0.95rem] truncate">
+          {item.title}
+        </h4>
+        <div className="flex flex-col gap-0.5 mt-1">
+          <div className="flex items-center gap-2 text-gray-400 font-bold text-[0.65rem] uppercase tracking-tight">
+            <ClockIcon size={10} />
+            <span>{item.startTime} - {item.endTime}</span>
+          </div>
+          {item.type === 'routine' && item.repeatDays && (
+            <div className="flex gap-0.5 mt-0.5">
+              {DAYS.map((d, i) => (
+                <span 
+                  key={i} 
+                  className={`text-[8px] font-black w-3.5 h-3.5 flex items-center justify-center rounded-sm ${item.repeatDays?.includes(i) ? 'bg-indigo-500 text-white' : 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-400'}`}
+                >
+                  {d}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {
+        // 호버 시 노출되는 수정 / 삭제 액션 단추 그룹
+      }
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <button 
+          onClick={() => onOpenEdit(item)}
+          className="p-1.5 text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-all"
+        >
+          <EditIcon size={14} />
+        </button>
+        <button 
+          onClick={() => onDelete(item.id)}
+          className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all"
+        >
+          <TrashIcon size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}

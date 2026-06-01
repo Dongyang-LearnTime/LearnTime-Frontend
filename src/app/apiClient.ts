@@ -52,14 +52,19 @@ axiosInstance.interceptors.request.use(
 
 // 401 에러 발생 시 토큰 재발급 로직
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers: ((token: string | null, error?: any) => void)[] = [];
 
 const onRefreshed = (token: string) => {
-  refreshSubscribers.map((cb) => cb(token));
+  refreshSubscribers.forEach((cb) => cb(token));
   refreshSubscribers = [];
 };
 
-const addRefreshSubscriber = (cb: (token: string) => void) => {
+const onRefreshFailed = (error: any) => {
+  refreshSubscribers.forEach((cb) => cb(null, error));
+  refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (cb: (token: string | null, error?: any) => void) => {
   refreshSubscribers.push(cb);
 };
 
@@ -69,19 +74,18 @@ axiosInstance.interceptors.response.use(
     const { config, response } = error;
     const originalRequest = config;
 
-    // [추가된 로직] 로그인 API 요청 시 발생한 에러는 인터셉터를 거치지 않고 즉시 호출부(LoginPage)로 반환
-    if (originalRequest.url?.includes('/api/auth/login')) {
+    if (originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/logout')) {
+      return Promise.reject(error);
+    }
+
+    // 403 Forbidden 글로벌 처리
+    if (response?.status === 403) {
+      window.dispatchEvent(new CustomEvent('forbidden-error'));
       return Promise.reject(error);
     }
 
     // 401 Unauthorized이고, 재시도한 적이 없는 요청인 경우
     if (response?.status === 401 && !originalRequest._retry) {
-
-      if (originalRequest.url?.includes('/api/auth/refresh')) {
-         useAuthStore.getState().clearAuth(); 
-         return Promise.reject(error);
-      }
-
       originalRequest._retry = true;
 
       if (!isRefreshing) {
@@ -107,16 +111,23 @@ axiosInstance.interceptors.response.use(
           isRefreshing = false;
           // Refresh Token마저 만료된 경우 로그아웃 처리
           useAuthStore.getState().clearAuth();
-          window.location.href = '/login'; 
+          // 큐에 대기 중인 모든 요청 거절 처리 (메모리 누수 방지)
+          onRefreshFailed(refreshError);
+          // SPA 라우팅을 유지하기 위해 전역 이벤트를 발생시켜 App.tsx에서 navigate 처리
+          window.dispatchEvent(new CustomEvent('auth-error'));
           return Promise.reject(refreshError);
         }
       }
 
-      // 갱신 중이라면, 갱신이 끝날 때까지 대기(Promise) 후 기존 요청 재시도
-      return new Promise((resolve) => {
-        addRefreshSubscriber((token: string) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          resolve(axiosInstance(originalRequest));
+      // 갱신 중이라면, 갱신이 끝날 때까지 대기(Promise) 후 기존 요청 재시도 혹은 거절
+      return new Promise((resolve, reject) => {
+        addRefreshSubscriber((token: string | null, error?: any) => {
+          if (error) {
+            reject(error);
+          } else if (token) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(axiosInstance(originalRequest));
+          }
         });
       });
     }

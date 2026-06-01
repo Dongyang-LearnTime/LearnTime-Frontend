@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNotificationStore } from "../../store/useNotificationStore";
-import { NotificationApi } from "./api/NotificationApi";
+import { NotificationApi } from "../../pages/notification/notificationApi";
+import { useNavigate } from "react-router-dom";
 
 export const NotificationDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,7 @@ export const NotificationDropdown: React.FC = () => {
   const setUnreadCount = useNotificationStore((state) => state.setUnreadCount);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // 컴포넌트 마운트 시 최초 1회 읽지 않은 알림 수 및 알림 목록 로딩
   useEffect(() => {
@@ -63,6 +65,20 @@ export const NotificationDropdown: React.FC = () => {
     }
   };
 
+  const handleNotificationClick = async (notificationId: number, isRead: boolean, type: string) => {
+    if (!isRead) {
+      await handleReadNotification(notificationId);
+    }
+    setIsOpen(false);
+    if (type.includes("FRIEND_REQUEST")) {
+      navigate("/friend/requests");
+    } else if (type.includes("STUDY_INVITATION")) {
+      navigate("/study/invitation");
+    } else {
+      navigate("/notifications");
+    }
+  };
+
   // 전체 알림 읽음 처리 API 호출 후 로컬 상태 동기화
   const handleReadAllNotifications = async () => {
     try {
@@ -94,7 +110,7 @@ export const NotificationDropdown: React.FC = () => {
       <button
         type="button"
         onClick={handleToggle}
-        className="relative p-2.5 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full transition-all duration-200"
+        className="relative p-2.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full transition-all duration-200"
         aria-expanded={isOpen}
         aria-haspopup="true"
         aria-label="알림 열기"
@@ -128,14 +144,14 @@ export const NotificationDropdown: React.FC = () => {
       {/* 알림 내용 드롭다운 리스트 */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-2.5 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden transform origin-top-right transition-all duration-200"
+          className="absolute right-0 mt-2.5 w-80 bg-white dark:bg-[#0c0c0c] rounded-xl shadow-xl border border-gray-100 dark:border-[#222] z-50 overflow-hidden transform origin-top-right transition-all duration-200"
           role="menu"
           aria-orientation="vertical"
           aria-label="알림 메뉴"
         >
           {/* 헤더 섹션 */}
-          <div className="px-4 py-3 border-b border-gray-50 flex justify-between items-center bg-gray-50/60">
-            <span className="font-semibold text-gray-800 text-sm">알림</span>
+          <div className="px-4 py-3 border-b border-gray-50 dark:border-[#222] flex justify-between items-center bg-gray-50/60 dark:bg-[#111]">
+            <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm">알림</span>
             {unreadCount > 0 && (
               <button
                 type="button"
@@ -148,16 +164,16 @@ export const NotificationDropdown: React.FC = () => {
           </div>
 
           {/* 목록 섹션 */}
-          <div className="max-h-72 overflow-y-auto divide-y divide-gray-100">
+          <div className="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-[#222]">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-gray-400">새로운 알림이 없습니다.</div>
             ) : (
-              notifications.map((item) => (
+              notifications.slice(0, 3).map((item) => (
                 <div
                   key={item.notificationId}
-                  onClick={() => !item.isRead && handleReadNotification(item.notificationId)}
+                  onClick={() => handleNotificationClick(item.notificationId, item.isRead, item.type)}
                   className={`px-4 py-3.5 flex items-start gap-2.5 cursor-pointer transition-colors duration-150 relative ${
-                    item.isRead ? "bg-white hover:bg-gray-50/50" : "bg-blue-50/20 hover:bg-blue-50/40"
+                    item.isRead ? "bg-white dark:bg-[#0c0c0c] hover:bg-gray-50/50 dark:hover:bg-[#161616]" : "bg-blue-50/20 dark:bg-blue-900/10 hover:bg-blue-50/40 dark:hover:bg-blue-900/20"
                   }`}
                   role="menuitem"
                 >
@@ -166,10 +182,10 @@ export const NotificationDropdown: React.FC = () => {
                     <span className="absolute top-4 left-1.5 w-1.5 h-1.5 bg-blue-500 rounded-full" />
                   )}
                   <div className="flex-1 min-w-0 pl-1">
-                    <p className={`text-xs ${item.isRead ? "text-gray-500" : "font-semibold text-gray-900"}`}>
+                    <p className={`text-xs ${item.isRead ? "text-gray-500 dark:text-gray-400" : "font-semibold text-gray-900 dark:text-gray-100"}`}>
                       {item.title}
                     </p>
-                    <p className="text-xs text-gray-600 mt-1 leading-normal wrap-break-word">{item.message}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 leading-normal wrap-break-word">{item.message}</p>
                     <span className="text-[10px] text-gray-400 mt-1.5 block">
                       {new Date(item.createdAt).toLocaleString(undefined, {
                         month: "numeric",
@@ -200,6 +216,19 @@ export const NotificationDropdown: React.FC = () => {
                 </div>
               ))
             )}
+          </div>
+          
+          {/* 전체 알림 보기 버튼 */}
+          <div className="border-t border-gray-100 dark:border-[#222] bg-gray-50 dark:bg-[#111]">
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/notifications");
+              }}
+              className="w-full py-3 text-sm text-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-[#161616] transition-colors font-medium focus:outline-none"
+            >
+              전체 알림 보기
+            </button>
           </div>
         </div>
       )}

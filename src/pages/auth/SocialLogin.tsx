@@ -27,6 +27,7 @@ export default function SocialLogin({ isDark = false }: SocialLoginButtonsProps)
       {/* ── Google ── */}
       <button
         type="button"
+        onClick={() => alert("준비 중인 기능입니다.")}
         className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-2xl font-medium text-sm transition-all hover:scale-[1.02] hover:brightness-95"
         style={{
           background: '#ffffff',
@@ -46,6 +47,7 @@ export default function SocialLogin({ isDark = false }: SocialLoginButtonsProps)
       {/* ── Naver ── */}
       <button
         type="button"
+        onClick={() => alert("준비 중인 기능입니다.")}
         className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-2xl font-medium text-sm transition-all hover:scale-[1.02] hover:brightness-110"
         style={{
           background: '#03C75A',

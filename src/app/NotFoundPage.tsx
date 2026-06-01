@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router";
 import { AlertCircle, Home } from "lucide-react";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function NotFoundPage() {
+  usePageTitle('페이지를 찾을 수 없습니다');
   const navigate = useNavigate();
 
   return (

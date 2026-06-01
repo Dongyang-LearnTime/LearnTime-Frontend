@@ -1,6 +1,6 @@
-import { axiosInstance } from "../../apiClient";
-import type { NotificationReferenceType, NotificationType } from "../../../types/NotificationEnums";
-import type { CursorResponse } from "../../../types/PaginationType";
+import { axiosInstance } from "../../app/apiClient";
+import type { NotificationReferenceType, NotificationType } from "../../types/notificationEnums";
+import type { CursorResponse } from "../../types/paginationType";
 
 // NotificationResponse 스키마에 대응하는 프런트엔드 알림 인터페이스
 export interface NotificationResponse {

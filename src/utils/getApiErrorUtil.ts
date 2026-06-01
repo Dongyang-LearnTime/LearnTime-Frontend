@@ -28,3 +28,12 @@ export const getApiErrorUtil = (
 
   return fallbackMessage;
 };
+
+// 에러 객체에서 errorCode를 추출하는 헬퍼 함수 추가
+export const getApiErrorCode = (error: unknown): string | undefined => {
+  if (axios.isAxiosError(error)) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
+    return axiosError.response?.data?.errorCode;
+  }
+  return undefined;
+};

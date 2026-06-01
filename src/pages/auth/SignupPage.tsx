@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, User, Lock, Check, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
 import axios from 'axios';
+import siteLogo from '../../assets/site-logo.svg';
 
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
@@ -125,7 +126,8 @@ export default function SignupPage() {
     setIsChecking(prev => ({ ...prev, email: true }));
     setFieldErrors(prev => ({ ...prev, email: '' }));
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/auth/email/${email}`);
+      // 입력된 문자열을 안전하게 인코딩하여 라우팅/400 에러 방지
+      const response = await axios.get(`${API_BASE_URL}/api/auth/email/${encodeURIComponent(email)}`);
       
       if (response.data === false) {
         setFieldErrors(prev => ({ ...prev, email: "이미 사용 중인 이메일입니다." }));
@@ -145,7 +147,8 @@ export default function SignupPage() {
     setIsChecking(prev => ({ ...prev, userName: true }));
     setFieldErrors(prev => ({ ...prev, userName: '' }));
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/auth/name/${userName.trim()}`);
+      // 닉네임 입력값을 안전하게 인코딩 처리
+      const response = await axios.get(`${API_BASE_URL}/api/auth/name/${encodeURIComponent(userName.trim())}`);
       
       if (response.data === false) {
         setFieldErrors(prev => ({ ...prev, userName: "이미 사용 중인 닉네임입니다." }));
@@ -171,26 +174,29 @@ export default function SignupPage() {
   const getPasswordInputClass = () => `
     flex-1 pl-4 py-3
     bg-transparent outline-none
-    text-sm sm:text-base
+    text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500
   `;
   
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center py-8 sm:py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-[#050505] dark:via-[#0a0a0a] dark:to-[#050505] flex items-center justify-center py-8 sm:py-12 px-4">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         
         {/* 상단 헤더 섹션 */}
         <div className="text-center">
-          <Link to="/" className="inline-block group">
-            <h1 className="text-3xl sm:text-4xl font-extrabold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">Learn-Time</h1>
+          <Link to="/" className="inline-flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-white dark:bg-slate-800 border border-gray-200/80 dark:border-transparent rounded-2xl flex items-center justify-center shadow-xl shadow-black/10 dark:shadow-white/10 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <img src={siteLogo} className="w-7.5 h-7.5 dark:invert" alt="Logo" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight [word-spacing:-0.15em] text-gray-900 dark:text-white group-hover:scale-105 transition-transform duration-300">Learn Time</h1>
           </Link>
-          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight flex items-center justify-center gap-2">
+          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
             회원가입 <Sparkles className="text-amber-400 w-5 h-5 sm:w-6 sm:h-6" />
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-gray-600">이미 계정이 있으신가요? <Link to="/login" className="font-semibold text-indigo-600 hover:underline">로그인하기</Link></p>
+          <p className="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">이미 계정이 있으신가요? <Link to="/login" className="font-semibold text-indigo-600 hover:underline">로그인하기</Link></p>
         </div>
 
         {/* 회원가입 카드 */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-4xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10 border border-white/40">
+        <div className="bg-white/90 dark:bg-[#111]/90 backdrop-blur-sm rounded-4xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10 border border-white/40 dark:border-white/10">
           <form className="space-y-4 sm:space-y-5" onSubmit={handleSignUp}>
             
             {/* 1. 이메일 입력 섹션 */}
@@ -233,18 +239,18 @@ export default function SignupPage() {
 
             {/* 3. 비밀번호 입력 섹션 및 체크리스트 */}
             <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1 flex items-center gap-1.5">
+              <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 flex items-center gap-1.5">
                 <Lock size={14} className="text-indigo-400"/> 비밀번호
               </label>
 
               <div className={`
                 flex items-center
-                border-2 rounded-xl
+                border-2 rounded-xl bg-white dark:bg-[#1a1a1a]
                 transition-all duration-300
                 focus-within:ring-4 text-sm sm:text-base
                 ${validity.pw 
-                  ? 'border-blue-500 focus-within:ring-blue-100'
-                  : 'border-gray-200 focus-within:border-indigo-500 focus-within:ring-indigo-100'}
+                  ? 'border-indigo-500 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/50'
+                  : 'border-gray-200 dark:border-[#333] focus-within:border-indigo-500 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/50'}
               `}>
                 
                 <input
@@ -270,7 +276,7 @@ export default function SignupPage() {
 
               {/* 체크리스트 */}
               {password && !validity.pw && (
-                <div className="mt-3 p-3 sm:p-4 bg-indigo-50/40 rounded-2xl border border-indigo-100/50">
+                <div className="mt-3 p-3 sm:p-4 bg-indigo-50/40 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100/50 dark:border-indigo-900/50">
                   <p className="text-[9px] sm:text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2.5 ml-0.5">
                     보안 요구사항
                   </p>
@@ -286,13 +292,13 @@ export default function SignupPage() {
                       <li
                         key={idx}
                         className={`flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-semibold transition-colors duration-300 
-                          ${check.met ? 'text-blue-600' : 'text-gray-400'}`}
+                          ${check.met ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'}`}
                       >
                         <div className={`rounded-full flex items-center justify-center transition-all 
-                          ${check.met ? 'bg-blue-100' : 'bg-gray-100'} w-3 h-3 sm:w-3.5 sm:h-3.5`}>
+                          ${check.met ? 'bg-indigo-100 dark:bg-indigo-900/50' : 'bg-gray-100 dark:bg-[#222]'} w-3 h-3 sm:w-3.5 sm:h-3.5`}>
                           <Check
                             strokeWidth={4}
-                            className={`${check.met ? 'text-blue-600' : 'text-gray-300'} w-2 sm:w-2.5 h-2 sm:h-2.5`}
+                            className={`${check.met ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-300'} w-2 sm:w-2.5 h-2 sm:h-2.5`}
                           />
                         </div>
                         {check.label}
@@ -306,18 +312,18 @@ export default function SignupPage() {
 
             {/* 4. 비밀번호 확인 섹션 */}
             <div className="space-y-1">
-              <label className="text-xs sm:text-sm font-semibold text-gray-700 ml-1">
+              <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
                 비밀번호 확인
               </label>
 
               <div className={`
                 flex items-center
-                border-2 rounded-xl
+                border-2 rounded-xl bg-white dark:bg-[#1a1a1a]
                 transition-all duration-300
                 focus-within:ring-4 text-sm sm:text-base
                 ${validity.match 
-                  ? 'border-blue-500 focus-within:ring-blue-100'
-                  : 'border-gray-200 focus-within:border-indigo-500 focus-within:ring-indigo-100'}
+                  ? 'border-indigo-500 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/50'
+                  : 'border-gray-200 dark:border-[#333] focus-within:border-indigo-500 focus-within:ring-indigo-100 dark:focus-within:ring-indigo-900/50'}
               `}>
                 
                 <input
@@ -342,7 +348,7 @@ export default function SignupPage() {
               </div>
 
               {confirm && validity.match && (
-                <p className="text-[10px] sm:text-[11px] font-bold ml-1 mt-1 text-blue-600">
+                <p className="text-[10px] sm:text-[11px] font-bold ml-1 mt-1 text-indigo-600 dark:text-indigo-400">
                   ✓ 비밀번호가 일치합니다.
                 </p>
               )}
@@ -372,7 +378,7 @@ export default function SignupPage() {
             )}
 
             {/* 제출 버튼 */}
-            <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.01] hover:shadow-blue-200 active:scale-[0.99]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+            <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-indigo-600 to-purple-600 hover:scale-[1.01] hover:shadow-indigo-200 active:scale-[0.99]' : 'bg-gray-200 dark:bg-[#222] text-gray-400 cursor-not-allowed'}`}>
               {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : 'Learn-Time 시작하기'}
             </button>
 

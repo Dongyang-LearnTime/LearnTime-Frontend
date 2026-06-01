@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NotesEditor } from './tiptap/NotesEditor';
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { getStudyNoteDetailApi, updateStudyNoteApi } from '../api/StudyNotesApi';
+import { getStudyNoteDetailApi, updateStudyNoteApi } from '../api/studyNotesApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 
 export default function NotesEditPage() {
