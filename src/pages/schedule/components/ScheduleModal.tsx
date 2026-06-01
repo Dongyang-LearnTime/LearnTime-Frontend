@@ -1,5 +1,5 @@
 import { StarIcon } from '../../../components/ui/Icons';
-import type { Schedule } from '../types/scheduleTypes';
+import type { Schedule } from '../types/ScheduleTypes';
 import { DAYS } from '../types/constants';
 
 // ScheduleModal 컴포넌트 Props 정의

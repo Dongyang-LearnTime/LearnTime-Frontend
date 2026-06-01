@@ -187,7 +187,7 @@ export default function MyPage() {
 
     // ── 정보 가져오는 중 스켈레톤
     const StatCard = ({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number | string; color: string }) => (
-        <div className={`relative flex-1 min-w-[130px] rounded-2xl p-5 overflow-hidden border bg-white dark:bg-[#111] border-gray-100 dark:border-white/5 shadow-sm group hover:scale-[1.02] transition-all duration-300`}>
+        <div className={`relative flex-1 min-w-32.5 rounded-2xl p-5 overflow-hidden border bg-white dark:bg-[#111] border-gray-100 dark:border-white/5 shadow-sm group hover:scale-[1.02] transition-all duration-300`}>
             <div className={`absolute -right-3 -top-3 w-16 h-16 rounded-full opacity-10 dark:opacity-20 ${color}`} />
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${color} bg-opacity-15`}>{icon}</div>
             <p className="text-2xl font-black text-gray-900 dark:text-white">{value}</p>
@@ -211,8 +211,8 @@ export default function MyPage() {
     return (
         <div className="relative min-h-screen bg-gray-50 dark:bg-[#0a0a0a] pb-24">
             {/* 배경 글로우 */}
-            <div className="fixed top-0 left-0 w-[500px] h-[500px] bg-indigo-400/5 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/3" />
-            <div className="fixed bottom-0 right-0 w-[400px] h-[400px] bg-purple-400/5 dark:bg-purple-500/5 rounded-full blur-3xl pointer-events-none translate-x-1/4 translate-y-1/4" />
+            <div className="fixed top-0 left-0 w-125 h-125 bg-indigo-400/5 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/3" />
+            <div className="fixed bottom-0 right-0 w-100 h-100 bg-purple-400/5 dark:bg-purple-500/5 rounded-full blur-3xl pointer-events-none translate-x-1/4 translate-y-1/4" />
 
             <div className="relative max-w-4xl mx-auto px-4 sm:px-6 pt-8 z-10">
                 {/* ─── 헤더 ─── */}
@@ -228,7 +228,7 @@ export default function MyPage() {
                 {infoLoading ? (
                     <div className="flex gap-4 mb-8 animate-pulse">
                         {[...Array(4)].map((_, i) => (
-                            <div key={i} className="flex-1 h-[100px] rounded-2xl bg-gray-200 dark:bg-gray-800" />
+                            <div key={i} className="flex-1 h-25 rounded-2xl bg-gray-200 dark:bg-gray-800" />
                         ))}
                     </div>
                 ) : (

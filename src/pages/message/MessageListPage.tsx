@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getReceivedMessages, getSentMessages, readMessages, deleteMessage } from "./api/messageApi";
-import type { MessageResponse, PageResponse } from "./types/messageTypes";
+import type { MessageResponse, PageResponse } from "./types/MessageTypes";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { getApiErrorUtil } from "../../utils/getApiErrorUtil";
 

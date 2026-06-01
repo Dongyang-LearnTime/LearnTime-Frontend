@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { CalendarIcon } from '../../../components/ui/Icons';
 import { DAYS } from '../types/constants';
-import type { Schedule } from '../types/scheduleTypes';
+import type { Schedule } from '../types/ScheduleTypes';
 import * as holidaysKr from '@hyunbinseo/holidays-kr';
 
 // CalendarBox 컴포넌트 Props 정의
@@ -125,7 +125,7 @@ export function CalendarBox({
                 ${isToday 
                   ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-600 dark:border-indigo-400 border-2 shadow-xl shadow-indigo-500/10 scale-105 z-10' 
                   : hasSchedules
-                    ? 'bg-indigo-500/[0.03] dark:bg-indigo-500/[0.05] border-indigo-100 dark:border-indigo-500/10 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 hover:border-indigo-500/30'
+                    ? 'bg-indigo-500/3 dark:bg-indigo-500/5 border-indigo-100 dark:border-indigo-500/10 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 hover:border-indigo-500/30'
                     : 'bg-transparent border-gray-50 dark:border-[#111] hover:bg-gray-50 dark:hover:bg-[#0a0a0a] hover:border-gray-200 dark:hover:border-[#222]'}
               `}
             >

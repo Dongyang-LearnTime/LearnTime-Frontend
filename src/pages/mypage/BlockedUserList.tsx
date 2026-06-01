@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMyBlockedUsers, unblockUserApi } from '../../api/userApi';
-import type { MyBlockedUserListResponse } from '../../api/userApi';
+import { getMyBlockedUsers, unblockUserApi, type MyBlockedUserListResponse } from '../../api/userApi';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import Avatar from '../../components/common/Avatar';
 import { UserX } from 'lucide-react';

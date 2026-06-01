@@ -1,5 +1,5 @@
 import { axiosInstance } from "../../../app/apiClient";
-import type { MessageReadRequest, MessageRequest, MessageResponse, PageResponse } from "../types/messageTypes";
+import type { MessageReadRequest, MessageRequest, MessageResponse, PageResponse } from "../types/MessageTypes";
 
 export const sendMessage = async (request: MessageRequest): Promise<number> => {
   const response = await axiosInstance.post("/api/messages", request);
