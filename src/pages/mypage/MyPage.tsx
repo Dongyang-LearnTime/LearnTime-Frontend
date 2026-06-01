@@ -94,14 +94,18 @@ export default function MyPage() {
 
     // ── 초기 데이터 로드
     useEffect(() => {
+        let isMounted = true;
         (async () => {
             try {
                 const [i, s] = await Promise.all([getMyInfo(), getMyPageSummary()]);
-                setInfo(i);
-                setSummary(s);
+                if (isMounted) {
+                    setInfo(i);
+                    setSummary(s);
+                }
             } catch { /* noop */ }
-            finally { setInfoLoading(false); }
+            finally { if (isMounted) setInfoLoading(false); }
 
+            if (!isMounted) return;
             // URL 쿼리로 탭 지정 가능하게
             const urlParams = new URLSearchParams(window.location.search);
             const tabParam = urlParams.get('tab') as Tab;
@@ -109,26 +113,35 @@ export default function MyPage() {
                 setActiveTab(tabParam);
             }
         })();
+        return () => { isMounted = false; };
     }, []);
 
     // ── 게시글 탭 데이터
     useEffect(() => {
         if (activeTab !== 'posts') return;
+        let isMounted = true;
         setPostsLoading(true);
         getMyPosts(postPage, 10).then(r => {
-            setPosts(r.content);
-            setPostTotalPages(r.totalPages);
-        }).finally(() => setPostsLoading(false));
+            if (isMounted) {
+                setPosts(r.content);
+                setPostTotalPages(r.totalPages);
+            }
+        }).finally(() => { if (isMounted) setPostsLoading(false); });
+        return () => { isMounted = false; };
     }, [activeTab, postPage]);
 
     // ── 댓글 탭 데이터
     useEffect(() => {
         if (activeTab !== 'comments') return;
+        let isMounted = true;
         setCommentsLoading(true);
         getMyComments(commentPage, 10).then(r => {
-            setComments(r.content);
-            setCommentTotalPages(r.totalPages);
-        }).finally(() => setCommentsLoading(false));
+            if (isMounted) {
+                setComments(r.content);
+                setCommentTotalPages(r.totalPages);
+            }
+        }).finally(() => { if (isMounted) setCommentsLoading(false); });
+        return () => { isMounted = false; };
     }, [activeTab, commentPage]);
 
     // ── 이름 수정

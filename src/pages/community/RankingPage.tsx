@@ -17,20 +17,29 @@ export default function RankingPage() {
     usePageTitle("learn-time | 전체 랭킹");
 
     useEffect(() => {
+        let isMounted = true;
         const fetchRanking = async () => {
             setIsLoading(true);
             try {
                 const response = await getRankingApi(page, 20);
-                setRankingList(response.content);
-                setTotalPages(response.totalPages);
+                if (isMounted) {
+                    setRankingList(response.content);
+                    setTotalPages(response.totalPages);
+                }
             } catch (error) {
-                console.error("Failed to fetch ranking:", error);
-                alert("랭킹 데이터를 불러오는 데 실패했습니다.");
+                if (isMounted) {
+                    console.error("Failed to fetch ranking:", error);
+                    alert("랭킹 데이터를 불러오는 데 실패했습니다.");
+                }
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         };
         fetchRanking();
+
+        return () => {
+            isMounted = false;
+        };
     }, [page]);
 
     return (

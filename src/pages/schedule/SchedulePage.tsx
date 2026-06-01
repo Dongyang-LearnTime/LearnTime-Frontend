@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import { useAuthStore } from '../../store/useAuthStore';
 import {
   ScheduleHeader,
   TodayScheduleBox,
@@ -43,6 +44,7 @@ const FRONT_DAY_MAP: DayOfWeek[] = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 
 
 export default function SchedulePage() {
   usePageTitle('일정 관리');
+  const userId = useAuthStore((state) => state.userId);
 
   // 일정 및 달력 메모 상태
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -77,7 +79,7 @@ export default function SchedulePage() {
 
   // 로컬 메모 불러오기
   useEffect(() => {
-    const savedNotes = localStorage.getItem('learn_time_calendar_notes');
+    const savedNotes = localStorage.getItem(`learn_time_calendar_notes_${userId || 'guest'}`);
     if (savedNotes) {
       try {
         setCalendarNotes(JSON.parse(savedNotes));
@@ -85,70 +87,86 @@ export default function SchedulePage() {
         console.error('Failed to parse calendar notes from localStorage', e);
       }
     }
-  }, []);
+  }, [userId]);
 
-  // 1. 일정 및 루틴 API 동기화 함수
+  // 1. 공통 데이터 페칭 로직 분리
+  const fetchRawSchedules = async (): Promise<Schedule[]> => {
+    const [calendarData, routineData] = await Promise.all([
+      getMonthlySchedulesApi(currentYear, currentMonth + 1),
+      getRoutinesApi()
+    ]);
+
+    // Calendar DTO -> Schedule 인터페이스 변환
+    const mappedSchedules: Schedule[] = calendarData.map(dto => {
+      const [dateStr, timeStr] = dto.targetDate.split('T');
+      const startTime = timeStr ? timeStr.substring(0, 5) : '09:00';
+      
+      // 1시간 간격 기본 설정
+      const [h, m] = startTime.split(':').map(Number);
+      const endH = String((h + 1) % 24).padStart(2, '0');
+      const endTime = `${endH}:${String(m).padStart(2, '0')}`;
+
+      return {
+        id: `schedule-${dto.calendarRecordId}`,
+        title: dto.content,
+        date: dateStr,
+        startTime,
+        endTime,
+        type: 'schedule',
+        isFavorite: dto.isImportant || false
+      };
+    });
+
+    // Routine DTO -> Schedule 인터페이스 변환
+    const mappedRoutines: Schedule[] = routineData.map(dto => {
+      const startTime = dto.startTime ? dto.startTime.substring(0, 5) : '09:00';
+      const [h, m] = startTime.split(':').map(Number);
+      const endH = String((h + 1) % 24).padStart(2, '0');
+      const endTime = `${endH}:${String(m).padStart(2, '0')}`;
+
+      const repeatDays = dto.daysOfWeek
+        ? dto.daysOfWeek.map((dayStr: string) => DAY_MAP[dayStr])
+        : [];
+
+      return {
+        id: `routine-${dto.routineId}`,
+        title: dto.content,
+        date: dto.startDate || todayDateStr,
+        startTime,
+        endTime,
+        type: 'routine',
+        completed: false,
+        repeatDays,
+        isFavorite: dto.isImportant || false
+      };
+    });
+
+    return [...mappedSchedules, ...mappedRoutines];
+  };
+
+  // 버튼 액션 시 수동 재조회용 함수
   const fetchAllData = async () => {
     try {
-      const [calendarData, routineData] = await Promise.all([
-        getMonthlySchedulesApi(currentYear, currentMonth + 1),
-        getRoutinesApi()
-      ]);
-
-      // Calendar DTO -> Schedule 인터페이스 변환
-      const mappedSchedules: Schedule[] = calendarData.map(dto => {
-        const [dateStr, timeStr] = dto.targetDate.split('T');
-        const startTime = timeStr ? timeStr.substring(0, 5) : '09:00';
-        
-        // 1시간 간격 기본 설정
-        const [h, m] = startTime.split(':').map(Number);
-        const endH = String((h + 1) % 24).padStart(2, '0');
-        const endTime = `${endH}:${String(m).padStart(2, '0')}`;
-
-        return {
-          id: `schedule-${dto.calendarRecordId}`, // schedule 접두사 붙임
-          title: dto.content,
-          date: dateStr,
-          startTime,
-          endTime,
-          type: 'schedule',
-          isFavorite: dto.isImportant || false
-        };
-      });
-
-      // Routine DTO -> Schedule 인터페이스 변환
-      const mappedRoutines: Schedule[] = routineData.map(dto => {
-        const startTime = dto.startTime ? dto.startTime.substring(0, 5) : '09:00';
-        const [h, m] = startTime.split(':').map(Number);
-        const endH = String((h + 1) % 24).padStart(2, '0');
-        const endTime = `${endH}:${String(m).padStart(2, '0')}`;
-
-        const repeatDays = dto.daysOfWeek
-          ? dto.daysOfWeek.map((dayStr: string) => DAY_MAP[dayStr])
-          : [];
-
-        return {
-          id: `routine-${dto.routineId}`, // routine 접두사 붙임
-          title: dto.content,
-          date: dto.startDate || todayDateStr,
-          startTime,
-          endTime,
-          type: 'routine',
-          completed: false,
-          repeatDays,
-          isFavorite: dto.isImportant || false
-        };
-      });
-
-      setSchedules([...mappedSchedules, ...mappedRoutines]);
+      const data = await fetchRawSchedules();
+      setSchedules(data);
     } catch (error) {
       console.error('Failed to load schedules and routines:', error);
     }
   };
 
-  // 연월 변경 시 목록 재조회
+  // 연월 변경 시 목록 재조회 (Race Condition 및 메모리 누수 방지 처리)
   useEffect(() => {
-    fetchAllData();
+    let isMounted = true;
+    const loadSchedules = async () => {
+      try {
+        const data = await fetchRawSchedules();
+        if (isMounted) setSchedules(data);
+      } catch (error) {
+        if (isMounted) console.error('Failed to load schedules and routines:', error);
+      }
+    };
+    loadSchedules();
+    return () => { isMounted = false; };
   }, [currentYear, currentMonth]);
 
   // 오늘의 일정 필터링 (루틴은 제외하고 일반 일정만 필터링)
@@ -326,7 +344,7 @@ export default function SchedulePage() {
     
     setCalendarNotes((prev: Record<string, string>) => {
       const updated = { ...prev, [dateStr]: note };
-      localStorage.setItem('learn_time_calendar_notes', JSON.stringify(updated));
+      localStorage.setItem(`learn_time_calendar_notes_${userId || 'guest'}`, JSON.stringify(updated));
       return updated;
     });
   };

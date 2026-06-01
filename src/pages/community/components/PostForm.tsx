@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/useAuthStore';
 
@@ -49,9 +49,7 @@ export default function PostForm({
     const [ newImages, setNewImages ] = useState<File[]>([]);
     const [ existingImages, setExistingImages ] = useState<string[]>(initialImages);
     const [ deletedImages, setDeletedImages ] = useState<string[]>([]);
-    
-    // 컴포넌트 언마운트 시점에 Blob URL의 일괄 메모리 해제를 돕기 위한 Ref
-    const objectUrlsRef = useRef<string[]>([]);
+    const [ previewUrls, setPreviewUrls ] = useState<string[]>([]);
 
     const MAX_TITLE_LENGTH = 100;
     const MAX_CONTENT_LENGTH = 1000;
@@ -68,11 +66,12 @@ export default function PostForm({
     }, [initialTitle, initialContent, initialIsNotice, JSON.stringify(initialImages)]);
 
     useEffect(() => {
+        const urls = newImages.map(file => URL.createObjectURL(file));
+        setPreviewUrls(urls);
         return () => {
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+            urls.forEach((url) => URL.revokeObjectURL(url));
         };
-    }, []);
+    }, [newImages]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
@@ -122,11 +121,7 @@ export default function PostForm({
         });
     };
 
-    const createPreviewUrl = (file: File): string => {
-        const url = URL.createObjectURL(file);
-        objectUrlsRef.current.push(url);
-        return url;
-    };
+
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -225,7 +220,7 @@ export default function PostForm({
                                 <img src={img} alt="기존 첨부" className="w-full h-full object-cover" />
                             </div>
                         ))}
-                        {newImages.map((img, idx) => (
+                        {newImages.map((_img, idx) => (
                             <div key={`new-${idx}`} className="relative group aspect-square rounded-xl overflow-hidden border border-indigo-200 dark:border-indigo-500/50">
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
                                     <button
@@ -236,7 +231,7 @@ export default function PostForm({
                                         삭제
                                     </button>
                                 </div>
-                                <img src={createPreviewUrl(img)} alt="새 첨부" className="w-full h-full object-cover" />
+                                <img src={previewUrls[idx]} alt="새 첨부" className="w-full h-full object-cover" />
                             </div>
                         ))}
                     </div>

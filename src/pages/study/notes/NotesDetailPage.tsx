@@ -16,6 +16,7 @@ export default function NotesDetailPage() {
   const navigate = useNavigate();
   
   const [ noteDetail, setNoteDetail ] = useState<StudyNoteDetail | null>(null);
+  const [ isLoading, setIsLoading ] = useState<boolean>(true);
   
   const [ isGeneratingQuiz, setIsGeneratingQuiz ] = useState<boolean>(false);
   const [ quizError, setQuizError ] = useState<string>('');
@@ -26,7 +27,7 @@ export default function NotesDetailPage() {
   useEffect(() => {
     const fetchNoteDetail = async () => {
       if (!noteId) return;
-      
+      setIsLoading(true);
       try {
         const data = await getStudyNoteDetailApi(noteId);
         setNoteDetail(data);
@@ -34,6 +35,8 @@ export default function NotesDetailPage() {
         const errorMessage = getApiErrorUtil(err);
         alert(errorMessage);
         navigate(-1); // 이전 페이지로
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -73,6 +76,14 @@ export default function NotesDetailPage() {
     }
   };
 
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center font-bold text-gray-500 animate-pulse">
+        로딩 중...
+      </div>
+    );
+  }
 
   if (!noteDetail) return <div>필기 데이터를 찾을 수 없습니다.</div>;
 

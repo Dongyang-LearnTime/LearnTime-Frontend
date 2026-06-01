@@ -44,9 +44,12 @@ export default function StudyStudioPage() {
   // 오늘의 공부 진도 정보 불러오기
   useEffect(() => {
     if (!studyId) return;
+    let isMounted = true;
     setIsTodayLoading(true);
+
     getStudyStudioSummaryApi(studyId, getTodayString())
       .then((data) => {
+        if (!isMounted) return;
         setStudioSummary(data);
         setTodayPlan(data.todayPlan);
         
@@ -60,11 +63,13 @@ export default function StudyStudioPage() {
         }
       })
       .catch((err: unknown) => {
-        console.error("Failed to load study studio summary:", err);
+        if (isMounted) console.error("Failed to load study studio summary:", err);
       })
       .finally(() => {
-        setIsTodayLoading(false);
+        if (isMounted) setIsTodayLoading(false);
       });
+
+    return () => { isMounted = false; };
   }, [studyId, refreshKey]);
 
   const handleGenerateFeedback = async () => {

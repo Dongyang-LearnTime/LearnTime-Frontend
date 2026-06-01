@@ -18,12 +18,11 @@ interface ProtectedRouteProps {
   fallback?: React.ReactNode;
 }
 
-// JWT decode
+import { jwtDecode } from 'jwt-decode';
+
 function parseJwt(token: string): JwtPayload | null {
     try {
-        const base64Payload = token.split('.')[1];
-        const payload = atob(base64Payload);
-        return JSON.parse(payload);
+        return jwtDecode<JwtPayload>(token);
     } catch {
         return null;
     }

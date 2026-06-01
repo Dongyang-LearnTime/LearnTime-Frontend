@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlusIcon, SearchIcon, SparklesIcon, ThumbsUpIcon, TrophyIcon } from '../../components/ui/Icons';
 import { PostCard } from './components/PostCard';
 import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getNoticePostsApi } from './api/postApi';
@@ -21,60 +21,73 @@ export default function CommunityPage() {
   const [ searchKeyword, setSearchKeyword ] = useState('');
   const [ searchType, setSearchType ] = useState<'CONTENT' | 'AUTHOR'>('CONTENT');
 
-  const fetchPosts = useCallback(async (currentPage: number, keyword: string, type: 'CONTENT' | 'AUTHOR') => {
-    try {
-      if (keyword.trim()) {
-        const response = await searchPostListApi(keyword, currentPage, type);
-        if (currentPage === 0) setPosts(response.content);
-        else setPosts(prev => [...prev, ...response.content]);
-      } else {
-        const response = await getPostListApi(currentPage);
-        if (currentPage === 0) setPosts(response.content);
-        else setPosts(prev => [...prev, ...response.content]);
+  const [ postsPage, setPostsPage ] = useState(0);
+  const [ hasMorePosts, setHasMorePosts ] = useState(true);
+
+  // 컴포넌트 마운트 시 공통 데이터(상단 공지, 주간 랭킹, 포인트 랭킹) 병렬 호출 (Waterfall 방지)
+  useEffect(() => {
+    let isMounted = true;
+    const fetchInitialData = async () => {
+      try {
+        const [popular, rankingData, noticesData] = await Promise.all([
+          getWeeklyPopularPostsApi(),
+          getRankingApi(0, 5),
+          getNoticePostsApi()
+        ]);
+        if (isMounted) {
+          setTopPosts(popular.slice(0, 2));
+          setRanking(rankingData.content);
+          setNotices(noticesData);
+        }
+      } catch (error) {
+        if (isMounted) console.error('Failed to fetch initial community data:', error);
       }
-    } catch (error) {
-      console.error('Failed to fetch posts:', error);
-      alert('서버로부터 게시글 목록을 불러오는 데 실패했습니다.');
-    }
+    };
+    fetchInitialData();
+    return () => { isMounted = false; };
   }, []);
 
-  const fetchTopPosts = async () => {
-    try {
-      const popular = await getWeeklyPopularPostsApi();
-      setTopPosts(popular.slice(0, 2));
-    } catch (error) {
-      console.error('Failed to fetch top posts:', error);
-    }
-  };
-
-  const fetchRanking = async () => {
-    try {
-      const response = await getRankingApi(0, 5);
-      setRanking(response.content);
-    } catch (error) {
-      console.error('Failed to fetch ranking:', error);
-    }
-  };
-
-  const fetchNotices = async () => {
-    try {
-      const data = await getNoticePostsApi();
-      setNotices(data);
-    } catch (error) {
-      console.error('Failed to fetch notices:', error);
-    }
-  };
-
-  // 선언형 아키텍처: searchKeyword, searchType 상태 변화 감지 시 자동으로 데이터 갱신
+  // 검색어, 검색타입, 페이지 변화 감지 시 자동으로 데이터 갱신 (선언형 아키텍처)
   useEffect(() => {
-    fetchTopPosts();
-    fetchRanking();
-    fetchNotices();
-    fetchPosts(0, searchKeyword, searchType);
-  }, [fetchPosts, searchKeyword, searchType]);
+    let isMounted = true;
+    const loadPosts = async () => {
+      if (postsPage > 0 && !hasMorePosts) return;
+      try {
+        let response;
+        if (searchKeyword.trim()) {
+          response = await searchPostListApi(searchKeyword, postsPage, searchType);
+        } else {
+          response = await getPostListApi(postsPage);
+        }
+
+        if (isMounted) {
+          if (postsPage === 0) {
+            setPosts(response.content);
+          } else {
+            setPosts(prev => {
+              // 중복 방지를 위한 간단한 체크 로직 (Race Condition 방지)
+              const existingIds = new Set(prev.map(p => p.postId));
+              const newPosts = response.content.filter((p: PostListResponse) => !existingIds.has(p.postId));
+              return [...prev, ...newPosts];
+            });
+          }
+          // API 응답의 hasNext 필드를 직접 활용하여 다음 페이지 존재 여부 판단
+          setHasMorePosts(response.hasNext);
+        }
+      } catch (error) {
+        if (isMounted) {
+          console.error('Failed to fetch posts:', error);
+          alert('서버로부터 게시글 목록을 불러오는 데 실패했습니다.');
+        }
+      }
+    };
+    loadPosts();
+    return () => { isMounted = false; };
+  }, [searchKeyword, searchType, postsPage, hasMorePosts]);
 
   // 엔터/클릭 시 검색어 상태만 업데이트하여 선언형 이벤트를 유도
   const triggerSearch = () => {
+    setPostsPage(0);
     setSearchKeyword(searchInput);
   };
 
@@ -199,6 +212,18 @@ export default function CommunityPage() {
             {posts.length === 0 && notices.length === 0 && (
               <div className="py-20 text-center text-gray-400 font-bold">
                 게시글이 존재하지 않습니다. 첫 글을 작성해보세요!
+              </div>
+            )}
+
+            {/* 게시글 더 보기 버튼 */}
+            {hasMorePosts && posts.length > 0 && (
+              <div className="flex justify-center mt-8 pt-4">
+                <button
+                  onClick={() => setPostsPage(prev => prev + 1)}
+                  className="px-6 py-3 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-2xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-sm cursor-pointer"
+                >
+                  게시글 더 보기 &darr;
+                </button>
               </div>
             )}
           </div>

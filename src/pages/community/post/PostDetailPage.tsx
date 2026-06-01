@@ -18,59 +18,95 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<PostResponse | null>(null);
   const [commentInput, setCommentInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editCommentInput, setEditCommentInput] = useState('');
 
+  const [visibleCommentsCount, setVisibleCommentsCount] = useState(10); // 댓글 페이지네이션 상태 추가
+
   usePageTitle(post ? `게시글 - ${post.title}` : '게시글 상세 정보');
 
+  // 핸들러용 갱신 함수 (수동 갱신)
   const fetchPost = async (showSpinner = true) => {
     if (!postId) return;
     if (showSpinner) setIsLoading(true);
+    setError(null);
     try {
       const data = await getPostApi(Number(postId));
       setPost(data);
-    } catch (error) {
-      console.error('Failed to fetch post details:', error);
+    } catch (err) {
+      console.error('Failed to fetch post details:', err);
+      setError('게시글을 불러오는 중 오류가 발생했습니다.');
     } finally {
       if (showSpinner) setIsLoading(false);
     }
   };
 
+  // 초기 렌더링용 안전한 fetch (Race Condition 및 메모리 누수 방지)
   useEffect(() => {
-    fetchPost(true);
+    let isMounted = true;
+    const loadInitialPost = async () => {
+      if (!postId) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await getPostApi(Number(postId));
+        if (isMounted) setPost(data);
+      } catch (err) {
+        if (isMounted) {
+          console.error('Failed to fetch post details:', err);
+          setError('게시글을 불러오는 중 오류가 발생했습니다.');
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    
+    loadInitialPost();
+    return () => { isMounted = false; };
   }, [postId]);
 
   const handleAddComment = async () => {
-    if (!commentInput.trim() || !currentUserId || !postId) return;
+    if (!commentInput.trim() || !currentUserId || !postId || isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await createCommentApi({ postId: Number(postId), content: commentInput });
       setCommentInput('');
-      fetchPost(false);
+      await fetchPost(false);
     } catch (error) {
       console.error('Failed to add comment:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteComment = async (commentId: number) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+    if (isSubmitting || !confirm('정말 삭제하시겠습니까?')) return;
+    setIsSubmitting(true);
     try {
       await deleteCommentApi(commentId);
-      fetchPost(false);
+      await fetchPost(false);
     } catch (error) {
       console.error('Failed to delete comment:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleUpdateComment = async (commentId: number) => {
-    if (!editCommentInput.trim()) return;
+    if (!editCommentInput.trim() || isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await updateCommentApi(commentId, { content: editCommentInput });
       setEditingCommentId(null);
       setEditCommentInput('');
-      fetchPost(false);
+      await fetchPost(false);
     } catch (error) {
       console.error('Failed to update comment:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,18 +116,22 @@ export default function PostDetailPage() {
       navigate('/login');
       return;
     }
-    if (!post) return;
+    if (!post || isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await togglePostLikeApi(post.postId);
-      fetchPost(false);
+      await fetchPost(false);
     } catch (error) {
       console.error('Failed to toggle post like:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeletePost = async () => {
-    if (!post) return;
+    if (!post || isSubmitting) return;
     if (!confirm('정말 이 게시글을 삭제하시겠습니까?')) return;
+    setIsSubmitting(true);
     try {
       await deletePostApi(post.postId);
       alert('게시글이 삭제되었습니다.');
@@ -99,8 +139,20 @@ export default function PostDetailPage() {
     } catch (error) {
       console.error('Failed to delete post:', error);
       alert('게시글 삭제에 실패했습니다.');
+      setIsSubmitting(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-screen items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] gap-4">
+        <div className="text-rose-500 font-bold">{error}</div>
+        <button onClick={() => navigate('/community')} className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors">
+          목록으로 돌아가기
+        </button>
+      </div>
+    );
+  }
 
   if (isLoading || !post) {
     return (
@@ -114,6 +166,10 @@ export default function PostDetailPage() {
   
   const isPostAuthor = post.userId !== null && Number(post.userId) === Number(currentUserId);
   const canControlPost = isPostAuthor || isAdmin;
+  
+  // 댓글 슬라이싱 연산
+  const visibleComments = post.comments?.slice(0, visibleCommentsCount) || [];
+  const hasMoreComments = (post.comments?.length || 0) > visibleCommentsCount;
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -279,7 +335,10 @@ export default function PostDetailPage() {
           <div className="flex justify-center border-b border-gray-100 dark:border-[#1a1a1a] pb-10 mb-10">
             <button 
               onClick={handleLikeToggle}
-              className={`flex items-center gap-2.5 px-8 py-3.5 rounded-full font-black text-sm transition-all duration-300 shadow-md active:scale-95 hover:scale-[1.02] cursor-pointer ${
+              disabled={isSubmitting}
+              className={`flex items-center gap-2.5 px-8 py-3.5 rounded-full font-black text-sm transition-all duration-300 shadow-md ${
+                isSubmitting ? 'opacity-50 cursor-not-allowed' : 'active:scale-95 hover:scale-[1.02] cursor-pointer'
+              } ${
                 post.isLiked 
                   ? 'bg-linear-to-r from-rose-500 to-pink-500 text-white shadow-rose-500/20 hover:from-rose-600 hover:to-pink-600'
                   : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
@@ -318,9 +377,14 @@ export default function PostDetailPage() {
                     />
                     <button 
                       onClick={handleAddComment}
-                      className="px-10 py-4 sm:py-0 bg-gray-900 dark:bg-white text-white dark:text-black font-black text-sm rounded-2xl active:scale-95 transition-all shadow-lg hover:shadow-indigo-500/20 whitespace-nowrap cursor-pointer"
+                      disabled={isSubmitting}
+                      className={`px-10 py-4 sm:py-0 text-white dark:text-black font-black text-sm rounded-2xl transition-all shadow-lg whitespace-nowrap cursor-pointer ${
+                        isSubmitting 
+                          ? 'bg-gray-400 cursor-not-allowed shadow-none' 
+                          : 'bg-gray-900 dark:bg-white active:scale-95 hover:shadow-indigo-500/20'
+                      }`}
                     >
-                      게시
+                      {isSubmitting ? '진행 중' : '게시'}
                     </button>
                   </div>
                 </div>
@@ -332,7 +396,7 @@ export default function PostDetailPage() {
             </div>
             
             <div className="space-y-6">
-              {post.comments?.map(comment => {
+              {visibleComments.map(comment => {
                 const isCommentAuthor = comment.authorId !== null && Number(comment.authorId) === Number(currentUserId);
                 const canControlComment = isCommentAuthor || isAdmin;
 
@@ -386,6 +450,18 @@ export default function PostDetailPage() {
               {(!post.comments || post.comments.length === 0) && (
                 <div className="text-center py-12 bg-gray-50/50 dark:bg-[#050505]/50 rounded-4xl border border-dashed border-gray-200 dark:border-[#222]">
                   <p className="text-sm font-bold text-gray-400">첫 댓글을 남겨보세요!</p>
+                </div>
+              )}
+
+              {/* 댓글 더 보기 버튼 */}
+              {hasMoreComments && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={() => setVisibleCommentsCount(prev => prev + 10)}
+                    className="px-6 py-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] rounded-2xl text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                  >
+                    댓글 더 보기 ({visibleCommentsCount} / {post.comments?.length})
+                  </button>
                 </div>
               )}
             </div>

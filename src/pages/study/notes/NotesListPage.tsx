@@ -16,11 +16,19 @@ export default function NotesListPage() {
 
   useEffect(() => {
     if (!studyId) return;
+    let isMounted = true;
     setIsLoading(true);
     getStudyNoteListApi(studyId)
-      .then(setNotes)
-      .catch(() => setError('필기 목록을 불러오는 데 실패했습니다.'))
-      .finally(() => setIsLoading(false));
+      .then((data) => {
+        if (isMounted) setNotes(data);
+      })
+      .catch(() => {
+        if (isMounted) setError('필기 목록을 불러오는 데 실패했습니다.');
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+    return () => { isMounted = false; };
   }, [studyId]);
 
   return (

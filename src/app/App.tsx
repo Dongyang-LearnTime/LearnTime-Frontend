@@ -5,6 +5,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import { routes } from './routes';
 import { useAuthStore } from '../store/useAuthStore';
 import { HomeFooter } from '../components/home/HomeFooter';
+import { useNotificationSSE } from '../hooks/useNotificationSSE';
 
 // dynamic import 컴포넌트들이 활성화될 때 보일 스피너/로딩 표시
 const PageFallback = () => (
@@ -19,17 +20,27 @@ function App() {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const navigate = useNavigate();
   
+  // 실시간 알림 SSE 연결 유지
+  useNotificationSSE();
+
   const isStarted = useRef<boolean>(false);
 
-  // apiClient 인터셉터에서 발생시킨 인증 에러 이벤트 감지 및 SPA 라우팅 리다이렉트
+  // apiClient 인터셉터에서 발생시킨 에러 이벤트 감지 및 SPA 라우팅 리다이렉트
   useEffect(() => {
     const handleAuthError = () => {
       navigate('/login');
     };
 
+    const handleForbiddenError = () => {
+      alert('접근 권한이 없습니다.');
+      navigate('/');
+    };
+
     window.addEventListener('auth-error', handleAuthError);
+    window.addEventListener('forbidden-error', handleForbiddenError);
     return () => {
       window.removeEventListener('auth-error', handleAuthError);
+      window.removeEventListener('forbidden-error', handleForbiddenError);
     };
   }, [navigate]);
 

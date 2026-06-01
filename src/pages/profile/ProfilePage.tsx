@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getProfile, updateProfile } from "./api/profileApi";
 import { useAuthStore } from "../../store/useAuthStore";
@@ -19,6 +19,12 @@ export default function ProfilePage() {
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editDescription, setEditDescription] = useState("");
   const [editVisibility, setEditVisibility] = useState<ProfileVisibility>("PUBLIC");
@@ -35,6 +41,7 @@ export default function ProfilePage() {
     setErrorStatus(null);
     getProfile(userId)
       .then((data) => {
+        if (!isMountedRef.current) return;
         setProfile(data);
         setEditDescription(data.description || "");
         setEditVisibility(data.profileVisibility);
@@ -43,9 +50,11 @@ export default function ProfilePage() {
         setIsImageDeleted(false);
       })
       .catch((err) => {
+        if (!isMountedRef.current) return;
         setErrorStatus(err.response?.status || 500);
       })
       .finally(() => {
+        if (!isMountedRef.current) return;
         setIsLoading(false);
       });
   };

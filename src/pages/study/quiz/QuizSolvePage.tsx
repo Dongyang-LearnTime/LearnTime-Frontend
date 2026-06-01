@@ -48,22 +48,31 @@ export default function QuizSolvePage() {
 
   usePageTitle("learn-time | 퀴즈 답안 작성");
 
-  const fetchQuizDetail = async () => {
+  useEffect(() => {
     if (!quizId) return;
+    let isMounted = true;
 
-    try {
-      setIsLoading(true);
-      const data = await getQuizDetailApi(quizId);
-      setQuizData(data);
-      setIsDirty(true); // 퀴즈 데이터 로딩 완료 시점부터 이탈 방지 활성화
-    } catch (err) {
-      setError('퀴즈 데이터를 불러오는 중 오류가 발생했습니다.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const fetchQuizDetail = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getQuizDetailApi(quizId);
+        if (isMounted) {
+          setQuizData(data);
+          setIsDirty(true); // 퀴즈 데이터 로딩 완료 시점부터 이탈 방지 활성화
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError('퀴즈 데이터를 불러오는 중 오류가 발생했습니다.');
+          console.error(err);
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
 
+    fetchQuizDetail();
+    return () => { isMounted = false; };
+  }, [quizId]);
 
   const handleSubmit = async () => {
     if (!quizData || !quizId) return;
@@ -98,9 +107,7 @@ export default function QuizSolvePage() {
     }
   };
 
-  useEffect(() => {
-    fetchQuizDetail();
-  }, [quizId]);
+  // useEffect가 위로 이동되었으므로 삭제
 
   // 창 닫기, 새로고침 등 페이지 이탈 시도 시 브라우저 경고창 띄우기
   useEffect(() => {

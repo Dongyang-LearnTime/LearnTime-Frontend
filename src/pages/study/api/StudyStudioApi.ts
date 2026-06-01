@@ -11,7 +11,8 @@ import type {
     StudyMemberFriendResponse,
     StudyStudioSummaryResponse,
     UpdateStudyTitleRequest,
-    FocusTimeRequest
+    FocusTimeRequest,
+    UpdateStudyRestScheduleRequest
 } from "../types/studyTypes";
 
 
@@ -152,5 +153,10 @@ export const leaveStudyApi = async (studyId: number): Promise<void> => {
 // 스터디원 강퇴 (방장 전용)
 export const kickStudyMemberApi = async (studyId: number, userIdToKick: number): Promise<void> => {
     await axiosInstance.delete(`/api/study/member/${studyId}/kick/${userIdToKick}`);
+};
+
+// 공부 휴무 일정 재조정
+export const updateStudyRestScheduleApi = async (studyId: string, request: UpdateStudyRestScheduleRequest): Promise<void> => {
+    await axiosInstance.patch(`/api/study/${studyId}/rests`, request);
 };
 

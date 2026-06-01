@@ -8,6 +8,7 @@ import { getStudyFeedbackList, generateStudyFeedback } from '../api/studyFeedbac
 import type { StudyFeedbackResponse } from '../types/studyFeedBackTypes';
 import FeedbackDetailDrawer from './components/FeedbackDetailDrawer';
 import { usePageTitle } from '../../../hooks/usePageTitle';
+import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 
 export default function StudyFeedbackListPage() {
   usePageTitle('AI 피드백 목록');
@@ -41,7 +42,7 @@ export default function StudyFeedbackListPage() {
       setIsDrawerOpen(true);
     } catch (err) {
       console.error('Failed to generate AI feedback:', err);
-      alert('AI 피드백 생성에 실패했습니다.');
+      alert(getApiErrorUtil(err));
     } finally {
       setIsGenerating(false);
     }

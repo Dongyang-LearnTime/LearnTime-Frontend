@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { getStudyPlanApi, startStudyDailyPlanApi, getStudyDailyPlansApi, deleteStudyApi, getStudyMemberListApi, updateStudyTitleApi, updateStudyBookTitleApi } from "../api/studyStudioApi";
+import { getStudyPlanApi, startStudyDailyPlanApi, getStudyDailyPlansApi, deleteStudyApi, getStudyMemberListApi, updateStudyTitleApi, updateStudyBookTitleApi, updateStudyRestScheduleApi } from "../api/studyStudioApi";
 import { getMyStudyProgresses } from "../api/studyApi";
 import type { StudyPlanResponse, StudyDailyPlanResponse } from "../types/studyTypes";
 import DailyProgress from "./components/DailyProgress";
@@ -68,6 +68,7 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRescheduling, setIsRescheduling] = useState(false);
 
   // 재조정 모달 오픈 시 기존 설정 불러오기
   useEffect(() => {
@@ -81,18 +82,23 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
 
   // 모든 진도 목록 및 스터디 정보 조회
   useEffect(() => {
+    let isMounted = true;
     Promise.all([
       getStudyDailyPlansApi(studyId),
       getStudyMemberListApi(studyId),
       getMyStudyProgresses()
     ]).then(([plansData, membersData, progressesData]) => {
+      if (!isMounted) return;
       setAllPlans(plansData);
       const owner = membersData.some(m => Number(m.userId) === Number(userId) && m.studyMemberRole === "OWNER");
       setIsOwner(owner);
       const title = progressesData.find(p => Number(p.studyId) === Number(studyId))?.studyTitle || "스터디 제목";
       setStudyTitle(title);
-    }).catch(err => console.error("Failed to fetch additional study info:", err));
-  }, [studyId, userId]);
+    }).catch(err => {
+      if (isMounted) console.error("Failed to fetch additional study info:", err);
+    });
+    return () => { isMounted = false; };
+  }, [studyId, userId, refreshTrigger]);
 
   // planDate 변경에 따른 API 호출
   useEffect(() => {
@@ -162,10 +168,29 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
     try {
       await deleteStudyApi(studyId);
       alert("스터디가 성공적으로 삭제되었습니다.");
-      navigate("/main"); // 삭제 후 메인 화면으로 이동
+      navigate("/"); // 삭제 후 루트 화면으로 이동
     } catch (err) {
       alert(getApiErrorUtil(err) || "스터디 삭제에 실패했습니다.");
       setIsDeleting(false);
+    }
+  };
+
+  const handleReschedule = async () => {
+    setIsRescheduling(true);
+    try {
+      await updateStudyRestScheduleApi(studyId, {
+        restDays,
+        restDates
+      });
+      alert("공부 일정 재조정이 완료되었습니다.");
+      setIsRescheduleModalOpen(false);
+      if (onRefreshToday) {
+        onRefreshToday();
+      }
+    } catch (err) {
+      alert(getApiErrorUtil(err) || "공부 일정 재조정에 실패했습니다.");
+    } finally {
+      setIsRescheduling(false);
     }
   };
 
@@ -524,18 +549,24 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
           <div className="flex gap-3 mt-8">
             <button
               onClick={() => setIsRescheduleModalOpen(false)}
-              className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-[#1a1a1a] dark:hover:bg-[#222] text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors"
+              disabled={isRescheduling}
+              className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-[#1a1a1a] dark:hover:bg-[#222] text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors disabled:opacity-50"
             >
               취소
             </button>
             <button
-              onClick={() => {
-                alert("공부 일정 재조정이 완료되었습니다. (API 미연동)");
-                setIsRescheduleModalOpen(false);
-              }}
-              className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors shadow-md shadow-indigo-500/20"
+              onClick={handleReschedule}
+              disabled={isRescheduling}
+              className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors shadow-md shadow-indigo-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              재조정 적용
+              {isRescheduling ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  적용 중...
+                </>
+              ) : (
+                "재조정 적용"
+              )}
             </button>
           </div>
         </div>

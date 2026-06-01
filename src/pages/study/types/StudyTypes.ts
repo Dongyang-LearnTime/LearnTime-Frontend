@@ -121,3 +121,9 @@ export interface FocusTimeRequest {
   studyDailyPlanId: number;
   focusTime: string; // "HH:mm:ss"
 }
+
+// 공부 휴무 일정 재조정 요청
+export interface UpdateStudyRestScheduleRequest {
+  restDays: string[];
+  restDates: string[];
+}

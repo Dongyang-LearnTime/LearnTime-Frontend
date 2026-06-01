@@ -31,18 +31,20 @@ export default function NotificationPage() {
 
     // 초기 데이터 로딩
     useEffect(() => {
+        let isMounted = true;
         const fetchInitial = async () => {
             setIsLoading(true);
             try {
                 const res = await NotificationApi.getNotifications(null);
-                setNotifications(res.content, res.hasNext, res.nextCursor);
+                if (isMounted) setNotifications(res.content, res.hasNext, res.nextCursor);
             } catch (err) {
-                setError(getApiErrorUtil(err));
+                if (isMounted) setError(getApiErrorUtil(err));
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         };
         fetchInitial();
+        return () => { isMounted = false; };
     }, [setNotifications]);
 
     // 무한 스크롤 다음 페이지 가져오기

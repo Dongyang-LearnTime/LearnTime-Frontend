@@ -240,7 +240,7 @@ function CreateStudyPageInner() {
             />
 
             {/* 2. 멤버 구성 / 목차 이미지 업로드 (하나의 카드로 묶고 수직선으로 구분) */}
-            <section className="bg-white dark:bg-[#050505] rounded-3xl border border-gray-100 dark:border-[#1a1a1a] shadow-sm mb-6 flex flex-col lg:flex-row overflow-hidden">
+            <section className="bg-white dark:bg-[#050505] rounded-3xl border border-gray-100 dark:border-[#1a1a1a] shadow-sm mb-6 flex flex-col lg:flex-row">
                 
                 {/* 2-1. 함께할 친구 선택 영역 */}
                 <div className="flex-1 p-6 sm:p-8 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-[#1a1a1a]">
@@ -425,7 +425,7 @@ function CreateStudyPageInner() {
                     ) : (
                         <>
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                            완벽한 진도표 생성하기
+                            공부 진도 생성
                         </>
                     )}
                 </button>
