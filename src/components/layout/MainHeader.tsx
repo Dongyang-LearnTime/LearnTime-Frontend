@@ -166,25 +166,39 @@ export function MainHeader() {
     onClickOverride?: () => void;
     hasToggle?: boolean;
     isExpanded?: boolean;
-  }) => (
-    <div
-      onClick={() => onClickOverride ? onClickOverride() : navigate(to)}
-      className={`flex items-center gap-2 px-5 py-2 rounded-full cursor-pointer transition-all duration-300 group ${active
-          ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-md shadow-gray-900/20 dark:shadow-white/20'
-          : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
-        }`}
-    >
-      <div className={`transition-transform duration-300 group-hover:scale-110 ${active ? 'text-inherit' : 'text-gray-400 group-hover:text-inherit'}`}>
-        {icon}
-      </div>
-      <span className="text-[0.95rem] font-bold tracking-tight whitespace-nowrap">{label}</span>
-      {hasToggle && (
-        <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''} ${active ? 'text-inherit' : 'text-gray-400'}`}>
-          <ChevronDownIcon size={16} />
+  }) => {
+    const handleNavigation = () => {
+      if (onClickOverride) {
+        onClickOverride();
+      } else {
+        // 이미 학습 스튜디오 상세 영역 내에 있다면 중복 리다이렉터 호출을 차단하여 쿼리 및 ID 유실 방지
+        if (to === '/study' && location.pathname.startsWith('/study')) {
+          return;
+        }
+        navigate(to);
+      }
+    };
+
+    return (
+      <div
+        onClick={handleNavigation}
+        className={`flex items-center gap-2 px-5 py-2 rounded-full cursor-pointer transition-all duration-300 group ${active
+            ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-md shadow-gray-900/20 dark:shadow-white/20'
+            : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'
+          }`}
+      >
+        <div className={`transition-transform duration-300 group-hover:scale-110 ${active ? 'text-inherit' : 'text-gray-400 group-hover:text-inherit'}`}>
+          {icon}
         </div>
-      )}
-    </div>
-  );
+        <span className="text-[0.95rem] font-bold tracking-tight whitespace-nowrap">{label}</span>
+        {hasToggle && (
+          <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''} ${active ? 'text-inherit' : 'text-gray-400'}`}>
+            <ChevronDownIcon size={16} />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>

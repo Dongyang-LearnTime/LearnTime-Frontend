@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { PlusIcon, SettingsIcon, BookIcon, NoteIcon, BrainIcon, ChevronRightIcon } from '../ui/Icons';
 import { useStudyStore } from '../../store/useStudyStore';
 import type { StudyProgressIndicatorResponse } from '../../pages/study/api/studyApi';
@@ -19,6 +19,7 @@ const ChevronLeftIcon = ({ size = 20 }: { size?: number }) => (
 export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
   const navigate = useNavigate();
   const { studyId } = useParams<{ studyId?: string }>();
+  const location = useLocation();
   
   const { progresses, fetchProgresses, isLoading } = useStudyStore();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -240,7 +241,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
         >
           <MenuIcon size={18} />
         </button>
-        <div className="md:mt-0 mt-12 h-full">
+        <div className="md:mt-0 mt-12 h-full" key={location.pathname + location.search}>
           {children}
         </div>
       </main>

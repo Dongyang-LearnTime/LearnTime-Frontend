@@ -126,7 +126,8 @@ export default function SignupPage() {
     setIsChecking(prev => ({ ...prev, email: true }));
     setFieldErrors(prev => ({ ...prev, email: '' }));
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/auth/email/${email}`);
+      // 입력된 문자열을 안전하게 인코딩하여 라우팅/400 에러 방지
+      const response = await axios.get(`${API_BASE_URL}/api/auth/email/${encodeURIComponent(email)}`);
       
       if (response.data === false) {
         setFieldErrors(prev => ({ ...prev, email: "이미 사용 중인 이메일입니다." }));
@@ -146,7 +147,8 @@ export default function SignupPage() {
     setIsChecking(prev => ({ ...prev, userName: true }));
     setFieldErrors(prev => ({ ...prev, userName: '' }));
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/auth/name/${userName.trim()}`);
+      // 닉네임 입력값을 안전하게 인코딩 처리
+      const response = await axios.get(`${API_BASE_URL}/api/auth/name/${encodeURIComponent(userName.trim())}`);
       
       if (response.data === false) {
         setFieldErrors(prev => ({ ...prev, userName: "이미 사용 중인 닉네임입니다." }));

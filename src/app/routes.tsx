@@ -1,12 +1,10 @@
 import { lazy } from 'react';
+import { Outlet } from 'react-router';
 import ProtectedRoute from "./ProtectedRoute";
 import { GlobalHeader } from "../components/layout/GlobalHeader";
 import { StudySidebarLayout } from "../components/layout/StudySidebarLayout";
 
-const StudyStudioPage = lazy(() => import("../pages/study/studio/StudyStudioPage"));
-const StudyRedirector = lazy(() => import("../pages/study/studio/StudyRedirector"));
-const StudyEmptyPage = lazy(() => import("../pages/study/studio/StudyEmptyPage"));
-
+// 페이지 컴포넌트 지연 로딩 (Lazy Loading)
 const HomePage = lazy(() => import("../pages/HomePage"));
 const LearnTimeMainPage = lazy(() => import("../pages/LearnTimeMainPage"));
 const NotFoundPage = lazy(() => import("./NotFoundPage"));
@@ -37,8 +35,12 @@ const SchedulePage = lazy(() => import("../pages/schedule/SchedulePage"));
 const ExercisePage = lazy(() => import("../pages/exercise/ExercisePage"));
 const BadgeTierInfoPage = lazy(() => import("../pages/community/tire/BadgeTierInfoPage"));
 const MyPage = lazy(() => import("../pages/mypage/MyPage"));
+const StudyRedirector = lazy(() => import("../pages/study/studio/StudyRedirector"));
+const StudyEmptyPage = lazy(() => import("../pages/study/studio/StudyEmptyPage"));
+const StudyStudioPage = lazy(() => import("../pages/study/studio/StudyStudioPage"));
 
 export const routes = [
+  // 레이아웃이 없는 비인증/인증 분기 페이지
   {
     path: "/",
     noLayout: true,
@@ -49,302 +51,71 @@ export const routes = [
       </ProtectedRoute>
     )
   },
+  { path: "*", element: <NotFoundPage /> },
+  { path: "/signup", element: <SignupPage /> },
+  { path: "/login", element: <LoginPage /> },
+
+  // 공통 헤더만 필요한 인증 불필요 (Public) 그룹
   {
-    path: "*",
-    element: <NotFoundPage />
-  },
-  {
-    path: "/signup",
-    element: <SignupPage />,
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/notifications",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <NotificationPage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/profile/:userId",
     element: (
       <>
         <GlobalHeader />
-        <ProfilePage />
+        <Outlet />
       </>
-    )
+    ),
+    children: [
+      { path: "/profile/:userId", element: <ProfilePage /> },
+      { path: "/badge-tier-info", element: <BadgeTierInfoPage /> },
+      { path: "/community", element: <CommunityPage /> },
+      { path: "/community/ranking", element: <RankingPage /> },
+      { path: "/community/post/:postId", element: <PostDetailPage /> },
+    ]
   },
+
+  // 인증 가드 + 공통 헤더가 필요한 인증 필수 (Private) 그룹
   {
-    path: "/mypage",
     element: (
       <ProtectedRoute>
         <GlobalHeader />
-        <MyPage />
+        <Outlet />
       </ProtectedRoute>
-    )
-  },
-  {
-    path: "/badge-tier-info",
-    element: (
-      <>
-        <GlobalHeader />
-        <BadgeTierInfoPage />
-      </>
-    )
-  },
-  {
-    path: "/messages",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <MessageListPage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudyRedirector />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/studio",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudyRedirector />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/empty",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <StudyEmptyPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/:studyId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <StudyStudioPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/invitation",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <StudyInvitationPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/plan/create",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <CreateStudyPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/notes/write/:studyId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <NotesWritePage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/notes/list/:studyId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <StudyNotesListPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/notes/:noteId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <NotesDetailPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/notes/edit/:noteId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <NotesEditPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/quiz/:quizId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <QuizSolvePage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/quiz/history/:quizHistoryId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <QuizResultPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/quiz/history/list/:studyQuizId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <QuizHistoryListPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/quiz/list/:studyId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <StudyQuizListPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/study/feedback/list/:studyId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <StudySidebarLayout>
-          <StudyFeedbackListPage />
-        </StudySidebarLayout>
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/community",
-    element: (
-      <>
-        <GlobalHeader />
-        <CommunityPage />
-      </>
-    )
-  },
-  {
-    path: "/community/ranking",
-    element: (
-      <>
-        <GlobalHeader />
-        <RankingPage />
-      </>
-    )
-  },
-  {
-    path: "/community/post/create",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <CreatePostPage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/community/post/:postId",
-    element: (
-      <>
-        <GlobalHeader />
-        <PostDetailPage />
-      </>
-    )
-  },
-  {
-    path: "/community/post/edit/:postId",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <PostEditPage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/friend/requests",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <FriendRequestPage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/schedule",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <SchedulePage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/exercise",
-    element: (
-      <ProtectedRoute>
-        <GlobalHeader />
-        <ExercisePage />
-      </ProtectedRoute>
-    )
-  },
-  {
-    path: "/main/settings",
-    element: (
-      <ProtectedRoute>
-        <UnderConstructionPage />
-      </ProtectedRoute>
-    )
+    ),
+    children: [
+      { path: "/notifications", element: <NotificationPage /> },
+      { path: "/mypage", element: <MyPage /> },
+      { path: "/messages", element: <MessageListPage /> },
+      { path: "/community/post/create", element: <CreatePostPage /> },
+      { path: "/community/post/edit/:postId", element: <PostEditPage /> },
+      { path: "/friend/requests", element: <FriendRequestPage /> },
+      { path: "/schedule", element: <SchedulePage /> },
+      { path: "/exercise", element: <ExercisePage /> },
+      { path: "/study", element: <StudyRedirector /> },
+      { path: "/study/studio", element: <StudyRedirector /> },
+      { path: "/main/settings", element: <UnderConstructionPage /> },
+
+      // 인증 가드 + 공통 헤더 + 스터디 전용 사이드바가 모두 필요한 그룹 
+      {
+        element: (
+          <StudySidebarLayout>
+            <Outlet />
+          </StudySidebarLayout>
+        ),
+        children: [
+          { path: "/study/empty", element: <StudyEmptyPage /> },
+          { path: "/study/:studyId", element: <StudyStudioPage /> },
+          { path: "/study/invitation", element: <StudyInvitationPage /> },
+          { path: "/study/plan/create", element: <CreateStudyPage /> },
+          { path: "/study/notes/write/:studyId", element: <NotesWritePage /> },
+          { path: "/study/notes/list/:studyId", element: <StudyNotesListPage /> },
+          { path: "/study/notes/:noteId", element: <NotesDetailPage /> },
+          { path: "/study/notes/edit/:noteId", element: <NotesEditPage /> },
+          { path: "/study/quiz/:quizId", element: <QuizSolvePage /> },
+          { path: "/study/quiz/history/:quizHistoryId", element: <QuizResultPage /> },
+          { path: "/study/quiz/history/list/:studyQuizId", element: <QuizHistoryListPage /> },
+          { path: "/study/quiz/list/:studyId", element: <StudyQuizListPage /> },
+          { path: "/study/feedback/list/:studyId", element: <StudyFeedbackListPage /> },
+        ]
+      }
+    ]
   }
 ];

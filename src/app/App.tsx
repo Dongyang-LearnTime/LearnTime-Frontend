@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useRef, Suspense } from 'react';
 import { API_BASE_URL } from './apiClient';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { routes } from './routes';
 import { useAuthStore } from '../store/useAuthStore';
 import { HomeFooter } from '../components/home/HomeFooter';
@@ -17,8 +17,21 @@ function App() {
   const isAuthChecking = useAuthStore((state) => state.isAuthChecking);
   const setAuthChecking = useAuthStore((state) => state.setAuthChecking);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const navigate = useNavigate();
   
   const isStarted = useRef<boolean>(false);
+
+  // apiClient 인터셉터에서 발생시킨 인증 에러 이벤트 감지 및 SPA 라우팅 리다이렉트
+  useEffect(() => {
+    const handleAuthError = () => {
+      navigate('/login');
+    };
+
+    window.addEventListener('auth-error', handleAuthError);
+    return () => {
+      window.removeEventListener('auth-error', handleAuthError);
+    };
+  }, [navigate]);
 
   // 새로고침 직후 1회동안 리프레쉬 토큰 가져옴
   useEffect(() => {
@@ -53,15 +66,6 @@ function App() {
       void silentRefresh();
     }, [setAccessToken, setAuthChecking]);
 
-  useEffect(() => {
-    // 5초 후에는 무조건 로딩 해제 (무한 로딩 방지)
-    const timeoutId = setTimeout(() => {
-      setAuthChecking(false);
-    }, 5000);
-
-    return () => clearTimeout(timeoutId);
-  }, [setAuthChecking]);
-
   if (isAuthChecking) {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-50 dark:bg-[#050505]">
@@ -79,14 +83,37 @@ function App() {
         {/* Dynamic import 라우트 컴포넌트 로딩 대기를 위한 Suspense 경계 설정 */}
         <Suspense fallback={<PageFallback />}>
           <Routes>
-            {routes.map((route) => (
-              <Route
-                key={route.path}
-                path={route.path}
-                // noLayout이 true인 라우트는 <main> 래퍼 없이 렌더링
-                element={(route as { path: string; element: React.ReactNode; noLayout?: boolean }).noLayout ? route.element : <main>{route.element}</main>}
-              />
-            ))}
+            {(() => {
+              const renderRoutes = (routeList: typeof routes, isRoot = true) => {
+                return routeList.map((route, index) => {
+                  const hasChildren = 'children' in route && Array.isArray(route.children);
+                  const element = isRoot 
+                    ? ((route as { noLayout?: boolean }).noLayout ? route.element : <main>{route.element}</main>)
+                    : route.element;
+
+                  if (hasChildren) {
+                    return (
+                      <Route
+                        key={route.path || `layout-${index}`}
+                        path={route.path}
+                        element={element}
+                      >
+                        {renderRoutes(route.children as typeof routes, false)}
+                      </Route>
+                    );
+                  }
+
+                  return (
+                    <Route
+                      key={route.path || `route-${index}`}
+                      path={route.path}
+                      element={element}
+                    />
+                  );
+                });
+              };
+              return renderRoutes(routes);
+            })()}
           </Routes>
         </Suspense>
       </div>

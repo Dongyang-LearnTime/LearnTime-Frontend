@@ -1,5 +1,15 @@
 import { create } from 'zustand';
+import { jwtDecode } from 'jwt-decode';
 import type { Role } from '../types/userEnums';
+
+// Custom JWT Payload 타입 정의
+interface CustomJwtPayload {
+  sub?: string;      // subject (이메일)
+  userId?: number;   // 발급 유저의 id
+  role?: Role;       // 발급 유저의 권한
+  name?: string;     // 발급 유저의 이름
+  [key: string]: any;
+}
 
 interface AuthState {
   accessToken: string | null;
@@ -14,21 +24,6 @@ interface AuthState {
   setAuthChecking: (isChecking: boolean) => void;
 }
 
-// JWT 토큰 디코딩 헬퍼 함수
-const decodeToken = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    return null;
-  }
-};
-
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   userId: null,
@@ -38,13 +33,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthChecking: true,
 
   setAccessToken: (token: string) => {
-    const decoded = decodeToken(token);
-    // 토큰 페이로드에서 userId 또는 sub(Subject) 추출
-    const extractedUserId = decoded ? (decoded.userId || decoded.sub || decoded.id) : null;
-    // 백엔드 createToken에서 셋팅된 "name" 클레임 추출
-    const extractedUserName = decoded ? decoded.name : null;
-    // 백엔드에서 세팅된 "role" 클레임 추출
-    const extractedRole = decoded ? decoded.role : null;
+    let extractedUserId: number | string | null = null;
+    let extractedUserName: string | null = null;
+    let extractedRole: Role | null = null;
+
+    try {
+      // jwt-decode 라이브러리를 사용하여 안전하게 파싱 (URI 변환 오류 방지)
+      const decoded = jwtDecode<CustomJwtPayload>(token);
+      
+      // 백엔드 토큰 구조에 맞춰 fallback(sub, id 등)을 제거하고 정확한 클레임만 매핑
+      extractedUserId = decoded.userId ?? null;
+      extractedUserName = decoded.name ?? null;
+      extractedRole = decoded.role ?? null;
+    } catch (e) {
+      console.error('Invalid token:', e);
+    }
     
     set({ 
       accessToken: token, 

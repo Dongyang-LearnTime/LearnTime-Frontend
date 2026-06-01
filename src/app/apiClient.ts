@@ -69,8 +69,7 @@ axiosInstance.interceptors.response.use(
     const { config, response } = error;
     const originalRequest = config;
 
-    // [추가된 로직] 로그인 API 요청 시 발생한 에러는 인터셉터를 거치지 않고 즉시 호출부(LoginPage)로 반환
-    if (originalRequest.url?.includes('/api/auth/login')) {
+    if (originalRequest.url?.includes('/api/auth/login') || originalRequest.url?.includes('/api/auth/logout')) {
       return Promise.reject(error);
     }
 
@@ -107,7 +106,8 @@ axiosInstance.interceptors.response.use(
           isRefreshing = false;
           // Refresh Token마저 만료된 경우 로그아웃 처리
           useAuthStore.getState().clearAuth();
-          window.location.href = '/login'; 
+          // SPA 라우팅을 유지하기 위해 전역 이벤트를 발생시켜 App.tsx에서 navigate 처리
+          window.dispatchEvent(new CustomEvent('auth-error'));
           return Promise.reject(refreshError);
         }
       }

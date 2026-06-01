@@ -1,4 +1,4 @@
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router'; 
 import { usePageTitle } from '../../hooks/usePageTitle.ts';
 import { useAuthStore } from '../../store/useAuthStore.ts';
@@ -24,8 +24,6 @@ export default function LoginPage() {
   const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
   const [ loginError, setLoginError ] = useState<string>('');
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  
-  const [ , startTransition ] = useTransition();
   const [ isCapsLockOn, setIsCapsLockOn ] = useState<boolean>(false); // CapsLock 켜짐 여부
 
   // 페이지 제목 변경
@@ -45,11 +43,10 @@ export default function LoginPage() {
 
       const { accessToken } = response.data; // 응답 Body에서 Access Token 추출 후 Zustand 메모리 스토어에 저장
       
-      startTransition(() => {
-        setAccessToken(accessToken);
-        localStorage.setItem('login_hint', 'true');
-        navigate('/'); // 임시 링크, 수정 가능 
-      });
+      // 반응성 지연을 막기 위해 startTransition 제거 (동기적 상태 업데이트 및 라우팅 보장)
+      setAccessToken(accessToken);
+      localStorage.setItem('login_hint', 'true');
+      navigate('/'); // 임시 링크, 수정 가능
       
     } catch (error: unknown) {
       const errorMessage = getApiErrorUtil(error);
