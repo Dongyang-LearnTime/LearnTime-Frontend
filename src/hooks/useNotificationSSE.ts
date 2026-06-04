@@ -91,7 +91,7 @@ export const useNotificationSSE = (): void => {
     eventSource.addEventListener("test-event", handleTestEvent);
 
     // 에러 발생 및 타임아웃 대응
-    eventSource.onerror = (error : any) => {
+    eventSource.onerror = () => {
       // 일반적인 Nginx 연결 끊김 등으로 인한 재연결 시 콘솔 에러가 도배되는 것을 방지
       console.warn("SSE connection closed or error. Polyfill will attempt to reconnect.");
     };
