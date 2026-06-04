@@ -9,7 +9,7 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
-import type { StudyRecentWeekInfoResponse } from "../../types/studyTypes";
+import type { StudyRecentWeekInfoResponse } from "../../types/StudyTypes";
 import { Card } from "../../../../components/common/Card";
 
 interface RecentWeekChartProps {

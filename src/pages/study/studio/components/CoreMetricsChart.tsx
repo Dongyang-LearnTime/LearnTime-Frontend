@@ -1,4 +1,4 @@
-import type { StudyTotalInfoResponse } from "../../types/studyTypes";
+import type { StudyTotalInfoResponse } from "../../types/StudyTypes";
 import { Card } from "../../../../components/common/Card";
 import { ProgressBar } from "../../../../components/common/ProgressBar";
 

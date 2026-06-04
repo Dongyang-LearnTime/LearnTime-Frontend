@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import {
     createStudyPlanApi,
     getStudyStatusApi,
-} from '../pages/study/api/createStudyApi';
+} from '../pages/study/api/CreateStudyApi';
 import { getApiErrorUtil } from '../utils/getApiErrorUtil';
 import type { StudyForm, BookToc } from '../pages/study/create/CreateStudyPage';
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { createPostApi } from '../api/postApi';
+import { createPostApi } from '../api/PostApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import PostForm, { type PostFormPayload } from '../components/PostForm';
 

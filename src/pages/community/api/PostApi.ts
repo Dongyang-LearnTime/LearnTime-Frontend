@@ -1,7 +1,7 @@
 import { axiosInstance } from "../../../app/apiClient";
 import imageCompression from "browser-image-compression";
-import type { PageResponse } from "../../../types/paginationType";
-import type { PostCreateRequest, PostUpdateRequest, PostListResponse, PostUpdateDetailResponse, PostResponse } from "../types/postTypes";
+import type { PageResponse } from "../../../types/PaginationType";
+import type { PostCreateRequest, PostUpdateRequest, PostListResponse, PostUpdateDetailResponse, PostResponse } from "../types/PostTypes";
 
 
 export const createPostApi = async (request: PostCreateRequest, images: File[]): Promise<number> => {

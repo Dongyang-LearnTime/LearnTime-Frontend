@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, SearchIcon, SparklesIcon, ThumbsUpIcon, TrophyIcon } from '../../components/ui/Icons';
 import { PostCard } from './components/PostCard';
-import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getNoticePostsApi } from './api/postApi';
+import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getNoticePostsApi } from './api/PostApi';
 import { getRankingApi } from './api/communityApi';
 import { useAuthStore } from '../../store/useAuthStore';
-import type { PostListResponse, PointRankingResponse } from './types/postTypes';
+import type { PostListResponse, PointRankingResponse } from './types/PostTypes';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
 

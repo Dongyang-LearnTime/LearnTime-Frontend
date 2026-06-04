@@ -5,7 +5,7 @@ import ListItemCard from '../../../components/common/ListItemCard';
 import Pagination from '../../../components/common/Pagination';
 import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
 import { getStudyFeedbackList, generateStudyFeedback } from '../api/studyFeedbackApi';
-import type { StudyFeedbackResponse } from '../types/studyFeedBackTypes';
+import type { StudyFeedbackResponse } from '../types/StudyFeedBackTypes';
 import FeedbackDetailDrawer from './components/FeedbackDetailDrawer';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MessageSquareIcon, TrashIcon, EditIcon } from '../../../components/ui/Icons';
-import { getPostApi, deletePostApi, togglePostLikeApi } from '../api/postApi';
+import { getPostApi, deletePostApi, togglePostLikeApi } from '../api/PostApi';
 import { createCommentApi, deleteCommentApi, updateCommentApi } from '../api/commentApi';
-import type { PostResponse } from '../types/postTypes';
+import type { PostResponse } from '../types/PostTypes';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import UserPopover from '../../../components/common/UserPopover';

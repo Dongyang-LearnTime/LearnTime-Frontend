@@ -10,7 +10,7 @@ import {
   DayDetailModal,
   ScheduleModal,
 } from './types/scheduleIndex';
-import type { Schedule, DayOfWeek } from './types/scheduleTypes';
+import type { Schedule, DayOfWeek } from './types/ScheduleTypes';
 import {
   getMonthlySchedulesApi,
   createScheduleApi,

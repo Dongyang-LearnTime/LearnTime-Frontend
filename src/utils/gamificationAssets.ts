@@ -1,5 +1,5 @@
-import { PointMilestone, POINT_MILESTONE_IMAGE } from '../types/pointMilestone';
-import { BadgeType, BADGE_IMAGE } from '../types/badgeEnums';
+import { PointMilestone, POINT_MILESTONE_IMAGE } from '../types/PointMilestone';
+import { BadgeType, BADGE_IMAGE } from '../types/BadgeEnums';
 
 // 게이미피케이션 자산 import
 import BicycleTier from '../assets/tier/Bicycle.svg';

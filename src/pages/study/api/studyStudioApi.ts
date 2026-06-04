@@ -13,7 +13,7 @@ import type {
     UpdateStudyTitleRequest,
     FocusTimeRequest,
     UpdateStudyRestScheduleRequest
-} from "../types/studyTypes";
+} from "../types/StudyTypes";
 
 
 // 일일 공부 진도 정보

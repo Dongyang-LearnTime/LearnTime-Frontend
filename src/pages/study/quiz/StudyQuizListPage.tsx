@@ -4,7 +4,7 @@ import ListItemCard from '../../../components/common/ListItemCard';
 import Pagination from '../../../components/common/Pagination';
 import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
 import { getStudyQuizList } from '../api/studyQuizApi';
-import type { StudyQuizInfoResponse } from '../types/studyQuizTypes';
+import type { StudyQuizInfoResponse } from '../types/StudyQuizTypes';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 
 export default function StudyQuizListPage() {

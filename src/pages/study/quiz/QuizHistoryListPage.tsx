@@ -4,7 +4,7 @@ import ListItemCard from '../../../components/common/ListItemCard';
 import Pagination from '../../../components/common/Pagination';
 import { usePaginationFetch } from '../../../hooks/usePaginationFetch';
 import { getQuizHistoryList } from '../api/studyQuizApi';
-import type { QuizHistoryInfoResponse } from '../types/studyQuizTypes';
+import type { QuizHistoryInfoResponse } from '../types/StudyQuizTypes';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { formatDateUtil } from '../../../utils/formatDateUtil';
 

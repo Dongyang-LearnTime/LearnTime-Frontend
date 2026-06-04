@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getStudyMemberListApi, getStudyOwnerFriendListApi, inviteStudyMemberApi, changeStudyOwnerApi, leaveStudyApi, kickStudyMemberApi } from "../api/studyStudioApi";
-import type { StudyMemberResponse, StudyMemberFriendResponse } from "../types/studyTypes";
+import type { StudyMemberResponse, StudyMemberFriendResponse } from "../types/StudyTypes";
 import { Card, CardTitle } from "../../../components/common/Card";
 import { UsersIcon, PlusIcon, XIcon } from "../../../components/ui/Icons";
 import { useAuthStore } from "../../../store/useAuthStore";

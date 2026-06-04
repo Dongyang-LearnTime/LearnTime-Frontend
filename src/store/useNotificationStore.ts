@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { NotificationReferenceType, NotificationType } from '../types/notificationEnums';
+import type { NotificationReferenceType, NotificationType } from '../types/NotificationEnums';
 
 
 export interface NotificationResponse {

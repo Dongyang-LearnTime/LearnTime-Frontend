@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getStudyMemberContentApi, addStudyMemberContentApi, updateStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/studyStudioApi';
 import { Card, CardTitle } from '../../../../components/common/Card';
 import { EditIcon, CheckIcon, TrashIcon } from '../../../../components/ui/Icons';
-import type { StudyMemberContentResponse } from '../../types/studyTypes';
+import type { StudyMemberContentResponse } from '../../types/StudyTypes';
 import FormattedPlanContent from './FormattedPlanContent';
 
 export interface StudyScheduleItem {

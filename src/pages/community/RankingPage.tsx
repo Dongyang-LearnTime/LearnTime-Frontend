@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRankingApi } from '../community/api/communityApi';
-import type { PointRankingResponse } from './types/postTypes';
+import type { PointRankingResponse } from './types/PostTypes';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { TrophyIcon } from '../../components/ui/Icons';
 import UserPopover from '../../components/common/UserPopover';

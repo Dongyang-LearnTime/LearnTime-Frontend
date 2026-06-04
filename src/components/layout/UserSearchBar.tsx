@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDebounce } from '../../hooks/useDebounce';
 import { axiosInstance } from '../../app/apiClient';
 import { getProfile } from '../../pages/profile/api/profileApi';
-import type { ProfileResponse } from '../../pages/profile/types/profileTypes';
-import type { CursorResponse } from '../../types/paginationType';
+import type { ProfileResponse } from '../../pages/profile/types/ProfileTypes';
+import type { CursorResponse } from '../../types/PaginationType';
 
 interface UserSearchBarProps {
   /** 헤더 배경에 따른 색상 테마. 기본값: 'light' */

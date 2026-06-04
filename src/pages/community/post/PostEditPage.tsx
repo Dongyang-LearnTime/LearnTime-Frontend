@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { usePageTitle } from '../../../hooks/usePageTitle';
-import { updatePostApi, getPostForUpdateApi } from '../api/postApi';
+import { updatePostApi, getPostForUpdateApi } from '../api/PostApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import PostForm, { type PostFormPayload } from '../components/PostForm';
 

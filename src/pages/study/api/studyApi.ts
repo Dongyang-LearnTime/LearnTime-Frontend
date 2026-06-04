@@ -1,5 +1,5 @@
 import { axiosInstance } from '../../../app/apiClient';
-import type { TodayStudyPlanResponse } from '../types/studyTypes';
+import type { TodayStudyPlanResponse } from '../types/StudyTypes';
 
 export interface StudyProgressIndicatorResponse {
     studyId: number;

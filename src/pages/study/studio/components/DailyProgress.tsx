@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import type { StudyPlanResponse } from "../../types/studyTypes";
+import type { StudyPlanResponse } from "../../types/StudyTypes";
 import { EditIcon, CheckIcon, XIcon } from "lucide-react";
 import FormattedPlanContent from "./FormattedPlanContent";
 

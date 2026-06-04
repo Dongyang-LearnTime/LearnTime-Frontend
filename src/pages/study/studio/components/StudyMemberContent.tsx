@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardTitle } from '../../../../components/common/Card';
 import { EditIcon, TrashIcon } from '../../../../components/ui/Icons';
-import type { StudyMemberContentResponse } from '../../types/studyTypes';
+import type { StudyMemberContentResponse } from '../../types/StudyTypes';
 import { addStudyMemberContentApi, updateStudyMemberContentApi, getStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/studyStudioApi';
 import FormattedPlanContent from './FormattedPlanContent';
 

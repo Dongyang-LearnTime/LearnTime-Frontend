@@ -6,8 +6,8 @@ import { usePageTitle } from "../../hooks/usePageTitle";
 import Avatar from "../../components/common/Avatar";
 import { sendFriendRequestApi, deleteFriendApi, acceptFriendRequestApi, rejectFriendRequestApi, cancelFriendRequestApi } from "../community/api/friendRequestApi";
 
-import type { ProfileResponse, ProfileVisibility } from "./types/profileTypes";
-import type { PostListResponse } from "../community/types/postTypes";
+import type { ProfileResponse, ProfileVisibility } from "./types/ProfileTypes";
+import type { PostListResponse } from "../community/types/PostTypes";
 import { getBadgeImage, getTierImage } from "../../utils/gamificationAssets";
 
 export default function ProfilePage() {

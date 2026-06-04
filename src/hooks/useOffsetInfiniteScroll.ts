@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { PageResponse } from '../types/paginationType';
+import type { PageResponse } from '../types/PaginationType';
 
 interface UseOffsetInfiniteScrollProps<T> {
   fetchData: (page: number) => Promise<PageResponse<T>>;

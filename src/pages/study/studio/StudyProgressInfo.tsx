@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { getStudyPlanApi, startStudyDailyPlanApi, getStudyDailyPlansApi, deleteStudyApi, getStudyMemberListApi, updateStudyTitleApi, updateStudyBookTitleApi, updateStudyRestScheduleApi } from "../api/studyStudioApi";
 import { getMyStudyProgresses } from "../api/studyApi";
-import type { StudyPlanResponse, StudyDailyPlanResponse } from "../types/studyTypes";
+import type { StudyPlanResponse, StudyDailyPlanResponse } from "../types/StudyTypes";
 import DailyProgress from "./components/DailyProgress";
 import BaseModal from "../../../components/common/BaseModal";
 import PlanCompletionForm from "./components/PlanCompletionForm";

@@ -1,6 +1,6 @@
 import { Card } from '../../../components/common/Card';
 import { ThumbsUpIcon, MessageSquareIcon, RocketIcon } from '../../../components/ui/Icons';
-import type { PostListResponse } from '../types/postTypes';
+import type { PostListResponse } from '../types/PostTypes';
 
 import UserPopover from '../../../components/common/UserPopover';
 import Avatar from '../../../components/common/Avatar';

@@ -10,7 +10,7 @@ import {
   getStudyStudioSummaryApi,
   startStudyDailyPlanApi 
 } from "../api/studyStudioApi";
-import type { StudyPlanResponse, StudyStudioSummaryResponse } from "../types/studyTypes";
+import type { StudyPlanResponse, StudyStudioSummaryResponse } from "../types/StudyTypes";
 import { useStopwatchStore } from "../../../store/useStopwatchStore";
 import { FloatingStopwatch } from "./components/FloatingStopwatch";
 

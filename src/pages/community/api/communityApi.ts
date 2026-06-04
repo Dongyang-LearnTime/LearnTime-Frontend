@@ -1,6 +1,6 @@
 import { axiosInstance } from "../../../app/apiClient";
-import type { PageResponse } from "../../../types/paginationType";
-import type { PointRankingResponse } from "../types/postTypes";
+import type { PageResponse } from "../../../types/PaginationType";
+import type { PointRankingResponse } from "../types/PostTypes";
 
 // 포인트 순위 조회 API
 export const getRankingApi = async (page: number, size: number = 20): Promise<PageResponse<PointRankingResponse>> => {

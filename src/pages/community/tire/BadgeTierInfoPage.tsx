@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getBadgeTierInfo } from '../../../api/userApi';
 import { getTierImage, getBadgeImage } from '../../../utils/gamificationAssets';
-import type { BadgeTierInfoResponse } from '../../../types/userTypes';
+import type { BadgeTierInfoResponse } from '../../../types/UserTypes';
 import { ArrowLeft as ArrowLeftIcon, Trophy as TrophyIcon, ShieldCheck as ShieldCheckIcon, Star as StarIcon, X as XIcon } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 
