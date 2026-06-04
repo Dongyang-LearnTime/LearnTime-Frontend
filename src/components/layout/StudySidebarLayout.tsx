@@ -241,7 +241,7 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
         >
           <MenuIcon size={18} />
         </button>
-        <div className="md:mt-0 mt-12 h-full" key={location.pathname + location.search}>
+        <div className="md:mt-0 mt-12 h-full" key={location.pathname}>
           {children}
         </div>
       </main>

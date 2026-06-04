@@ -121,6 +121,7 @@ export default function TocSection({
             </div>
 
             <button 
+                type="button"
                 onClick={addToc}
                 className="w-full py-4 border-2 border-dashed border-gray-200 dark:border-[#222] rounded-2xl flex items-center justify-center gap-2 text-sm font-bold text-gray-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:text-indigo-400 dark:hover:border-indigo-700 dark:hover:bg-indigo-950/20 transition-all cursor-pointer"
             >

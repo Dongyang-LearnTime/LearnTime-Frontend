@@ -92,7 +92,8 @@ export const useNotificationSSE = (): void => {
 
     // 에러 발생 및 타임아웃 대응
     eventSource.onerror = (error : any) => {
-      console.error("SSE connection error. Reconnecting is handled by polyfill.", error);
+      // 일반적인 Nginx 연결 끊김 등으로 인한 재연결 시 콘솔 에러가 도배되는 것을 방지
+      console.warn("SSE connection closed or error. Polyfill will attempt to reconnect.");
     };
 
     // Clean-up: 훅이 재평가되거나 언마운트될 때 반드시 리소스를 닫아 서버 풀 한도 초과 예방
