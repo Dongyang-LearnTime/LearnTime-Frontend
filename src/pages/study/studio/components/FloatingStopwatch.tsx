@@ -104,6 +104,7 @@ export function FloatingStopwatch() {
       setIsRunning(false);
       reset();
       setIsOpen(false);
+      window.location.reload();
     } catch (err) {
       console.error(err);
       alert("집중 시간 등록에 실패했습니다. (이미 완료되었거나 오늘 계획이 없을 수 있습니다)");

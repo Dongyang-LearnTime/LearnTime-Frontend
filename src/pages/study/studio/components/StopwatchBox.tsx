@@ -53,6 +53,7 @@ export function StopwatchBox({ studyDailyPlanId }: StopwatchBoxProps) {
       alert("오늘의 공부 집중 시간이 성공적으로 등록되었습니다. 수고하셨습니다!");
       setIsRunning(false);
       setTime(0);
+      window.location.reload();
     } catch (err) {
       console.error(err);
       alert("집중 시간 등록에 실패했습니다. (이미 완료되었거나 오늘 계획이 없을 수 있습니다)");
