@@ -29,6 +29,18 @@ const getTodayString = (date: Date): string => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
+// 현재 시간을 HH:MM 형식으로 구하고, 1시간 뒤의 시간을 구하는 헬퍼 함수
+const getCurrentTimeStrings = (date: Date): { startTime: string; endTime: string } => {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const startTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  
+  const endHours = (hours + 1) % 24;
+  const endTime = `${String(endHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  
+  return { startTime, endTime };
+};
+
 // 요일 인덱스 변환 맵
 const DAY_MAP: Record<string, number> = {
   SUNDAY: 0,
@@ -63,14 +75,17 @@ export default function SchedulePage() {
   const currentMonth = viewDate.getMonth(); // 0-11
 
   // 새 일정 생성을 위한 폼 데이터 상태
-  const [ formData, setFormData ] = useState<Partial<Schedule>>({
-    title: '',
-    date: getTodayString(new Date()),
-    startTime: '09:00',
-    endTime: '10:00',
-    type: 'schedule',
-    repeatDays: [],
-    isFavorite: false
+  const [ formData, setFormData ] = useState<Partial<Schedule>>(() => {
+    const { startTime, endTime } = getCurrentTimeStrings(new Date());
+    return {
+      title: '',
+      date: getTodayString(new Date()),
+      startTime,
+      endTime,
+      type: 'schedule',
+      repeatDays: [],
+      isFavorite: false
+    };
   });
 
   // 오늘 날짜 정보 계산
@@ -210,11 +225,12 @@ export default function SchedulePage() {
 
   const handleOpenAddModal = (dateStr?: string) => {
     setEditingId(null);
+    const { startTime, endTime } = getCurrentTimeStrings(new Date());
     setFormData({
       title: '',
       date: dateStr || todayDateStr,
-      startTime: '09:00',
-      endTime: '10:00',
+      startTime,
+      endTime,
       type: 'schedule',
       repeatDays: [],
       isFavorite: false

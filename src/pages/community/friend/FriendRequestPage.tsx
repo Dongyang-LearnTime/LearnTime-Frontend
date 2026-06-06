@@ -13,6 +13,7 @@ import {
 import type { FriendRequestResponse, FriendResponse } from '../api/friendRequestApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import RequestListCard from '../../../components/common/RequestListCard';
+import UserPopover from '../../../components/common/UserPopover';
 
 export default function FriendRequestPage() {
     usePageTitle("learn-time | 친구 알림");
@@ -155,9 +156,15 @@ export default function FriendRequestPage() {
                             friends.map(friend => (
                                 <div key={friend.friendId} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white dark:bg-[#050505] rounded-3xl border border-gray-100 dark:border-[#1a1a1a] shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-[#333] transition-all gap-4">
                                     <div>
-                                        <h3 className="text-lg font-black tracking-tight text-gray-900 dark:text-white">
-                                            {friend.name}
-                                        </h3>
+                                        <UserPopover 
+                                            userId={friend.userId} 
+                                            userName={friend.name} 
+                                            hasBlocked={false}
+                                        >
+                                            <h3 className="text-lg font-black tracking-tight text-gray-900 dark:text-white hover:text-indigo-500 transition-colors">
+                                                {friend.name}
+                                            </h3>
+                                        </UserPopover>
                                         <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1">
                                             친구 등록일: {new Date(friend.createdAt).toLocaleDateString()}
                                         </p>

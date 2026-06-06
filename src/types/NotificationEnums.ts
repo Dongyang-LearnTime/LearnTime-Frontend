@@ -10,7 +10,9 @@ export type NotificationType =
     | "CALENDAR_REMINDER" // 캘린더 리마인더
     | "STUDY_INVITATION_RECEIVED" // 스터디 초대 수신
     | "STUDY_INVITATION_ACCEPTED" // 스터디 초대 수락
-    | "STUDY_INVITATION_REJECTED"; // 스터디 초대 거절
+    | "STUDY_INVITATION_REJECTED" // 스터디 초대 거절
+    | "MESSAGE_RECEIVED"; // 쪽지 수신
+
 
 
 export type ReminderStatus =

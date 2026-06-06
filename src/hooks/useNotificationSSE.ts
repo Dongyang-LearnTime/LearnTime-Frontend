@@ -79,13 +79,14 @@ export const useNotificationSSE = (): void => {
     };
 
     // 백엔드 알림 종류에 따른 이벤트 리스너들
-    eventSource.addEventListener("FRIEND_REQUEST_RECEIVED", handleNotificationEvent);
-    eventSource.addEventListener("FRIEND_REQUEST_ACCEPTED", handleNotificationEvent);
-    eventSource.addEventListener("FRIEND_REQUEST_REJECTED", handleNotificationEvent);
-    eventSource.addEventListener("CALENDAR_REMINDER", handleNotificationEvent);
-    eventSource.addEventListener("STUDY_INVITATION_RECEIVED", handleNotificationEvent);
-    eventSource.addEventListener("STUDY_INVITATION_ACCEPTED", handleNotificationEvent);
-    eventSource.addEventListener("STUDY_INVITATION_REJECTED", handleNotificationEvent);
+    eventSource.addEventListener("friend-request-received", handleNotificationEvent);
+    eventSource.addEventListener("friend-request-accepted", handleNotificationEvent);
+    eventSource.addEventListener("friend-request-rejected", handleNotificationEvent);
+    eventSource.addEventListener("calendar-reminder", handleNotificationEvent);
+    eventSource.addEventListener("study-invitation-received", handleNotificationEvent);
+    eventSource.addEventListener("study-invitation-accepted", handleNotificationEvent);
+    eventSource.addEventListener("study-invitation-rejected", handleNotificationEvent);
+    eventSource.addEventListener("message-received", handleNotificationEvent);
     
     // 테스트 발송 엔드포인트 전용 이벤트 등록
     eventSource.addEventListener("test-event", handleTestEvent);
