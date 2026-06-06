@@ -10,6 +10,12 @@ import {
 // 운동 랩 메인 페이지 컴포넌트
 export default function ExercisePage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  // 운동 기록의 추가 및 삭제 이벤트를 그래프 컴포넌트에 동기화하기 위한 지역 키 상태
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   return (
     <>
@@ -34,7 +40,7 @@ export default function ExercisePage() {
             // 운동 통계 대시보드 (최상단)
           }
           <div className="col-span-12">
-            <ExerciseDashboardBox />
+            <ExerciseDashboardBox refreshKey={refreshKey} />
           </div>
 
           {
@@ -48,7 +54,7 @@ export default function ExercisePage() {
             // 오늘의 운동 기록 (5칸으로 확장)
           }
           <div className="col-span-12 lg:col-span-5">
-            <TrainingSessionBox />
+            <TrainingSessionBox onExerciseChange={handleRefresh} />
           </div>
 
           {

@@ -338,7 +338,12 @@ function ExerciseSaveModal({ onClose, onSaveSuccess, isFirstExerciseToday }: Exe
   );
 }
 
-export function TrainingSessionBox() {
+interface TrainingSessionBoxProps {
+  /** 운동 기록이 추가되거나 삭제되었을 때 부모 컴포넌트에 이를 알리는 콜백 함수 */
+  onExerciseChange: () => void;
+}
+
+export function TrainingSessionBox({ onExerciseChange }: TrainingSessionBoxProps) {
   const [exercises, setExercises] = useState<ExerciseResponse[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -365,6 +370,8 @@ export function TrainingSessionBox() {
       try {
         await deleteExercise(id);
         setExercises(prev => prev.filter(e => e.id !== id));
+        // 삭제 성공 시 부모 컴포넌트에 변경 사항을 알립니다.
+        onExerciseChange();
       } catch (err) {
         console.error('Failed to delete exercise', err);
       }
@@ -423,7 +430,11 @@ export function TrainingSessionBox() {
       {isModalOpen && (
         <ExerciseSaveModal 
           onClose={() => setIsModalOpen(false)} 
-          onSaveSuccess={fetchExercises} 
+          onSaveSuccess={async () => {
+            await fetchExercises();
+            // 기록 등록 성공 시 부모 컴포넌트에 변경 사항을 알립니다.
+            onExerciseChange();
+          }} 
           isFirstExerciseToday={isFirstExerciseToday}
         />
       )}
@@ -547,7 +558,12 @@ export function BodyCompositionBox() {
   );
 }
 
-export function ExerciseDashboardBox() {
+interface ExerciseDashboardBoxProps {
+  /** 그래프 데이터를 새로 불러오기 위한 트리거 키 */
+  refreshKey: number;
+}
+
+export function ExerciseDashboardBox({ refreshKey }: ExerciseDashboardBoxProps) {
   // 주간 무게 통계 상태
   const [weeklyStats, setWeeklyStats] = useState<WeeklyWeightStatsResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -575,7 +591,7 @@ export function ExerciseDashboardBox() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   // AI 분석 버튼 핸들러 (기존 AiExerciseGuideBox의 handleFetchAnalysis)
   const handleFetchAnalysis = async () => {
