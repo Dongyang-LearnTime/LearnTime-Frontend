@@ -415,6 +415,11 @@ export function TrainingSessionBox({ onExerciseChange }: TrainingSessionBoxProps
                   {ex.calories !== null ? `소모 ${ex.calories}Kcal` : '소모 ⏳ 계산 중'}
                 </span>
               </div>
+              {ex.content && (
+                <p className="text-xs text-gray-600 dark:text-gray-400 font-medium mt-1.5 break-all">
+                  {ex.content}
+                </p>
+              )}
             </div>
             <button 
               onClick={() => handleDelete(ex.id)} 

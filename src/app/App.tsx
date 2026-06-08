@@ -36,11 +36,18 @@ function App() {
       navigate('/');
     };
 
+    const handleTooManyRequestsError = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      alert(customEvent.detail || '프롬프트 사용 가능 횟수를 모두 소진했습니다.');
+    };
+
     window.addEventListener('auth-error', handleAuthError);
     window.addEventListener('forbidden-error', handleForbiddenError);
+    window.addEventListener('too-many-requests-error', handleTooManyRequestsError);
     return () => {
       window.removeEventListener('auth-error', handleAuthError);
       window.removeEventListener('forbidden-error', handleForbiddenError);
+      window.removeEventListener('too-many-requests-error', handleTooManyRequestsError);
     };
   }, [navigate]);
 

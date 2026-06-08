@@ -84,6 +84,14 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 429 Too Many Requests 글로벌 처리
+    if (response?.status === 429) {
+      window.dispatchEvent(new CustomEvent('too-many-requests-error', {
+        detail: response?.data?.message || '프롬프트 사용 가능 횟수를 모두 소진했습니다.'
+      }));
+      return Promise.reject(error);
+    }
+
     // 401 Unauthorized이고, 재시도한 적이 없는 요청인 경우
     if (response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
