@@ -41,8 +41,8 @@ const COLORS = [
 ];
 
 export default function RecentWeekChart({ data }: RecentWeekChartProps) {
-  // 조회할 지표 상태 관리 (기본값: 집중 시간)
-  const [selectedMetric, setSelectedMetric] = useState<MetricType>("focusTime");
+  // 조회할 지표 상태 관리 (기본값: 이해도 점수)
+  const [selectedMetric, setSelectedMetric] = useState<MetricType>("understandingScore");
 
   // 전체 멤버 정보 추출
   const memberInfos = useMemo(() => {
@@ -141,16 +141,6 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
         {/* 지표 선택 버튼 그룹 */}
         <div className="flex items-center bg-gray-100 dark:bg-[#111] p-1 rounded-xl w-fit">
           <button
-            onClick={() => setSelectedMetric("focusTime")}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-              selectedMetric === "focusTime"
-                ? "bg-white dark:bg-[#222] text-indigo-600 dark:text-indigo-400 shadow-sm"
-                : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
-            }`}
-          >
-            집중 시간
-          </button>
-          <button
             onClick={() => setSelectedMetric("understandingScore")}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               selectedMetric === "understandingScore"
@@ -159,6 +149,16 @@ export default function RecentWeekChart({ data }: RecentWeekChartProps) {
             }`}
           >
             이해도 점수
+          </button>
+          <button
+            onClick={() => setSelectedMetric("focusTime")}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              selectedMetric === "focusTime"
+                ? "bg-white dark:bg-[#222] text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"
+            }`}
+          >
+            집중 시간
           </button>
         </div>
       </div>

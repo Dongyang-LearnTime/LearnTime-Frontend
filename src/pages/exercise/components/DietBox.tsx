@@ -124,6 +124,7 @@ export function DietBox() {
             {isLoading ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span> : <PlusIcon size={18} />}
           </button>
         </div>
+        <p className="text-[0.65rem] font-bold text-rose-500/80 ml-1 mt-0.5">* 정확한 칼로리 계산을 위해 메뉴는 하나씩 입력해 주세요.</p>
       </div>
     </Card>
   );

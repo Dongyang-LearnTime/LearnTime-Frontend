@@ -394,7 +394,7 @@ export function TrainingSessionBox({ onExerciseChange }: TrainingSessionBoxProps
       </div>
 
       {/* 과거 기록 리스트 (스크롤 영역) */}
-      <div className="grow overflow-y-auto pr-2 custom-scrollbar border-t border-gray-100 dark:border-[#1a1a1a] pt-6 space-y-3">
+      <div className="grow overflow-y-auto max-h-[300px] pr-2 custom-scrollbar border-t border-gray-100 dark:border-[#1a1a1a] pt-6 space-y-3">
         <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 mb-2 px-1">기록 히스토리</h4>
         {exercises.length === 0 && <p className="text-xs text-gray-400 font-medium italic text-center mt-6">최근 운동 기록이 없습니다.</p>}
         {exercises.map((ex) => (
