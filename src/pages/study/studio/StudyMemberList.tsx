@@ -140,7 +140,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
   // userId 타입 차이 방지를 위해 Number()로 명시적 변환 후 비교
   const isOwner = members.some((m) => Number(m.userId) === Number(userId) && m.studyMemberRole === "OWNER");
-  const activeCount = members.filter((m) => m.status === "ACTIVE").length;
+  const activeCount = members.filter((m) => m.status === "ACTIVE" || m.status === "COMPLETED").length;
   const canInvite = activeCount < 4;
 
   return (
@@ -212,10 +212,10 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                   <div className="flex items-center justify-between gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
                     <div className="flex items-center gap-2">
                       <span className={`flex items-center gap-1 ${
-                        member.status === "ACTIVE" ? "text-emerald-500" : "text-rose-500"
+                        member.status === "ACTIVE" ? "text-emerald-500" : member.status === "COMPLETED" ? "text-blue-500" : "text-rose-500"
                       }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE" ? "bg-emerald-500" : "bg-rose-500"}`} />
-                        {member.status === "ACTIVE" ? "활동 중" : "탈퇴"}
+                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE" ? "bg-emerald-500" : member.status === "COMPLETED" ? "bg-blue-500" : "bg-rose-500"}`} />
+                        {member.status === "ACTIVE" ? "활동 중" : member.status === "COMPLETED" ? "수료" : "탈퇴"}
                       </span>
                       <span className="text-gray-300 dark:text-gray-700">•</span>
                       <span>{new Date(member.joinedAt).toLocaleDateString()} 가입</span>
@@ -293,7 +293,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                 {friends
                   .filter((friend) => friend.name.toLowerCase().includes(friendSearchTerm.toLowerCase()))
                   .map(friend => {
-                  const isAlreadyMember = members.some(m => m.userId === friend.userId && m.status === "ACTIVE");
+                  const isAlreadyMember = members.some(m => m.userId === friend.userId && (m.status === "ACTIVE" || m.status === "COMPLETED"));
                   const isInvited = friend.isInvited;
                   const disableInvite = isAlreadyMember || isInvited;
 

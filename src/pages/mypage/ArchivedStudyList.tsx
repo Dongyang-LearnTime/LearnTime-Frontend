@@ -64,9 +64,11 @@ export default function ArchivedStudyList() {
                                 <span className={`px-2 py-1 rounded-md text-[10px] font-black tracking-widest uppercase ${
                                     study.status === 'WITHDRAWN' 
                                         ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' 
-                                        : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                        : study.status === 'COMPLETED'
+                                            ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                                            : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
                                 }`}>
-                                    {study.status === 'WITHDRAWN' ? '탈퇴함' : '활동 중'}
+                                    {study.status === 'WITHDRAWN' ? '탈퇴함' : study.status === 'COMPLETED' ? '수료함' : '활동 중'}
                                 </span>
                                 {study.role === 'OWNER' && (
                                     <span className="px-2 py-1 rounded-md bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black tracking-widest uppercase">
