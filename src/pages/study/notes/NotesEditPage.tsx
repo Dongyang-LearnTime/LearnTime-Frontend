@@ -4,6 +4,7 @@ import { NotesEditor } from './tiptap/NotesEditor';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getStudyNoteDetailApi, updateStudyNoteApi } from '../api/studyNotesApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
+import { toast } from '../../../utils/toast';
 
 export default function NotesEditPage() {
   const { noteId } = useParams<{ noteId: string }>();
@@ -25,7 +26,7 @@ export default function NotesEditPage() {
         setInitialTitle(data.title || '');
         setInitialContent(data.content || '');
       } catch (error) {
-        alert('노트 정보를 불러오는데 실패했습니다.');
+        toast.error('노트 정보를 불러오는데 실패했습니다.');
         navigate(-1);
       } finally {
         setIsLoading(false);
@@ -38,7 +39,7 @@ export default function NotesEditPage() {
     if (!noteId) return;
     try {
       await updateStudyNoteApi(noteId, { title, content });
-      alert('수정 완료');
+      toast.success('수정 완료');
       // 수정 완료 후 상세 보기 페이지로 이동
       navigate(`/study/notes/${noteId}`);
     } catch (error: unknown) {

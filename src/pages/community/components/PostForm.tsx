@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { toast } from '../../../utils/toast';
 
 export interface PostFormPayload {
     title: string;
@@ -80,7 +81,7 @@ export default function PostForm({
         const totalImagesCount = existingImages.length + newImages.length + selectedFiles.length;
 
         if (totalImagesCount > MAX_IMAGES_COUNT) {
-            alert(`이미지는 최대 ${MAX_IMAGES_COUNT}개까지만 업로드 가능합니다.`);
+            toast.info(`이미지는 최대 ${MAX_IMAGES_COUNT}개까지만 업로드 가능합니다.`);
             return;
         }
 
@@ -102,12 +103,12 @@ export default function PostForm({
         if (isSubmitting) return;
 
         if (title.trim() === '' || content.trim() === '') {
-            alert('제목과 내용을 모두 입력해주세요.');
+            toast.warning('제목과 내용을 모두 입력해주세요.');
             return;
         }
 
         if (title.length > MAX_TITLE_LENGTH || content.length > MAX_CONTENT_LENGTH) {
-            alert('입력 가능 글자 수를 초과했습니다.');
+            toast.warning('입력 가능 글자 수를 초과했습니다.');
             return;
         }
 

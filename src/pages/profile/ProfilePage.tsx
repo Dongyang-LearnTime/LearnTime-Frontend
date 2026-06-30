@@ -9,6 +9,7 @@ import { sendFriendRequestApi, deleteFriendApi, acceptFriendRequestApi, rejectFr
 import type { ProfileResponse, ProfileVisibility } from "./types/ProfileTypes";
 import type { PostListResponse } from "../community/types/PostTypes";
 import { getBadgeImage, getTierImage } from "../../utils/gamificationAssets";
+import { toast } from '../../utils/toast';
 
 export default function ProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -74,7 +75,7 @@ export default function ProfilePage() {
       setIsEditModalOpen(false);
       fetchProfileData(); // 수정 후 데이터 리로드
     } catch (error) {
-      alert("프로필 수정에 실패했습니다.");
+      toast.error("프로필 수정에 실패했습니다.");
     } finally {
       setIsUpdating(false);
     }
@@ -84,10 +85,10 @@ export default function ProfilePage() {
     if (!profile) return;
     try {
       await sendFriendRequestApi(profile.userId);
-      alert("친구 초대를 보냈습니다.");
+      toast.info("친구 초대를 보냈습니다.");
       fetchProfileData();
     } catch (error) {
-      alert("친구 초대에 실패했습니다.");
+      toast.error("친구 초대에 실패했습니다.");
     }
   };
 
@@ -96,10 +97,10 @@ export default function ProfilePage() {
     if (!window.confirm("정말 친구를 삭제하시겠습니까?")) return;
     try {
       await deleteFriendApi(profile.userId);
-      alert("친구 삭제가 완료되었습니다.");
+      toast.success("친구 삭제가 완료되었습니다.");
       fetchProfileData();
     } catch (error) {
-      alert("친구 삭제에 실패했습니다.");
+      toast.error("친구 삭제에 실패했습니다.");
     }
   };
 
@@ -107,10 +108,10 @@ export default function ProfilePage() {
     if (!profile || profile.pendingFriendRequestId === null) return;
     try {
       await acceptFriendRequestApi(profile.pendingFriendRequestId);
-      alert("친구 요청을 수락했습니다.");
+      toast.success("친구 요청을 수락했습니다.");
       fetchProfileData();
     } catch (error) {
-      alert("친구 요청 수락에 실패했습니다.");
+      toast.success("친구 요청 수락에 실패했습니다.");
     }
   };
 
@@ -119,10 +120,10 @@ export default function ProfilePage() {
     if (!window.confirm("친구 요청을 거절하시겠습니까?")) return;
     try {
       await rejectFriendRequestApi(profile.pendingFriendRequestId);
-      alert("친구 요청을 거절했습니다.");
+      toast.info("친구 요청을 거절했습니다.");
       fetchProfileData();
     } catch (error) {
-      alert("친구 요청 거절에 실패했습니다.");
+      toast.error("친구 요청 거절에 실패했습니다.");
     }
   };
 
@@ -131,10 +132,10 @@ export default function ProfilePage() {
     if (!window.confirm("보낸 친구 요청을 취소하시겠습니까?")) return;
     try {
       await cancelFriendRequestApi(profile.pendingFriendRequestId);
-      alert("친구 요청을 취소했습니다.");
+      toast.info("친구 요청을 취소했습니다.");
       fetchProfileData();
     } catch (error) {
-      alert("친구 요청 취소에 실패했습니다.");
+      toast.error("친구 요청 취소에 실패했습니다.");
     }
   };
 

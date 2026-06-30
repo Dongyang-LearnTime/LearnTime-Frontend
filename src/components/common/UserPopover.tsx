@@ -4,6 +4,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 import SendMessageModal from "../../pages/message/components/SendMessageModal";
 import { blockUserApi, unblockUserApi } from "../../api/userApi";
 import { getApiErrorUtil } from "../../utils/getApiErrorUtil";
+import { toast } from '../../utils/toast';
 
 interface UserPopoverProps {
   userId: number;
@@ -58,7 +59,7 @@ export default function UserPopover({
 
   const handleBlockClick = async () => {
     if (!isAuthenticated) {
-      alert("로그인이 필요합니다.");
+      toast.warning("로그인이 필요합니다.");
       return;
     }
     if (isSelf) return;
@@ -77,16 +78,16 @@ export default function UserPopover({
         if (localHasBlocked) {
             await unblockUserApi(userId);
             setLocalHasBlocked(false);
-            alert(`${userName} 님을 차단 해제했습니다.`);
+            toast.success(`${userName} 님을 차단 해제했습니다.`);
         } else {
             await blockUserApi(userId);
             setLocalHasBlocked(true);
-            alert(`${userName} 님을 차단했습니다.`);
+            toast.info(`${userName} 님을 차단했습니다.`);
         }
     } catch (err) {
         console.error("차단/해제 실패:", err);
         const errorMsg = getApiErrorUtil(err, "작업에 실패했습니다.");
-        alert(errorMsg);
+        toast.info(errorMsg);
     } finally {
         setIsBlocking(false);
         setIsOpen(false);

@@ -4,6 +4,7 @@ import { EditIcon, TrashIcon } from '../../../../components/ui/Icons';
 import type { StudyMemberContentResponse } from '../../types/StudyTypes';
 import { addStudyMemberContentApi, updateStudyMemberContentApi, getStudyMemberContentApi, deleteStudyMemberContentApi } from '../../api/studyStudioApi';
 import FormattedPlanContent from './FormattedPlanContent';
+import { toast } from '../../../../utils/toast';
 
 type MemberContentItem = StudyMemberContentResponse['memberContents'][0];
 
@@ -66,7 +67,7 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
       setInputValue('');
     } catch (error) {
       console.error("진도 추가 실패:", error);
-      alert("공부 내용을 등록하는데 실패했습니다.");
+      toast.error("공부 내용을 등록하는데 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +80,7 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
       setMemberContents((prev) => prev.filter((item) => item.studyMemberContentId !== id));
     } catch (error) {
       console.error("진도 삭제 실패:", error);
-      alert("공부 내용을 삭제하는데 실패했습니다.");
+      toast.error("공부 내용을 삭제하는데 실패했습니다.");
     }
   };
 
@@ -108,7 +109,7 @@ export default function StudyMemberContent({ studyId, planDate }: StudyMemberCon
       setEditingId(null);
     } catch (error) {
       console.error("진도 수정 실패:", error);
-      alert("공부 내용을 수정하는데 실패했습니다.");
+      toast.error("공부 내용을 수정하는데 실패했습니다.");
     } finally {
       setIsLoading(false);
     }

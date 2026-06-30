@@ -7,6 +7,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import type { PostListResponse, PointRankingResponse } from './types/PostTypes';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import { toast } from '../../utils/toast';
 
 export default function CommunityPage() {
   usePageTitle('커뮤니티 광장');
@@ -77,7 +78,7 @@ export default function CommunityPage() {
       } catch (error) {
         if (isMounted) {
           console.error('Failed to fetch posts:', error);
-          alert('서버로부터 게시글 목록을 불러오는 데 실패했습니다.');
+          toast.error('서버로부터 게시글 목록을 불러오는 데 실패했습니다.');
         }
       }
     };
@@ -99,7 +100,7 @@ export default function CommunityPage() {
 
   const goToCreatePost = () => {
     if (!isAuthenticated) {
-      alert('로그인이 필요한 기능입니다.');
+      toast.info('로그인이 필요한 기능입니다.');
       navigate('/login');
       return;
     }

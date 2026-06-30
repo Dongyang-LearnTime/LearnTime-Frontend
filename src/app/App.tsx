@@ -1,3 +1,5 @@
+import { toast } from '../utils/toast';
+import { Toaster } from 'sonner';
 import axios from 'axios';
 import { useEffect, useRef, Suspense } from 'react';
 import { API_BASE_URL } from './apiClient';
@@ -32,13 +34,13 @@ function App() {
     };
 
     const handleForbiddenError = () => {
-      alert('접근 권한이 없습니다.');
+      toast.error('접근 권한이 없습니다.');
       navigate('/');
     };
 
     const handleTooManyRequestsError = (event: Event) => {
       const customEvent = event as CustomEvent;
-      alert(customEvent.detail || '프롬프트 사용 가능 횟수를 모두 소진했습니다.');
+      toast.info(customEvent.detail || '프롬프트 사용 가능 횟수를 모두 소진했습니다.');
     };
 
     window.addEventListener('auth-error', handleAuthError);
@@ -97,6 +99,7 @@ function App() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Toaster position="bottom-center" richColors closeButton />
       <div className="flex-1">
         {/* Dynamic import 라우트 컴포넌트 로딩 대기를 위한 Suspense 경계 설정 */}
         <Suspense fallback={<PageFallback />}>

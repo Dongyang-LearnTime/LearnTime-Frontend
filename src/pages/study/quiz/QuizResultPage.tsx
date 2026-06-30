@@ -6,6 +6,7 @@ import { usePageTitle } from '../../../hooks/usePageTitle';
 
 import { getQuizResultApi, deleteQuizHistoryApi } from '../api/studyQuizApi';
 import type { QuizType } from '../../../types/studyEnums';
+import { toast } from '../../../utils/toast';
 
 export interface QuizDetailResponse {
   quizQuestionId: number;
@@ -64,10 +65,10 @@ export default function QuizResultPage() {
     setIsDeleting(true);
     try {
       await deleteQuizHistoryApi(Number(quizHistoryId));
-      alert("퀴즈 이력이 삭제되었습니다.");
+      toast.info("퀴즈 이력이 삭제되었습니다.");
       navigate(-1);
     } catch (err) {
-      alert("퀴즈 이력 삭제에 실패했습니다.");
+      toast.error("퀴즈 이력 삭제에 실패했습니다.");
       setIsDeleting(false);
     }
   };

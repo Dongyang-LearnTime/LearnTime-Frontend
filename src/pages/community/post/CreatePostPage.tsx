@@ -5,6 +5,7 @@ import { usePageTitle } from '../../../hooks/usePageTitle';
 import { createPostApi } from '../api/PostApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import PostForm, { type PostFormPayload } from '../components/PostForm';
+import { toast } from '../../../utils/toast';
 
 export default function CreatePostPage() {
     const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function CreatePostPage() {
             };
             const postId = await createPostApi(request, payload.newImages);
             
-            alert('게시글이 성공적으로 등록되었습니다!');
+            toast.success('게시글이 성공적으로 등록되었습니다!');
             navigate(`/community/post/${postId}`); // 생성된 상세 보기로 이동
         } catch (error) {
             const errorMessage = getApiErrorUtil(error);

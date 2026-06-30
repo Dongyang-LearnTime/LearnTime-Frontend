@@ -1,3 +1,4 @@
+import { toast } from '../../utils/toast';
 // ── SocialLoginButtons.tsx ───────────────────────────────────────────────────
 // 랜딩 페이지(AuthButtons)와 로그인 페이지(LoginPage) 양쪽에서 공용으로 사용하는
 // 소셜 로그인 버튼 컴포넌트
@@ -27,7 +28,7 @@ export default function SocialLogin({ isDark = false }: SocialLoginButtonsProps)
       {/* ── Google ── */}
       <button
         type="button"
-        onClick={() => alert("준비 중인 기능입니다.")}
+        onClick={() => toast.info("준비 중인 기능입니다.")}
         className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-2xl font-medium text-sm transition-all hover:scale-[1.02] hover:brightness-95"
         style={{
           background: '#ffffff',
@@ -47,7 +48,7 @@ export default function SocialLogin({ isDark = false }: SocialLoginButtonsProps)
       {/* ── Naver ── */}
       <button
         type="button"
-        onClick={() => alert("준비 중인 기능입니다.")}
+        onClick={() => toast.info("준비 중인 기능입니다.")}
         className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-2xl font-medium text-sm transition-all hover:scale-[1.02] hover:brightness-110"
         style={{
           background: '#03C75A',

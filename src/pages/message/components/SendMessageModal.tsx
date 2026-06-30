@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { sendMessage } from "../api/messageApi";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
+import { toast } from '../../../utils/toast';
 
 interface SendMessageModalProps {
   receiverId: number;
@@ -20,10 +21,10 @@ export default function SendMessageModal({ receiverId, receiverName, onClose }: 
     setIsSubmitting(true);
     try {
       await sendMessage({ receiverId, content });
-      alert("쪽지가 성공적으로 발송되었습니다.");
+      toast.success("쪽지가 성공적으로 발송되었습니다.");
       onClose();
     } catch (error) {
-      alert(getApiErrorUtil(error, "쪽지 전송에 실패했습니다."));
+      toast.error(getApiErrorUtil(error, "쪽지 전송에 실패했습니다."));
     } finally {
       setIsSubmitting(false);
     }

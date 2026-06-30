@@ -10,6 +10,7 @@ import DOMPurify from 'dompurify';
 import { generateQuizApi } from '../api/studyQuizApi';
 
 import type { StudyNoteDetail } from '../api/studyNotesApi';
+import { toast } from '../../../utils/toast';
 
 export default function NotesDetailPage() {
   const { noteId } = useParams<{ noteId: string }>();
@@ -33,7 +34,7 @@ export default function NotesDetailPage() {
         setNoteDetail(data);
       } catch (err) {
         const errorMessage = getApiErrorUtil(err);
-        alert(errorMessage);
+        toast.info(errorMessage);
         navigate(-1); // 이전 페이지로
       } finally {
         setIsLoading(false);
@@ -52,7 +53,7 @@ export default function NotesDetailPage() {
     
     try {
       await deleteStudyNoteApi(noteId);
-      alert('삭제 완료');
+      toast.success('삭제 완료');
       navigate(`/`); // 임시 링크
     } catch (error: unknown) {
       throw new Error(getApiErrorUtil(error)); // NotesEditor에 예외 던짐 -> 에러메세지 출력
@@ -66,7 +67,7 @@ export default function NotesDetailPage() {
       setIsGeneratingQuiz(true);
       setQuizError('');
       const quizId = await generateQuizApi(noteDetail.studyId, noteDetail.studyNotesId);
-      alert('퀴즈 생성이 완료되었습니다.');
+      toast.success('퀴즈 생성이 완료되었습니다.');
       navigate(`/study/quiz/${quizId}`);
     } catch (err) {
       const errorMessage = getApiErrorUtil(err);

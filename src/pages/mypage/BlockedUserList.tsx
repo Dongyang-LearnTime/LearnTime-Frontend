@@ -3,6 +3,7 @@ import { getMyBlockedUsers, unblockUserApi, type MyBlockedUserListResponse } fro
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import Avatar from '../../components/common/Avatar';
 import { UserX } from 'lucide-react';
+import { toast } from '../../utils/toast';
 
 // ─────────────── 날짜 포맷 헬퍼 ───────────────
 const fmt = (iso: string) => {
@@ -70,10 +71,10 @@ export default function BlockedUserList() {
         if (!window.confirm(`${name} 님의 차단을 해제하시겠습니까?`)) return;
         try {
             await unblockUserApi(blockedId);
-            alert(`${name} 님의 차단이 해제되었습니다.`);
+            toast.info(`${name} 님의 차단이 해제되었습니다.`);
             fetchBlocks(); // 리스트 갱신
         } catch (err) {
-            alert(getApiErrorUtil(err) || "차단 해제에 실패했습니다.");
+            toast.error(getApiErrorUtil(err) || "차단 해제에 실패했습니다.");
         }
     };
 

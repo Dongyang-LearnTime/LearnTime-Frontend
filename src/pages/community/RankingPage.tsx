@@ -6,6 +6,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { TrophyIcon } from '../../components/ui/Icons';
 import UserPopover from '../../components/common/UserPopover';
 import { getTierImage } from '../../utils/gamificationAssets';
+import { toast } from '../../utils/toast';
 
 export default function RankingPage() {
     const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function RankingPage() {
             } catch (error) {
                 if (isMounted) {
                     console.error("Failed to fetch ranking:", error);
-                    alert("랭킹 데이터를 불러오는 데 실패했습니다.");
+                    toast.error("랭킹 데이터를 불러오는 데 실패했습니다.");
                 }
             } finally {
                 if (isMounted) setIsLoading(false);

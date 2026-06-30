@@ -8,6 +8,7 @@ import TocSection from "./TocSection";
 import StudyBaseInfoForm from "./StudyBaseInfoForm";
 import { useStudyGeneration } from "../../../hooks/useStudyGeneration";
 import StudyGeneratingOverlay from "./StudyGeneratingOverlay";
+import { toast } from '../../../utils/toast';
 
 export interface BookToc { // 응답 책 목차 정보
     chapter : string;
@@ -167,12 +168,12 @@ function CreateStudyPageInner() {
         );
 
         if (studyDays < STUDY_DAY_LIMIT.MIN || studyDays > STUDY_DAY_LIMIT.MAX) {
-            alert(`실제 진행일은 14~90일이어야 합니다. (현재: ${studyDays}일)`);
+            toast.info(`실제 진행일은 14~90일이어야 합니다. (현재: ${studyDays}일)`);
             return;
         }
 
         if (!isValidToc) {
-            alert('유효한 목차가 없습니다.');
+            toast.error('유효한 목차가 없습니다.');
             return;
         }
 
@@ -182,7 +183,7 @@ function CreateStudyPageInner() {
 
     useEffect(() => {
         if (bookToc.length > MAX_TOC) {
-            alert(`목차는 최대 ${MAX_TOC}개까지만 유지됩니다.`);
+            toast.info(`목차는 최대 ${MAX_TOC}개까지만 유지됩니다.`);
             setBookToc(bookToc.slice(0, MAX_TOC));
         }
     }, [bookToc]);
@@ -203,7 +204,7 @@ function CreateStudyPageInner() {
     // 친구 추가
     const handleAddFriend = (userId: number) => {
         if (studyMember.length >= MAX_STUDY_MEMBERS) {
-            alert(`최대 ${MAX_STUDY_MEMBERS}명까지만 선택할 수 있습니다.`);
+            toast.info(`최대 ${MAX_STUDY_MEMBERS}명까지만 선택할 수 있습니다.`);
             return;
         }
         if (!studyMember.includes(userId)) {

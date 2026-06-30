@@ -1,3 +1,4 @@
+import { toast } from '../../../utils/toast';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { usePageTitle } from '../../../hooks/usePageTitle';
@@ -51,7 +52,7 @@ export default function StudyInvitationPage() {
             await acceptInvitationApi(id);
             setInvitations(prev => prev.filter(inv => inv.studyInvitationId !== id));
         } catch (err) {
-            alert(getApiErrorUtil(err) || '초대 수락에 실패했습니다.');
+            toast.info(getApiErrorUtil(err) || '초대 수락에 실패했습니다.');
         }
     };
 
@@ -60,7 +61,7 @@ export default function StudyInvitationPage() {
             await rejectInvitationApi(id);
             setInvitations(prev => prev.filter(inv => inv.studyInvitationId !== id));
         } catch (err) {
-            alert(getApiErrorUtil(err) || '초대 거절에 실패했습니다.');
+            toast.info(getApiErrorUtil(err) || '초대 거절에 실패했습니다.');
         }
     };
 
@@ -69,7 +70,7 @@ export default function StudyInvitationPage() {
             await cancelInvitationApi(id);
             setInvitations(prev => prev.filter(inv => inv.studyInvitationId !== id));
         } catch (err) {
-            alert(getApiErrorUtil(err) || '초대 취소에 실패했습니다.');
+            toast.info(getApiErrorUtil(err) || '초대 취소에 실패했습니다.');
         }
     };
 

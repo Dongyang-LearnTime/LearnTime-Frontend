@@ -7,6 +7,7 @@ import { useAuthStore } from "../../../store/useAuthStore";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import UserPopover from "../../../components/common/UserPopover";
 import Avatar from "../../../components/common/Avatar";
+import { toast } from '../../../utils/toast';
 
 interface StudyMemberListProps {
   studyId: string;
@@ -53,11 +54,11 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     
     try {
       await changeStudyOwnerApi(Number(studyId), newOwnerMemberId);
-      alert("방장 권한이 성공적으로 위임되었습니다.");
+      toast.success("방장 권한이 성공적으로 위임되었습니다.");
       window.location.reload(); // 권한 재적용을 위해 새로고침
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "방장 권한 위임 중 오류가 발생했습니다.";
-      alert(errorMsg);
+      toast.info(errorMsg);
     }
   };
 
@@ -80,11 +81,11 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
           Number(studyId),
           friendUserId
       );
-      alert("초대 요청을 보냈습니다.");
+      toast.info("초대 요청을 보냈습니다.");
       setIsInviteModalOpen(false);
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "초대에 실패했습니다.";
-      alert(errorMsg);
+      toast.info(errorMsg);
     }
   };
 
@@ -94,7 +95,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     setLeaveError(null);
     try {
       await leaveStudyApi(Number(studyId));
-      alert("스터디에서 탈퇴했습니다.");
+      toast.info("스터디에서 탈퇴했습니다.");
       window.location.href = "/"; // 메인화면으로 이동
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "탈퇴 처리 중 오류가 발생했습니다.";
@@ -108,11 +109,11 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     if (!window.confirm(`${memberName} 님을 스터디에서 강퇴하시겠습니까?`)) return;
     try {
       await kickStudyMemberApi(Number(studyId), memberIdToKick);
-      alert(`${memberName} 님이 강퇴되었습니다.`);
+      toast.info(`${memberName} 님이 강퇴되었습니다.`);
       setMembers(members.map(m => m.userId === memberIdToKick ? { ...m, status: "WITHDRAWN" } : m));
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "강퇴 처리 중 오류가 발생했습니다.";
-      alert(errorMsg);
+      toast.info(errorMsg);
     }
   };
 

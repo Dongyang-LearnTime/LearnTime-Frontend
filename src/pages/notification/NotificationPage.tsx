@@ -4,6 +4,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { NotificationApi } from './notificationApi';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
+import { toast } from '../../utils/toast';
 
 export default function NotificationPage() {
     usePageTitle("learn-time | 전체 알림");
@@ -138,7 +139,7 @@ export default function NotificationPage() {
                 setSelectedIds(newSelected);
             }
         } catch (err) {
-            alert(getApiErrorUtil(err) || "삭제 실패");
+            toast.error(getApiErrorUtil(err) || "삭제 실패");
         }
     };
 
@@ -156,7 +157,7 @@ export default function NotificationPage() {
             Array.from(selectedIds).forEach(id => deleteNotificationLocal(id));
             setSelectedIds(new Set());
         } catch (err) {
-            alert(getApiErrorUtil(err) || "다중 삭제 실패");
+            toast.error(getApiErrorUtil(err) || "다중 삭제 실패");
         }
     };
 
@@ -167,7 +168,7 @@ export default function NotificationPage() {
             await NotificationApi.readAllNotifications();
             markAllAsReadLocal();
         } catch (err) {
-            alert(getApiErrorUtil(err) || "모두 읽음 처리에 실패했습니다.");
+            toast.error(getApiErrorUtil(err) || "모두 읽음 처리에 실패했습니다.");
         }
     };
 

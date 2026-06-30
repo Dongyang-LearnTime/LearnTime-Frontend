@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react';
 import { PauseIcon, PlayIcon, ResetIcon, SaveIcon } from '../../../../components/ui/Icons';
 import { Card } from '../../../../components/common/Card';
 import { registerFocusTimeApi } from '../../api/studyStudioApi';
+import { toast } from '../../../../utils/toast';
 
 interface StopwatchBoxProps {
   studyDailyPlanId: number | null | undefined;
@@ -41,7 +42,7 @@ export function StopwatchBox({ studyDailyPlanId }: StopwatchBoxProps) {
   // 백엔드 API에 집중시간 전송/등록
   const handleFocusTimeSubmit = async () => {
     if (!studyDailyPlanId) {
-      alert("일일 진도 일정을 먼저 시작하셔야 집중 시간을 등록할 수 있습니다.");
+      toast.info("일일 진도 일정을 먼저 시작하셔야 집중 시간을 등록할 수 있습니다.");
       return;
     }
     if (time === 0) return;
@@ -50,13 +51,13 @@ export function StopwatchBox({ studyDailyPlanId }: StopwatchBoxProps) {
         studyDailyPlanId,
         focusTime: formatTime(time)
       });
-      alert("오늘의 공부 집중 시간이 성공적으로 등록되었습니다. 수고하셨습니다!");
+      toast.success("오늘의 공부 집중 시간이 성공적으로 등록되었습니다. 수고하셨습니다!");
       setIsRunning(false);
       setTime(0);
       window.location.reload();
     } catch (err) {
       console.error(err);
-      alert("집중 시간 등록에 실패했습니다. (이미 완료되었거나 오늘 계획이 없을 수 있습니다)");
+      toast.success("집중 시간 등록에 실패했습니다. (이미 완료되었거나 오늘 계획이 없을 수 있습니다)");
     }
   };
 

@@ -5,6 +5,7 @@ import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getQuizDetailApi, submitQuizApi, updateStudyQuizTitleApi, deleteStudyQuizApi } from '../api/studyQuizApi'
 import BaseModal from '../../../components/common/BaseModal';
 import type { QuizType, ProgressStatus } from '../../../types/studyEnums';
+import { toast } from '../../../utils/toast';
 
 
 export interface SubmittedAnswer {
@@ -96,7 +97,7 @@ export default function QuizSolvePage() {
       setIsDirty(false); // 성공적인 제출 시도 중에는 이탈 방지 해제
 
       const quizHistoryId = await submitQuizApi(submissionData);
-      alert("퀴즈 제출이 완료되었습니다!");
+      toast.success("퀴즈 제출이 완료되었습니다!");
       navigate(`/study/quiz/history/${quizHistoryId}`); 
     } catch (err) {
       setError("제출 중 오류가 발생했습니다. 다시 시도해주세요.");
@@ -140,7 +141,7 @@ export default function QuizSolvePage() {
       setQuizData(prev => prev ? { ...prev, quizTitle: editTitleValue.trim() } : prev);
       setIsEditModalOpen(false);
     } catch (err) {
-      alert("제목 수정에 실패했습니다.");
+      toast.error("제목 수정에 실패했습니다.");
     } finally {
       setIsUpdatingTitle(false);
     }
@@ -153,11 +154,11 @@ export default function QuizSolvePage() {
     setIsDeleting(true);
     try {
       await deleteStudyQuizApi(Number(quizId));
-      alert("퀴즈가 삭제되었습니다.");
+      toast.info("퀴즈가 삭제되었습니다.");
       setIsDirty(false);
       navigate(-1); // 이전 페이지(퀴즈 목록 등)로 이동
     } catch (err) {
-      alert("퀴즈 삭제에 실패했습니다.");
+      toast.error("퀴즈 삭제에 실패했습니다.");
       setIsDeleting(false);
     }
   };

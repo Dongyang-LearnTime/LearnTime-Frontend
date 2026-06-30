@@ -3,6 +3,7 @@ import { getReceivedMessages, getSentMessages, readMessages, deleteMessage } fro
 import type { MessageResponse, PageResponse } from "./types/MessageTypes";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { getApiErrorUtil } from "../../utils/getApiErrorUtil";
+import { toast } from '../../utils/toast';
 
 type TabType = "RECEIVED" | "SENT";
 
@@ -62,13 +63,13 @@ export default function MessageListPage() {
     
     try {
       await deleteMessage(messageId);
-      alert("쪽지가 삭제되었습니다.");
+      toast.info("쪽지가 삭제되었습니다.");
       if (selectedMessage?.messageId === messageId) {
         setSelectedMessage(null);
       }
       fetchMessages(currentPage);
     } catch (error) {
-      alert(getApiErrorUtil(error, "쪽지 삭제에 실패했습니다."));
+      toast.error(getApiErrorUtil(error, "쪽지 삭제에 실패했습니다."));
     }
   };
 

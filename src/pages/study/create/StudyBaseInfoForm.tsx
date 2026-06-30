@@ -1,6 +1,7 @@
 import React from "react";
 import { dayMap } from "./CreateStudyPage";
 import type { StudyForm } from "./CreateStudyPage";
+import { toast } from '../../../utils/toast';
 
 interface StudyBaseInfoFormProps {
     studyForm: StudyForm;
@@ -34,7 +35,7 @@ export default function StudyBaseInfoForm({
 
             // 종료일 < 시작일 방지
             if (name === "endDate" && next.startDate && value < next.startDate) {
-                alert("종료일은 시작일보다 이전일 수 없습니다.");
+                toast.error("종료일은 시작일보다 이전일 수 없습니다.");
                 return prev;
             }
 

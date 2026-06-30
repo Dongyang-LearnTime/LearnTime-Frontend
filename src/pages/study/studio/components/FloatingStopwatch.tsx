@@ -3,6 +3,7 @@ import { PauseIcon, PlayIcon, ResetIcon, SaveIcon } from '../../../../components
 import { useStopwatchStore } from '../../../../store/useStopwatchStore';
 import BaseModal from '../../../../components/common/BaseModal';
 import { registerFocusTimeApi } from '../../api/studyStudioApi';
+import { toast } from '../../../../utils/toast';
 
 export function FloatingStopwatch() {
   const { 
@@ -61,14 +62,14 @@ export function FloatingStopwatch() {
   // 3. 시간 저장 시 방어 및 검증 로직
   const handleFocusTimeSubmit = async () => {
     if (!studyDailyPlanId) {
-      alert("일일 진도 일정을 먼저 시작하셔야 집중 시간을 등록할 수 있습니다.");
+      toast.info("일일 진도 일정을 먼저 시작하셔야 집중 시간을 등록할 수 있습니다.");
       return;
     }
     if (time === 0) return;
     
     // 방어 레이어 1: 10초 미만의 너무 짧은 시간 저장 차단
     if (time < 10) {
-      alert("너무 짧은 집중 시간(10초 미만)은 기록으로 저장할 수 없습니다.");
+      toast.error("너무 짧은 집중 시간(10초 미만)은 기록으로 저장할 수 없습니다.");
       return;
     }
 
@@ -82,7 +83,7 @@ export function FloatingStopwatch() {
     let timeToSave = time;
     const MAX_LIMIT = 43200; 
     if (time > MAX_LIMIT) {
-      alert("집중 시간은 하루 최대 12시간까지만 기록할 수 있습니다. 12시간으로 보정하여 저장합니다.");
+      toast.info("집중 시간은 하루 최대 12시간까지만 기록할 수 있습니다. 12시간으로 보정하여 저장합니다.");
       timeToSave = MAX_LIMIT;
     }
 
@@ -100,14 +101,14 @@ export function FloatingStopwatch() {
         studyDailyPlanId,
         focusTime: formatTime(timeToSave)
       });
-      alert("오늘의 공부 집중 시간이 성공적으로 등록되었습니다. 수고하셨습니다!");
+      toast.success("오늘의 공부 집중 시간이 성공적으로 등록되었습니다. 수고하셨습니다!");
       setIsRunning(false);
       reset();
       setIsOpen(false);
       window.location.reload();
     } catch (err) {
       console.error(err);
-      alert("집중 시간 등록에 실패했습니다. (이미 완료되었거나 오늘 계획이 없을 수 있습니다)");
+      toast.success("집중 시간 등록에 실패했습니다. (이미 완료되었거나 오늘 계획이 없을 수 있습니다)");
     } finally {
       setIsSaving(false);
     }
