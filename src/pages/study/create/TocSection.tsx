@@ -1,4 +1,5 @@
 import type { BookToc } from "./CreateStudyPage";
+import { toast } from '../../../utils/toast';
 
 interface TocSectionProps {
     bookToc: BookToc[];
@@ -15,7 +16,7 @@ export default function TocSection({
     // --- 목차(TOC) CRUD 로직 ---
     const addToc = () => {
         if (bookToc.length >= MAX_TOC) {
-            alert(`목차는 최대 ${MAX_TOC}개까지만 가능합니다.`);
+            toast.info(`목차는 최대 ${MAX_TOC}개까지만 가능합니다.`);
 
             // 초과된 상태라면 강제로 잘라냄
             setBookToc(bookToc.slice(0, MAX_TOC));

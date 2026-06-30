@@ -3,6 +3,7 @@ import { CoffeeIcon, PlusIcon, TrashIcon } from '../../../components/ui/Icons';
 import { Card, CardTitle } from '../../../components/common/Card';
 import { saveMeal, getTodayMeals, deleteMealRecord } from '../api/exerciseApi';
 import type { MealResponse } from '../types/exerciseTypes';
+import { toast } from '../../../utils/toast';
 
 export function DietBox() {
   const [items, setItems] = useState<MealResponse[]>([]);
@@ -49,7 +50,7 @@ export function DietBox() {
         setItems(prev => prev.filter(item => item.id !== id));
       } catch (error) {
         console.error('Failed to delete meal', error);
-        alert('식단 삭제에 실패했습니다.');
+        toast.error('식단 삭제에 실패했습니다.');
       }
     }
   };

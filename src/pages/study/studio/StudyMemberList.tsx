@@ -7,6 +7,7 @@ import { useAuthStore } from "../../../store/useAuthStore";
 import { getApiErrorUtil } from "../../../utils/getApiErrorUtil";
 import UserPopover from "../../../components/common/UserPopover";
 import Avatar from "../../../components/common/Avatar";
+import { toast } from '../../../utils/toast';
 
 interface StudyMemberListProps {
   studyId: string;
@@ -53,11 +54,11 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     
     try {
       await changeStudyOwnerApi(Number(studyId), newOwnerMemberId);
-      alert("방장 권한이 성공적으로 위임되었습니다.");
+      toast.success("방장 권한이 성공적으로 위임되었습니다.");
       window.location.reload(); // 권한 재적용을 위해 새로고침
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "방장 권한 위임 중 오류가 발생했습니다.";
-      alert(errorMsg);
+      toast.info(errorMsg);
     }
   };
 
@@ -80,11 +81,11 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
           Number(studyId),
           friendUserId
       );
-      alert("초대 요청을 보냈습니다.");
+      toast.info("초대 요청을 보냈습니다.");
       setIsInviteModalOpen(false);
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "초대에 실패했습니다.";
-      alert(errorMsg);
+      toast.info(errorMsg);
     }
   };
 
@@ -94,7 +95,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     setLeaveError(null);
     try {
       await leaveStudyApi(Number(studyId));
-      alert("스터디에서 탈퇴했습니다.");
+      toast.info("스터디에서 탈퇴했습니다.");
       window.location.href = "/"; // 메인화면으로 이동
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "탈퇴 처리 중 오류가 발생했습니다.";
@@ -108,11 +109,11 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
     if (!window.confirm(`${memberName} 님을 스터디에서 강퇴하시겠습니까?`)) return;
     try {
       await kickStudyMemberApi(Number(studyId), memberIdToKick);
-      alert(`${memberName} 님이 강퇴되었습니다.`);
+      toast.info(`${memberName} 님이 강퇴되었습니다.`);
       setMembers(members.map(m => m.userId === memberIdToKick ? { ...m, status: "WITHDRAWN" } : m));
     } catch (err) {
       const errorMsg = getApiErrorUtil(err) || "강퇴 처리 중 오류가 발생했습니다.";
-      alert(errorMsg);
+      toast.info(errorMsg);
     }
   };
 
@@ -139,7 +140,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
   // userId 타입 차이 방지를 위해 Number()로 명시적 변환 후 비교
   const isOwner = members.some((m) => Number(m.userId) === Number(userId) && m.studyMemberRole === "OWNER");
-  const activeCount = members.filter((m) => m.status === "ACTIVE").length;
+  const activeCount = members.filter((m) => m.status === "ACTIVE" || m.status === "COMPLETED").length;
   const canInvite = activeCount < 4;
 
   return (
@@ -211,10 +212,10 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                   <div className="flex items-center justify-between gap-2 text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
                     <div className="flex items-center gap-2">
                       <span className={`flex items-center gap-1 ${
-                        member.status === "ACTIVE" ? "text-emerald-500" : "text-rose-500"
+                        member.status === "ACTIVE" ? "text-emerald-500" : member.status === "COMPLETED" ? "text-blue-500" : "text-rose-500"
                       }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE" ? "bg-emerald-500" : "bg-rose-500"}`} />
-                        {member.status === "ACTIVE" ? "활동 중" : "탈퇴"}
+                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === "ACTIVE" ? "bg-emerald-500" : member.status === "COMPLETED" ? "bg-blue-500" : "bg-rose-500"}`} />
+                        {member.status === "ACTIVE" ? "활동 중" : member.status === "COMPLETED" ? "수료" : "탈퇴"}
                       </span>
                       <span className="text-gray-300 dark:text-gray-700">•</span>
                       <span>{new Date(member.joinedAt).toLocaleDateString()} 가입</span>
@@ -292,7 +293,7 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                 {friends
                   .filter((friend) => friend.name.toLowerCase().includes(friendSearchTerm.toLowerCase()))
                   .map(friend => {
-                  const isAlreadyMember = members.some(m => m.userId === friend.userId && m.status === "ACTIVE");
+                  const isAlreadyMember = members.some(m => m.userId === friend.userId && (m.status === "ACTIVE" || m.status === "COMPLETED"));
                   const isInvited = friend.isInvited;
                   const disableInvite = isAlreadyMember || isInvited;
 

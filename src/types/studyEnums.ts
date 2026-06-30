@@ -6,7 +6,7 @@ export type QuizType = "OX" | "MULTIPLE";
 
 export type QuizStatus = "NOT_STARTED" | "COMPLETED";
 
-export type StudyMemberStatus = 'ACTIVE' | 'WITHDRAWN';
+export type StudyMemberStatus = 'ACTIVE' | 'WITHDRAWN' | 'COMPLETED';
 
 export type StudyMemberRole = 'OWNER' | 'MEMBER';
 

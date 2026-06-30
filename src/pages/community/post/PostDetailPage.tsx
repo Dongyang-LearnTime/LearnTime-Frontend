@@ -8,6 +8,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import UserPopover from '../../../components/common/UserPopover';
 import Avatar from '../../../components/common/Avatar';
+import { toast } from '../../../utils/toast';
 
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>();
@@ -112,7 +113,7 @@ export default function PostDetailPage() {
 
   const handleLikeToggle = async () => {
     if (!isAuthenticated) {
-      alert('로그인이 필요한 서비스입니다.');
+      toast.info('로그인이 필요한 서비스입니다.');
       navigate('/login');
       return;
     }
@@ -134,11 +135,11 @@ export default function PostDetailPage() {
     setIsSubmitting(true);
     try {
       await deletePostApi(post.postId);
-      alert('게시글이 삭제되었습니다.');
+      toast.info('게시글이 삭제되었습니다.');
       navigate('/community');
     } catch (error) {
       console.error('Failed to delete post:', error);
-      alert('게시글 삭제에 실패했습니다.');
+      toast.error('게시글 삭제에 실패했습니다.');
       setIsSubmitting(false);
     }
   };

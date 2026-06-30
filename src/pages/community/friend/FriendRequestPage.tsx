@@ -14,6 +14,7 @@ import type { FriendRequestResponse, FriendResponse } from '../api/friendRequest
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import RequestListCard from '../../../components/common/RequestListCard';
 import UserPopover from '../../../components/common/UserPopover';
+import { toast } from '../../../utils/toast';
 
 export default function FriendRequestPage() {
     usePageTitle("learn-time | 친구 알림");
@@ -59,9 +60,9 @@ export default function FriendRequestPage() {
         try {
             await deleteFriendApi(friendUserId);
             setFriends(prev => prev.filter(f => f.userId !== friendUserId));
-            alert('친구가 삭제되었습니다.');
+            toast.info('친구가 삭제되었습니다.');
         } catch (err) {
-            alert(getApiErrorUtil(err) || '친구 삭제에 실패했습니다.');
+            toast.error(getApiErrorUtil(err) || '친구 삭제에 실패했습니다.');
         }
     };
 
@@ -70,7 +71,7 @@ export default function FriendRequestPage() {
             await acceptFriendRequestApi(id);
             setRequests(prev => prev.filter(req => req.friendRequestId !== id));
         } catch (err) {
-            alert(getApiErrorUtil(err) || '친구 요청 승인에 실패했습니다.');
+            toast.error(getApiErrorUtil(err) || '친구 요청 승인에 실패했습니다.');
         }
     };
 
@@ -79,7 +80,7 @@ export default function FriendRequestPage() {
             await rejectFriendRequestApi(id);
             setRequests(prev => prev.filter(req => req.friendRequestId !== id));
         } catch (err) {
-            alert(getApiErrorUtil(err) || '친구 요청 거절에 실패했습니다.');
+            toast.error(getApiErrorUtil(err) || '친구 요청 거절에 실패했습니다.');
         }
     };
 
@@ -88,7 +89,7 @@ export default function FriendRequestPage() {
             await cancelFriendRequestApi(id);
             setRequests(prev => prev.filter(req => req.friendRequestId !== id));
         } catch (err) {
-            alert(getApiErrorUtil(err) || '친구 요청 취소에 실패했습니다.');
+            toast.error(getApiErrorUtil(err) || '친구 요청 취소에 실패했습니다.');
         }
     };
 

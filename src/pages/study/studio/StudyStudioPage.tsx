@@ -13,6 +13,7 @@ import {
 import type { StudyPlanResponse, StudyStudioSummaryResponse } from "../types/StudyTypes";
 import { useStopwatchStore } from "../../../store/useStopwatchStore";
 import { FloatingStopwatch } from "./components/FloatingStopwatch";
+import { toast } from '../../../utils/toast';
 
 export default function StudyStudioPage() {
   const { studyId } = useParams<{ studyId: string }>();
@@ -77,11 +78,11 @@ export default function StudyStudioPage() {
     try {
       setIsGeneratingFeedback(true);
       await generateStudyFeedback(Number(studyId));
-      alert("AI 진도 분석(피드백) 생성이 완료되었습니다.");
+      toast.success("AI 진도 분석(피드백) 생성이 완료되었습니다.");
       navigate(`/study/feedback/list/${studyId}`);
     } catch (error) {
       console.error(error);
-      alert("AI 진도 분석 생성 중 오류가 발생했습니다.");
+      toast.error("AI 진도 분석 생성 중 오류가 발생했습니다.");
     } finally {
       setIsGeneratingFeedback(false);
     }
@@ -93,11 +94,11 @@ export default function StudyStudioPage() {
     setIsStartingToday(true);
     try {
       await startStudyDailyPlanApi(todayPlan.studyDailyPlanId);
-      alert("오늘의 공부 진도를 시작합니다. 파이팅!");
+      toast.info("오늘의 공부 진도를 시작합니다. 파이팅!");
       setRefreshKey(prev => prev + 1);
     } catch (err: unknown) {
       console.error("Failed to start today's study plan:", err);
-      alert("진도 시작에 실패했습니다.");
+      toast.error("진도 시작에 실패했습니다.");
     } finally {
       setIsStartingToday(false);
     }

@@ -13,6 +13,7 @@ import AuthInput from './componets/AuthInput';
 import { API_BASE_URL } from '../../app/apiClient';
 
 import type { Terms } from '../../types/userEnums';
+import { toast } from '../../utils/toast';
 
 // 유효성 검사 정규식 설정
 const REGEX = {
@@ -95,7 +96,7 @@ export default function SignupPage() {
         password,
         termsAgreements
       });
-      alert("회원 가입 성공");
+      toast.success("회원 가입 성공");
       navigate("/login");
     } catch (error) {
       const errorMessage = getApiErrorUtil(error);

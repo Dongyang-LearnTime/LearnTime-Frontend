@@ -11,6 +11,7 @@ import { Card, CardTitle } from "../../../components/common/Card";
 import { BookIcon, TrashIcon, CalendarIcon } from "../../../components/ui/Icons";
 import { useAuthStore } from "../../../store/useAuthStore";
 import { useStudyStore } from "../../../store/useStudyStore";
+import { toast } from '../../../utils/toast';
 
 interface StudyProgressInfoProps {
   studyId: string;
@@ -149,7 +150,7 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
         onRefreshToday();
       }
     } catch (err) {
-      alert(getApiErrorUtil(err) || "진도 시작에 실패했습니다.");
+      toast.error(getApiErrorUtil(err) || "진도 시작에 실패했습니다.");
     } finally {
       setIsStarting(false);
     }
@@ -167,10 +168,10 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
     setIsDeleting(true);
     try {
       await deleteStudyApi(studyId);
-      alert("스터디가 성공적으로 삭제되었습니다.");
+      toast.success("스터디가 성공적으로 삭제되었습니다.");
       navigate("/"); // 삭제 후 루트 화면으로 이동
     } catch (err) {
-      alert(getApiErrorUtil(err) || "스터디 삭제에 실패했습니다.");
+      toast.error(getApiErrorUtil(err) || "스터디 삭제에 실패했습니다.");
       setIsDeleting(false);
     }
   };
@@ -182,13 +183,13 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
         restDays,
         restDates
       });
-      alert("공부 일정 재조정이 완료되었습니다.");
+      toast.success("공부 일정 재조정이 완료되었습니다.");
       setIsRescheduleModalOpen(false);
       if (onRefreshToday) {
         onRefreshToday();
       }
     } catch (err) {
-      alert(getApiErrorUtil(err) || "공부 일정 재조정에 실패했습니다.");
+      toast.error(getApiErrorUtil(err) || "공부 일정 재조정에 실패했습니다.");
     } finally {
       setIsRescheduling(false);
     }

@@ -15,6 +15,7 @@ import { InfoCard } from '../../../components/common/InfoCard';
 import { FieldInput } from '../../../components/common/FieldInput';
 import { getWeeklyAnalysis, getRecommendedVideos, saveExercise, saveWeight, getExercises, deleteExercise, getRecentWeights, deleteWeight, getWeeklyWeightMetrics } from '../api/exerciseApi';
 import type { AnalysisItem, YoutubeVideoResponse, ExerciseResponse, WeightResponse, WeeklyWeightStatsResponse } from '../types/exerciseTypes';
+import { toast } from '../../../utils/toast';
 
 const BODY_PARTS = ['가슴', '등', '어깨', '이두', '삼두', '하체'];
 
@@ -200,7 +201,7 @@ function ExerciseSaveModal({ onClose, onSaveSuccess, isFirstExerciseToday }: Exe
       }, 2000);
     } catch (err) {
       console.error('Failed to save exercise', err);
-      alert('운동 기록 저장에 실패했습니다.');
+      toast.error('운동 기록 저장에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }

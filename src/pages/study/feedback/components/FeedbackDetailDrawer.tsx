@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import type { StudyFeedbackResponse } from '../../types/StudyFeedBackTypes';
 import { updateFeedbackTitle, deleteFeedback } from '../../api/studyFeedbackApi';
+import { toast } from '../../../../utils/toast';
 
 
 interface FeedbackDetailDrawerProps {
@@ -37,7 +38,7 @@ export default function FeedbackDetailDrawer({
   // 제목 수정 API 요청 처리
   const handleSaveTitle = async () => {
     if (!editTitleValue.trim()) {
-      alert('제목을 입력해주세요.');
+      toast.info('제목을 입력해주세요.');
       return;
     }
     if (editTitleValue === feedback.feedbackTitle) {
@@ -56,7 +57,7 @@ export default function FeedbackDetailDrawer({
       setIsEditingTitle(false);
     } catch (error) {
       console.error('Failed to update feedback title:', error);
-      alert('제목 수정에 실패했습니다.');
+      toast.error('제목 수정에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +76,7 @@ export default function FeedbackDetailDrawer({
       onClose();
     } catch (error) {
       console.error('Failed to delete feedback:', error);
-      alert('피드백 삭제에 실패했습니다.');
+      toast.error('피드백 삭제에 실패했습니다.');
     } finally {
       setIsDeleting(false);
     }

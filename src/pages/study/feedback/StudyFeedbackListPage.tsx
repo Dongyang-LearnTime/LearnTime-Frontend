@@ -9,6 +9,7 @@ import type { StudyFeedbackResponse } from '../types/StudyFeedBackTypes';
 import FeedbackDetailDrawer from './components/FeedbackDetailDrawer';
 import { usePageTitle } from '../../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
+import { toast } from '../../../utils/toast';
 
 export default function StudyFeedbackListPage() {
   usePageTitle('AI 피드백 목록');
@@ -34,7 +35,7 @@ export default function StudyFeedbackListPage() {
     setIsGenerating(true);
     try {
       const newFeedback = await generateStudyFeedback(Number(studyId));
-      alert('AI 피드백이 생성되었습니다.');
+      toast.success('AI 피드백이 생성되었습니다.');
       // 목록을 리프레시하여 새 아이템 노출
       refresh();
       // 생성 완료된 피드백의 상세 드로어를 바로 노출
@@ -42,7 +43,7 @@ export default function StudyFeedbackListPage() {
       setIsDrawerOpen(true);
     } catch (err) {
       console.error('Failed to generate AI feedback:', err);
-      alert(getApiErrorUtil(err));
+      toast.info(getApiErrorUtil(err));
     } finally {
       setIsGenerating(false);
     }

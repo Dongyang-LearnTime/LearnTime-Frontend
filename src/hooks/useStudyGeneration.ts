@@ -8,6 +8,7 @@ import {
 } from '../pages/study/api/CreateStudyApi';
 import { getApiErrorUtil } from '../utils/getApiErrorUtil';
 import type { StudyForm, BookToc } from '../pages/study/create/CreateStudyPage';
+import { toast } from '../utils/toast';
 
 // 폴링 관련 상수 (대문자로 관리)
 const POLLING_INTERVAL_MS = 2500;  // 2.5초 간격
@@ -57,7 +58,7 @@ export function useStudyGeneration() {
 
         if (statusData.status === 'READY') {
             // READY: 성공 → 상세 페이지로 이동 (경로는 routes.tsx 기준으로 수정 필요)
-            alert('🎉 공부 진도가 생성되었습니다!');
+            toast.success('🎉 공부 진도가 생성되었습니다!');
             navigate(`/study/${statusData.studyId}`);
             return;
         }

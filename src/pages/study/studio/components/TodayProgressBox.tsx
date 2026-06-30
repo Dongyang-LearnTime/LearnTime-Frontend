@@ -4,6 +4,7 @@ import { Card, CardTitle } from '../../../../components/common/Card';
 import { EditIcon, CheckIcon, TrashIcon } from '../../../../components/ui/Icons';
 import type { StudyMemberContentResponse } from '../../types/StudyTypes';
 import FormattedPlanContent from './FormattedPlanContent';
+import { toast } from '../../../../utils/toast';
 
 export interface StudyScheduleItem {
   studyMemberContentId: number;
@@ -63,11 +64,11 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
   const handleAddSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isHoliday) {
-      alert("오늘은 공식 휴무일이므로 공부 일정을 추가할 수 없습니다.");
+      toast.error("오늘은 공식 휴무일이므로 공부 일정을 추가할 수 없습니다.");
       return;
     }
     if (!inputValue.trim() || !studyDailyPlanId) {
-      if (!studyDailyPlanId) alert("진도를 먼저 시작해야 내용을 추가할 수 있습니다.");
+      if (!studyDailyPlanId) toast.info("진도를 먼저 시작해야 내용을 추가할 수 있습니다.");
       return;
     }
 
@@ -77,7 +78,7 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
       setInputValue('');
     } catch (err) {
       console.error("Failed to add content:", err);
-      alert("일정 추가에 실패했습니다.");
+      toast.error("일정 추가에 실패했습니다.");
     }
   };
 
@@ -89,7 +90,7 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
       if (selectedId === id) setSelectedId(null);
     } catch (err) {
       console.error("Failed to delete content:", err);
-      alert("일정 삭제에 실패했습니다.");
+      toast.error("일정 삭제에 실패했습니다.");
     }
   };
 
@@ -112,7 +113,7 @@ export function TodayProgressBox({ studyId, initialData, skipInitialFetch = fals
       setEditingId(null);
     } catch (err) {
       console.error("Failed to update content:", err);
-      alert("일정 수정에 실패했습니다.");
+      toast.error("일정 수정에 실패했습니다.");
     }
   };
 

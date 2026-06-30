@@ -19,6 +19,7 @@ import {
 } from './api/scheduleApi';
 
 import { getRoutinesApi, createRoutineApi, updateRoutineApi, deleteRoutineApi } from './api/routineApi';
+import { toast } from '../../utils/toast';
  
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 구하는 헬퍼 함수
@@ -311,7 +312,7 @@ export default function SchedulePage() {
       fetchAllData(); // 저장 완료 후 목록 재조회
     } catch (error) {
       console.error('Failed to save schedule:', error);
-      alert('일정 저장에 실패했습니다.');
+      toast.error('일정 저장에 실패했습니다.');
     }
   };
 
@@ -350,7 +351,7 @@ export default function SchedulePage() {
       fetchAllData(); // 삭제 완료 후 목록 재조회
     } catch (error) {
       console.error('Failed to delete schedule:', error);
-      alert('일정 삭제에 실패했습니다.');
+      toast.error('일정 삭제에 실패했습니다.');
     }
   };
 

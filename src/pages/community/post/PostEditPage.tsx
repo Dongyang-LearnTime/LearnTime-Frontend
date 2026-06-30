@@ -5,6 +5,7 @@ import { usePageTitle } from '../../../hooks/usePageTitle';
 import { updatePostApi, getPostForUpdateApi } from '../api/PostApi';
 import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import PostForm, { type PostFormPayload } from '../components/PostForm';
+import { toast } from '../../../utils/toast';
 
 interface PostData {
     title: string;
@@ -39,7 +40,7 @@ export default function PostEditPage() {
                 });
             } catch (error) {
                 console.error('Failed to fetch post for edit:', error);
-                alert('게시글 정보를 불러오는 데 실패했습니다.');
+                toast.error('게시글 정보를 불러오는 데 실패했습니다.');
                 navigate(-1);
             } finally {
                 setIsLoading(false);
@@ -64,7 +65,7 @@ export default function PostEditPage() {
             };
             await updatePostApi(Number(postId), request, payload.newImages);
             
-            alert('게시글이 성공적으로 수정되었습니다!');
+            toast.success('게시글이 성공적으로 수정되었습니다!');
             navigate(`/community/post/${postId}`); // 상세 페이지로 이동
         } catch (error) {
             const errorMessage = getApiErrorUtil(error);
