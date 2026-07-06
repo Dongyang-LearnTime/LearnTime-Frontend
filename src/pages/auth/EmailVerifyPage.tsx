@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Mail, CheckCircle, Loader2, Sparkles, ArrowLeft } from 'lucide-react';
+import { Mail, CheckCircle, Loader2, ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 import siteLogo from '../../assets/site-logo.svg';
 
