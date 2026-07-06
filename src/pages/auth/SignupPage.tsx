@@ -14,6 +14,7 @@ import { API_BASE_URL } from '../../app/apiClient';
 
 import type { Terms } from '../../types/userEnums';
 import { toast } from '../../utils/toast';
+import { useSignupStore } from '../../store/useSignupStore';
 
 // 유효성 검사 정규식 설정
 const REGEX = {
@@ -44,6 +45,8 @@ export default function SignupPage() {
   const [ fieldErrors, setFieldErrors ] = useState({ email: '', userName: '' });
 
   const { email, userName, password, confirm } = formData;
+  
+  const setSignupData = useSignupStore(state => state.setSignupData);
 
   // 페이지 제목 변경
   usePageTitle("learn-time | 회원가입");
@@ -89,15 +92,36 @@ export default function SignupPage() {
     }
 
     try {
-      // 프론트엔드 유효성 검사는 UX 개선용이며, 반드시 백엔드(Spring) 계층에서 최종 검증 필요
-      await axios.post(`${API_BASE_URL}/api/auth/signup`, {
-        userName : userName.trim(),
+      const storeState = useSignupStore.getState();
+      
+      // 이미 인증된 토큰이 있다면 이메일 재인증 과정 생략하고 바로 가입
+      if (storeState.emailVerificationToken) {
+        await axios.post(`${API_BASE_URL}/api/auth/signup`, {
+          userName: userName.trim(),
+          email,
+          password,
+          emailVerificationToken: storeState.emailVerificationToken,
+          termsAgreements
+        });
+        toast.success("회원 가입이 완료되었습니다!");
+        useSignupStore.getState().reset();
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      // 이메일 인증 코드 발송 API 호출
+      await axios.post(`${API_BASE_URL}/api/auth/email-verifications`, { email });
+      
+      // 상태 저장 및 이메일 인증 페이지로 이동
+      setSignupData({
         email,
+        userName: userName.trim(),
         password,
         termsAgreements
       });
-      toast.success("회원 가입 성공");
-      navigate("/login");
+      
+      toast.success("인증 코드가 발송되었습니다.");
+      navigate("/signup/verify");
     } catch (error) {
       const errorMessage = getApiErrorUtil(error);
       setSignupError(errorMessage);
@@ -380,7 +404,7 @@ export default function SignupPage() {
 
             {/* 제출 버튼 */}
             <button type="submit" disabled={!isFormValid || loading} className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading ? 'bg-linear-to-r from-indigo-600 to-purple-600 hover:scale-[1.01] hover:shadow-indigo-200 active:scale-[0.99]' : 'bg-gray-200 dark:bg-[#222] text-gray-400 cursor-not-allowed'}`}>
-              {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : 'Learn-Time 시작하기'}
+              {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : '이메일 인증하기'}
             </button>
 
           </form>
