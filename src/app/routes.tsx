@@ -40,6 +40,11 @@ const StudyRedirector = lazy(() => import("../pages/study/studio/StudyRedirector
 const StudyEmptyPage = lazy(() => import("../pages/study/studio/StudyEmptyPage"));
 const StudyStudioPage = lazy(() => import("../pages/study/studio/StudyStudioPage"));
 
+// 관리자 페이지 지연 로딩
+const AdminDashboardPage = lazy(() => import("../pages/admin/AdminDashboardPage"));
+const AdminUserListPage = lazy(() => import("../pages/admin/AdminUserListPage"));
+import { AdminSidebarLayout } from "../components/layout/AdminSidebarLayout";
+
 export const routes = [
   // 레이아웃이 없는 비인증/인증 분기 페이지
   {
@@ -116,6 +121,21 @@ export const routes = [
           { path: "/study/quiz/history/list/:studyQuizId", element: <QuizHistoryListPage /> },
           { path: "/study/quiz/list/:studyId", element: <StudyQuizListPage /> },
           { path: "/study/feedback/list/:studyId", element: <StudyFeedbackListPage /> },
+        ]
+      },
+
+      // 관리자 전용 그룹
+      {
+        element: (
+          <ProtectedRoute requiredRole="ROLE_ADMIN">
+            <AdminSidebarLayout>
+              <Outlet />
+            </AdminSidebarLayout>
+          </ProtectedRoute>
+        ),
+        children: [
+          { path: "/admin", element: <AdminDashboardPage /> },
+          { path: "/admin/users", element: <AdminUserListPage /> },
         ]
       }
     ]
