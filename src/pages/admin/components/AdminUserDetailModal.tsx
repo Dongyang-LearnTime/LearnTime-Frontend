@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getAdminUserDetail, grantAdminRole, forceWithdrawUser, sendEmailToUser } from '../api/adminApi';
+import { getAdminUserDetail, grantAdminRole, forceWithdrawUser, sendEmailToUser, awardPointToUser } from '../api/adminApi';
 import type { AdminUserDetailResponse } from '../types/adminTypes';
-import { X, Shield, Mail, Trash2, CheckCircle2, XCircle } from 'lucide-react';
+import { X, Shield, Mail, Trash2, CheckCircle2, XCircle, Coins } from 'lucide-react';
 import { toast } from '../../../utils/toast';
 
 interface Props {
@@ -25,6 +25,12 @@ export default function AdminUserDetailModal({ userId, onClose, onUpdated }: Pro
   const [emailTitle, setEmailTitle] = useState('');
   const [emailContent, setEmailContent] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
+
+  // 포인트 지급 폼 상태
+  const [showPointForm, setShowPointForm] = useState(false);
+  const [pointAmount, setPointAmount] = useState<number>(0);
+  const [pointDescription, setPointDescription] = useState('');
+  const [awardingPoint, setAwardingPoint] = useState(false);
 
   useEffect(() => {
     getAdminUserDetail(userId)
@@ -79,6 +85,33 @@ export default function AdminUserDetailModal({ userId, onClose, onUpdated }: Pro
       setSendingEmail(false);
     }
   };
+
+  const handleAwardPoint = async () => {
+    if (pointAmount <= 0) {
+      toast.error('지급할 포인트는 1포인트 이상이어야 합니다.');
+      return;
+    }
+    if (!pointDescription.trim()) {
+      toast.error('지급 사유를 입력해주세요.');
+      return;
+    }
+    setAwardingPoint(true);
+    try {
+      await awardPointToUser(userId, pointAmount, pointDescription);
+      toast.success('포인트가 성공적으로 지급되었습니다.');
+      const updatedDetail = await getAdminUserDetail(userId);
+      setDetail(updatedDetail);
+      onUpdated();
+      setShowPointForm(false);
+      setPointAmount(0);
+      setPointDescription('');
+    } catch (e) {
+      toast.error('포인트 지급에 실패했습니다.');
+    } finally {
+      setAwardingPoint(false);
+    }
+  };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -188,6 +221,36 @@ export default function AdminUserDetailModal({ userId, onClose, onUpdated }: Pro
                   </div>
                 </div>
               )}
+
+              {/* 포인트 지급 폼 */}
+              {showPointForm && (
+                <div className="mt-4 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20">
+                  <h4 className="text-sm font-black text-indigo-900 dark:text-indigo-100 mb-3 flex items-center gap-2">
+                    <Coins size={16} /> 포인트 지급
+                  </h4>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="지급할 포인트 수량 (예: 100)"
+                    value={pointAmount || ''}
+                    onChange={e => setPointAmount(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded-lg text-sm mb-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                  <input
+                    type="text"
+                    placeholder="지급 사유 (예: 이벤트 참여 보상)"
+                    value={pointDescription}
+                    onChange={e => setPointDescription(e.target.value)}
+                    className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded-lg text-sm mb-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setShowPointForm(false)} className="px-3 py-1.5 text-xs font-bold text-indigo-600 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 rounded-lg transition-colors">취소</button>
+                    <button onClick={handleAwardPoint} disabled={awardingPoint} className="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-50">
+                      {awardingPoint ? '지급 중...' : '지급'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center text-gray-500 py-10">데이터가 없습니다.</div>
@@ -202,7 +265,10 @@ export default function AdminUserDetailModal({ userId, onClose, onUpdated }: Pro
                 <Shield size={16} /> 관리자 임명
               </button>
             )}
-            <button onClick={() => setShowEmailForm(true)} className="flex-1 min-w-30 flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-[#222] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 hover:text-indigo-600 dark:hover:bg-white/5 transition-all">
+            <button onClick={() => { setShowPointForm(true); setShowEmailForm(false); }} className="flex-1 min-w-30 flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-[#222] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 hover:text-indigo-600 dark:hover:bg-white/5 transition-all">
+              <Coins size={16} /> 포인트 지급
+            </button>
+            <button onClick={() => { setShowEmailForm(true); setShowPointForm(false); }} className="flex-1 min-w-30 flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-[#222] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 hover:text-indigo-600 dark:hover:bg-white/5 transition-all">
               <Mail size={16} /> 메일 보내기
             </button>
             <button onClick={handleWithdraw} className="flex-1 min-w-30 flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-[#222] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">

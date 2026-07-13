@@ -42,7 +42,12 @@ export const sendEmailToUser = async (userId: number, subject: string, content: 
   await axiosInstance.post(`/api/admin/users/${userId}/email`, { subject, content });
 };
 
+export const awardPointToUser = async (userId: number, amount: number, description: string): Promise<void> => {
+  await axiosInstance.post(`/api/admin/users/${userId}/points`, { amount, description });
+};
+
 export const getSiteStats = async (): Promise<SiteStatsResponse> => {
   const { data } = await axiosInstance.get<SiteStatsResponse>('/api/admin/site/stats');
   return data;
 };
+
