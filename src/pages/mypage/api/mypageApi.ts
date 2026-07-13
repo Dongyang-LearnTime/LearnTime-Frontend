@@ -1,5 +1,5 @@
 import { axiosInstance } from '../../../app/apiClient';
-import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostsResponse, MyCommentsResponse } from '../../../types/myPageTypes';
+import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostsResponse, MyCommentsResponse } from '../types/myPageTypes';
 
 export const getMyInfo = async (): Promise<MyPageInfoResponse> => {
     const response = await axiosInstance.get<MyPageInfoResponse>('/api/user/me');

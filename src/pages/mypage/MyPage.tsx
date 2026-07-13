@@ -4,13 +4,13 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { useAuthStore } from '../../store/useAuthStore';
 import {
     User, FileText, MessageSquare, Heart, Coins, Settings,
-    ChevronRight, LogOut, Trash2, Eye, Edit3, Lock, UserX, Archive
+    ChevronRight, LogOut, Trash2, Eye, Edit3, Lock, UserX, Archive, Shield
 } from 'lucide-react';
 import {
     getMyInfo, getMyPageSummary, updateMyName, updateMyPassword,
     deleteMyAccount, getMyPosts, getMyComments
 } from './api/mypageApi';
-import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostItem, MyCommentItem } from '../../types/myPageTypes';
+import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostItem, MyCommentItem } from './types/myPageTypes';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 
 import BlockedUserList from './BlockedUserList';
@@ -59,7 +59,7 @@ type Tab = 'info' | 'posts' | 'comments' | 'blocks' | 'archive';
 export default function MyPage() {
     usePageTitle('마이페이지');
     const navigate = useNavigate();
-    const { userName, clearAuth } = useAuthStore();
+    const { userName, clearAuth, role } = useAuthStore();
 
     const [activeTab, setActiveTab] = useState<Tab>('info');
     const [info, setInfo] = useState<MyPageInfoResponse | null>(null);
@@ -285,6 +285,7 @@ export default function MyPage() {
                                 <Settings size={14} /> 계정 설정
                             </h2>
                             {[
+                                { icon: <Shield size={15} />, label: '관리자 페이지로 이동', color: 'text-indigo-600 dark:text-indigo-400', onClick: () => navigate('/admin'), hide: role !== 'ROLE_ADMIN' },
                                 { icon: <Edit3 size={15} />, label: '이름 변경', color: 'text-indigo-500', onClick: () => { setFormError(''); setNewName(''); setShowEditName(true); } },
                                 { icon: <Lock size={15} />, label: '비밀번호 변경', color: 'text-amber-500', onClick: () => { setFormError(''); setCurrentPw(''); setNewPw(''); setConfirmPw(''); setShowEditPw(true); }, hide: info?.socialProvider !== 'LOCAL' },
                                 { icon: <LogOut size={15} />, label: '로그아웃', color: 'text-gray-500', onClick: () => { clearAuth(); navigate('/'); } },
