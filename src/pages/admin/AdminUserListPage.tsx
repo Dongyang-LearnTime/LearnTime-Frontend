@@ -5,6 +5,7 @@ import type { AdminUserListResponse } from './types/adminTypes';
 import type { Role } from '../../types/userEnums';
 import { Search, MoreVertical, Shield } from 'lucide-react';
 import AdminUserDetailModal from './components/AdminUserDetailModal';
+import { getAuthProviderLabel } from '../../utils/authProviderUtil';
 
 // 오프셋 기반 페이징 UI (MyPage 스타일 차용)
 function Pagination({ current, total, onChange }: { current: number; total: number; onChange: (p: number) => void }) {
@@ -159,7 +160,7 @@ export default function AdminUserListPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300">
-                        {user.socialProvider === 'LOCAL' ? '일반' : user.socialProvider}
+                        {getAuthProviderLabel(user.socialProvider)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">

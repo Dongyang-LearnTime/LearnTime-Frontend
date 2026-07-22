@@ -3,6 +3,7 @@ import { getAdminUserDetail, grantAdminRole, forceWithdrawUser, sendEmailToUser,
 import type { AdminUserDetailResponse } from '../types/adminTypes';
 import { X, Shield, Mail, Trash2, CheckCircle2, XCircle, Coins } from 'lucide-react';
 import { toast } from '../../../utils/toast';
+import { getAuthProviderLabel } from '../../../utils/authProviderUtil';
 
 interface Props {
   userId: number;
@@ -174,7 +175,7 @@ export default function AdminUserDetailModal({ userId, onClose, onUpdated }: Pro
               {/* 세부 정보 리스트 */}
               <div className="space-y-3">
                 {[
-                  { label: '가입 경로', value: detail.socialProvider === 'LOCAL' ? '일반 (이메일)' : detail.socialProvider },
+                  { label: '가입 경로', value: getAuthProviderLabel(detail.socialProvider) },
                   { label: '가입일', value: fmt(detail.createdAt) },
                   { label: '최근 수정일', value: fmt(detail.updatedAt) },
                   { label: '로그인 실패 횟수', value: `${detail.failedAttempts}회` },

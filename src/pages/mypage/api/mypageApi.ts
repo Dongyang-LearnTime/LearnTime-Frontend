@@ -24,6 +24,15 @@ export const deleteMyAccount = async (confirmation: string) => {
     await axiosInstance.delete('/api/user/me', { data: { confirmation } });
 };
 
+export interface UnlinkGoogleRequest {
+    googleToken: string;
+    newPassword: string;
+}
+
+export const unlinkGoogleAccount = async (data: UnlinkGoogleRequest) => {
+    await axiosInstance.post('/api/user/me/unlink-google', data);
+};
+
 export const getMyPosts = async (page: number, size = 10): Promise<MyPostsResponse> => {
     const response = await axiosInstance.get<MyPostsResponse>('/api/user/me/posts', {
         params: { page, size, sort: 'createdAt,desc' },
@@ -37,3 +46,4 @@ export const getMyComments = async (page: number, size = 10): Promise<MyComments
     });
     return response.data;
 };
+

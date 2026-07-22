@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { useAuthStore } from '../../store/useAuthStore';
 import {
     User, FileText, MessageSquare, Heart, Coins, Settings,
-    ChevronRight, LogOut, Trash2, Eye, Edit3, Lock, UserX, Archive, Shield
+    ChevronRight, LogOut, Trash2, Eye, Edit3, Lock, UserX, Archive, Shield, Link2Off
 } from 'lucide-react';
 import {
     getMyInfo, getMyPageSummary, updateMyName, updateMyPassword,
-    deleteMyAccount, getMyPosts, getMyComments
+    deleteMyAccount, getMyPosts, getMyComments, unlinkGoogleAccount
 } from './api/mypageApi';
 import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostItem, MyCommentItem } from './types/myPageTypes';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
+import { getAuthProviderLabel } from '../../utils/authProviderUtil';
+import { toast } from '../../utils/toast';
 
 import BlockedUserList from './BlockedUserList';
 import ArchivedStudyList from './ArchivedStudyList';
@@ -82,12 +85,15 @@ export default function MyPage() {
     const [showEditName, setShowEditName] = useState(false);
     const [showEditPw, setShowEditPw] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showUnlinkGoogle, setShowUnlinkGoogle] = useState(false);
 
     // ── 폼 상태
     const [newName, setNewName] = useState('');
     const [currentPw, setCurrentPw] = useState('');
     const [newPw, setNewPw] = useState('');
     const [confirmPw, setConfirmPw] = useState('');
+    const [unlinkPw, setUnlinkPw] = useState('');
+    const [unlinkConfirmPw, setUnlinkConfirmPw] = useState('');
     const [deleteInput, setDeleteInput] = useState('');
     const [formError, setFormError] = useState('');
     const [formLoading, setFormLoading] = useState(false);
@@ -185,6 +191,63 @@ export default function MyPage() {
         } finally { setFormLoading(false); }
     };
 
+    // ── 구글 연동 해제
+    const handleUnlinkGoogleSubmit = async (googleToken: string) => {
+        setFormLoading(true);
+        setFormError('');
+        try {
+            await unlinkGoogleAccount({
+                googleToken,
+                newPassword: unlinkPw,
+            });
+            toast.success('Google 연동이 해제되고 일반 계정으로 전환되었습니다.');
+            setInfo(prev => prev ? { ...prev, socialProvider: 'LOCAL' } : prev);
+            setShowUnlinkGoogle(false);
+            setUnlinkPw('');
+            setUnlinkConfirmPw('');
+        } catch (e) {
+            setFormError(getApiErrorUtil(e, 'Google 연동 해제에 실패했습니다.'));
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
+    const triggerGoogleUnlink = useGoogleLogin({
+        onSuccess: (codeResponse) => {
+            if (codeResponse?.access_token) {
+                handleUnlinkGoogleSubmit(codeResponse.access_token);
+            } else {
+                setFormError('Google 인증 토큰을 취득하지 못했습니다.');
+                setFormLoading(false);
+            }
+        },
+        onError: (errorResponse) => {
+            console.error('Google Auth Failed:', errorResponse);
+            setFormError('Google 계정 인증에 실패했습니다.');
+            setFormLoading(false);
+        },
+    });
+
+    const handleStartUnlinkGoogle = () => {
+        if (!unlinkPw || !unlinkConfirmPw) {
+            setFormError('새 비밀번호를 모두 입력해주세요.');
+            return;
+        }
+        if (unlinkPw !== unlinkConfirmPw) {
+            setFormError('새 비밀번호가 일치하지 않습니다.');
+            return;
+        }
+        const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_])(?!.*(.)\1\1).{8,30}$/;
+        if (!pwRegex.test(unlinkPw)) {
+            setFormError('비밀번호는 8~30자, 영문/숫자/특수문자를 포함하고 같은 문자를 3번 연속 사용할 수 없습니다.');
+            return;
+        }
+
+        setFormError('');
+        setFormLoading(true);
+        triggerGoogleUnlink();
+    };
+
     // ── 정보 가져오는 중 스켈레톤
     const StatCard = ({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number | string; color: string }) => (
         <div className={`relative flex-1 min-w-32.5 rounded-2xl p-5 overflow-hidden border bg-white dark:bg-[#111] border-gray-100 dark:border-white/5 shadow-sm group hover:scale-[1.02] transition-all duration-300`}>
@@ -269,7 +332,7 @@ export default function MyPage() {
                                     { label: '이메일', value: info?.email },
                                     { label: '이름', value: info?.userName },
                                     { label: '가입일', value: info?.createdAt ? fmt(info.createdAt) : '-' },
-                                    { label: '가입 방식', value: info?.socialProvider === 'LOCAL' ? '일반 가입' : info?.socialProvider },
+                                    { label: '가입 방식', value: getAuthProviderLabel(info?.socialProvider) },
                                 ].map(row => (
                                     <div key={row.label} className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-white/5 last:border-0">
                                         <span className="text-sm font-bold text-gray-400 dark:text-gray-500">{row.label}</span>
@@ -288,6 +351,7 @@ export default function MyPage() {
                                 { icon: <Shield size={15} />, label: '관리자 페이지로 이동', color: 'text-indigo-600 dark:text-indigo-400', onClick: () => navigate('/admin'), hide: role !== 'ROLE_ADMIN' },
                                 { icon: <Edit3 size={15} />, label: '이름 변경', color: 'text-indigo-500', onClick: () => { setFormError(''); setNewName(''); setShowEditName(true); } },
                                 { icon: <Lock size={15} />, label: '비밀번호 변경', color: 'text-amber-500', onClick: () => { setFormError(''); setCurrentPw(''); setNewPw(''); setConfirmPw(''); setShowEditPw(true); }, hide: info?.socialProvider !== 'LOCAL' },
+                                { icon: <Link2Off size={15} />, label: 'Google 계정 연동 해제', color: 'text-rose-500', onClick: () => { setFormError(''); setUnlinkPw(''); setUnlinkConfirmPw(''); setShowUnlinkGoogle(true); }, hide: info?.socialProvider !== 'GOOGLE' },
                                 { icon: <LogOut size={15} />, label: '로그아웃', color: 'text-gray-500', onClick: () => { clearAuth(); navigate('/'); } },
                             ].filter(m => !m.hide).map(menu => (
                                 <button
@@ -492,6 +556,41 @@ export default function MyPage() {
                             <button onClick={() => setShowEditPw(false)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">취소</button>
                             <button onClick={handlePwUpdate} disabled={formLoading} className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-colors disabled:opacity-50">
                                 {formLoading ? '변경 중...' : '변경하기'}
+                            </button>
+                        </div>
+                    </ModalCard>
+                </ModalOverlay>
+            )}
+
+            {/* ══════════ Google 연동 해제 모달 ══════════ */}
+            {showUnlinkGoogle && (
+                <ModalOverlay onClose={() => setShowUnlinkGoogle(false)}>
+                    <ModalCard title="Google 계정 연동 해제" icon={<Link2Off size={16} className="text-rose-400" />}>
+                        <div className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 rounded-xl p-3 font-medium mb-4 space-y-1">
+                            <p className="font-bold">Google 소셜 연동을 해제하고 일반 이메일 계정으로 전환합니다.</p>
+                            <p>전환 후 일반 로그인 시 사용할 새로운 비밀번호를 설정해 주세요.</p>
+                        </div>
+                        <input
+                            id="unlink-new-pw"
+                            type="password"
+                            value={unlinkPw}
+                            onChange={e => setUnlinkPw(e.target.value)}
+                            placeholder="새 비밀번호 (8~30자, 영문/숫자/특수문자)"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500/50 mb-2 transition-all"
+                        />
+                        <input
+                            id="unlink-confirm-pw"
+                            type="password"
+                            value={unlinkConfirmPw}
+                            onChange={e => setUnlinkConfirmPw(e.target.value)}
+                            placeholder="새 비밀번호 확인"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500/50 mb-2 transition-all"
+                        />
+                        {formError && <p className="text-xs text-red-500 mt-1 mb-2 font-bold">{formError}</p>}
+                        <div className="flex gap-2 mt-5">
+                            <button onClick={() => setShowUnlinkGoogle(false)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">취소</button>
+                            <button onClick={handleStartUnlinkGoogle} disabled={formLoading} className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5">
+                                {formLoading ? '구글 인증 및 해제 중...' : 'Google 인증 및 연동 해제'}
                             </button>
                         </div>
                     </ModalCard>
