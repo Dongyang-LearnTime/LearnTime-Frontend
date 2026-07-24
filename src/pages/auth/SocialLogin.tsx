@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGoogleLogin } from '@react-oauth/google';
-import { socialLoginApi } from '../../api/socialAuthApi';
+import { socialLoginApi } from './api/socialAuthApi';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useSocialSignupStore } from '../../store/useSocialSignupStore';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
@@ -118,4 +118,4 @@ export default function SocialLogin({ isDark = false }: SocialLoginButtonsProps)
       </button>
     </div>
   );
-}
+}

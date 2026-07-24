@@ -130,14 +130,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* 부가 기능 (미구현) */}
-            {/* <div className="flex items-center justify-between px-1">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-                <span className="text-xs sm:text-sm text-gray-600 group-hover:text-gray-900 transition-colors">로그인 유지</span>
-              </label>
-              <a href="#" className="text-xs sm:text-sm font-medium text-indigo-600 hover:text-indigo-500">비밀번호 찾기</a>
-            </div> */}
+            {/* 비밀번호 찾기 */}
+            <div className="flex items-center justify-start px-1">
+              <Link to="/reset-password" className="text-xs sm:text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 hover:underline">
+                비밀번호를 잊으셨나요?
+              </Link>
+            </div>
 
             {/* 에러 메시지 */}
             {(loginError || isCapsLockOn) && (

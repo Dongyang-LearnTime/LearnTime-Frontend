@@ -1,4 +1,4 @@
-import { axiosInstance } from '../app/apiClient';
+import { axiosInstance } from '../../../app/apiClient';
 
 export type SocialProvider = 'GOOGLE' | 'NAVER';
 

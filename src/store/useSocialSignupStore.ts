@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { SocialProvider } from '../api/socialAuthApi';
+import type { SocialProvider } from '../pages/auth/api/socialAuthApi';
 
 interface SocialSignupState {
   socialToken: string | null;
