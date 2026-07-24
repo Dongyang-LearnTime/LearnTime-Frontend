@@ -9,6 +9,7 @@ const HomePage = lazy(() => import("../pages/HomePage"));
 const LearnTimeMainPage = lazy(() => import("../pages/LearnTimeMainPage"));
 const NotFoundPage = lazy(() => import("./NotFoundPage"));
 const SignupPage = lazy(() => import("../pages/auth/SignupPage"));
+const SocialSignupPage = lazy(() => import("../pages/auth/SocialSignupPage"));
 const EmailVerifyPage = lazy(() => import("../pages/auth/EmailVerifyPage"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const StudyInvitationPage = lazy(() => import("../pages/study/invitation/StudyInvitationPage"));
@@ -59,6 +60,7 @@ export const routes = [
   },
   { path: "*", element: <NotFoundPage /> },
   { path: "/signup", element: <SignupPage /> },
+  { path: "/signup/social", element: <SocialSignupPage /> },
   { path: "/signup/verify", element: <EmailVerifyPage /> },
   { path: "/login", element: <LoginPage /> },
 
