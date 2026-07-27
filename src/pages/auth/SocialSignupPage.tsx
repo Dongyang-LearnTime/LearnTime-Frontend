@@ -7,7 +7,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useSocialSignupStore } from '../../store/useSocialSignupStore';
-import { socialSignUpApi, checkNameApi } from '../../api/socialAuthApi';
+import { socialSignUpApi, checkNameApi } from './api/socialAuthApi';
 import TermsAgreementSection from './componets/TermsAgreementSection';
 import ErrorMessageBlock from './componets/ErrorMessageBlock';
 import AuthInput from './componets/AuthInput';
@@ -111,7 +111,7 @@ export default function SocialSignupPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-[#050505] dark:via-[#0a0a0a] dark:to-[#050505] flex items-center justify-center py-8 sm:py-12 px-4">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
-        
+
         {/* 상단 헤더 섹션 */}
         <div className="text-center">
           <Link to="/" className="inline-flex items-center gap-3 group">
@@ -133,11 +133,11 @@ export default function SocialSignupPage() {
         {/* 회원가입 카드 */}
         <div className="bg-white/90 dark:bg-[#111]/90 backdrop-blur-sm rounded-4xl sm:rounded-[2.5rem] shadow-2xl p-6 sm:p-10 border border-white/40 dark:border-white/10">
           <form className="space-y-4 sm:space-y-5" onSubmit={handleSocialSignUp}>
-            
+
             {/* 닉네임 입력 섹션 */}
             <AuthInput
               label="닉네임"
-              icon={<User size={14} className="text-indigo-400"/>}
+              icon={<User size={14} className="text-indigo-400" />}
               name="userName"
               type="text"
               value={userName}
@@ -172,13 +172,12 @@ export default function SocialSignupPage() {
             <button
               type="submit"
               disabled={!isFormValid || loading}
-              className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${
-                isFormValid && !loading
+              className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 text-sm sm:text-base ${isFormValid && !loading
                   ? 'bg-linear-to-r from-indigo-600 to-purple-600 hover:scale-[1.01] hover:shadow-indigo-200 active:scale-[0.99]'
                   : 'bg-gray-200 dark:bg-[#222] text-gray-400 cursor-not-allowed'
-              }`}
+                }`}
             >
-              {loading ? <Loader2 className="animate-spin mx-auto" size={20}/> : '가입 완료하기'}
+              {loading ? <Loader2 className="animate-spin mx-auto" size={20} /> : '가입 완료하기'}
             </button>
           </form>
         </div>

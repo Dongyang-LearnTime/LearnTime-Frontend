@@ -12,6 +12,7 @@ const SignupPage = lazy(() => import("../pages/auth/SignupPage"));
 const SocialSignupPage = lazy(() => import("../pages/auth/SocialSignupPage"));
 const EmailVerifyPage = lazy(() => import("../pages/auth/EmailVerifyPage"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
+const PasswordResetPage = lazy(() => import("../pages/auth/PasswordResetPage"));
 const StudyInvitationPage = lazy(() => import("../pages/study/invitation/StudyInvitationPage"));
 const CreateStudyPage = lazy(() => import("../pages/study/create/CreateStudyPage"));
 const NotesWritePage = lazy(() => import("../pages/study/notes/NotesWritePage"));
@@ -63,6 +64,8 @@ export const routes = [
   { path: "/signup/social", element: <SocialSignupPage /> },
   { path: "/signup/verify", element: <EmailVerifyPage /> },
   { path: "/login", element: <LoginPage /> },
+  { path: "/reset-password", element: <PasswordResetPage /> },
+  { path: "/forgot-password", element: <PasswordResetPage /> },
 
   // 공통 헤더만 필요한 인증 불필요 (Public) 그룹
   {
