@@ -8,6 +8,13 @@ import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { toast } from '../../utils/toast';
 import { Loader2 } from 'lucide-react';
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Kakao: any;
+  }
+}
+
 interface SocialLoginButtonsProps {
   isDark?: boolean;
 }
@@ -59,6 +66,65 @@ export default function SocialLogin({ isDark = false }: SocialLoginButtonsProps)
     },
   });
 
+  const handleKakaoSuccess = async (token: string) => {
+    setIsLoading(true);
+    try {
+      const response = await socialLoginApi({
+        provider: 'KAKAO',
+        token,
+      });
+
+      if (response.isRegistered && response.accessToken) {
+        // 기존 가입된 사용자 -> 로그인 성공
+        setAccessToken(response.accessToken);
+        localStorage.setItem('login_hint', 'true');
+        toast.success('카카오 계정으로 로그인되었습니다.');
+        navigate('/');
+      } else {
+        // 미가입 사용자 -> 소셜 회원가입 정보 저장 후 회원가입 페이지로 이동
+        setSocialAuthData(token, 'KAKAO');
+        toast.info('추가 회원가입 정보(닉네임, 약관 동의)를 입력해 주세요.');
+        navigate('/signup/social');
+      }
+    } catch (error) {
+      const errorMsg = getApiErrorUtil(error);
+      toast.error(errorMsg || '카카오 로그인 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const initKakaoSDK = () => {
+    if (typeof window !== 'undefined' && window.Kakao) {
+      const kakaoKey = import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY || 'a9769cc494dae144014aa14bdfb5c6d3';
+      if (!window.Kakao.isInitialized()) {
+        window.Kakao.init(kakaoKey);
+      }
+      return true;
+    }
+    console.warn('Kakao SDK is not loaded on window object.');
+    return false;
+  };
+
+  const handleKakaoLogin = () => {
+    if (!initKakaoSDK()) {
+      toast.error('카카오 로그인 서비스를 불러오는 중 오류가 발생했습니다.');
+      return;
+    }
+
+    window.Kakao.Auth.login({
+      success: (authObj: { access_token: string }) => {
+        if (authObj?.access_token) {
+          handleKakaoSuccess(authObj.access_token);
+        }
+      },
+      fail: (err: any) => {
+        console.error('Kakao Login Failed:', err);
+        toast.error('카카오 로그인에 실패했습니다.');
+      },
+    });
+  };
+
   const divider = isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb';
   const dividerText = isDark ? 'rgba(255,255,255,0.4)' : '#6b7280';
   const dividerTextBg = isDark ? 'transparent' : '#ffffff';
@@ -101,21 +167,28 @@ export default function SocialLogin({ isDark = false }: SocialLoginButtonsProps)
         Google로 계속하기
       </button>
 
-      {/* ── Naver ── */}
+      {/* ── Kakao ── */}
       <button
         type="button"
-        onClick={() => toast.info("준비 중인 기능입니다.")}
-        className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-2xl font-medium text-sm transition-all hover:scale-[1.02] hover:brightness-110 cursor-pointer"
+        disabled={isLoading}
+        onClick={handleKakaoLogin}
+        aria-label="카카오 계정으로 계속하기"
+        className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-2xl font-medium text-sm transition-all hover:scale-[1.02] hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         style={{
-          background: '#03C75A',
-          color: '#ffffff',
-          boxShadow: '0 4px 16px rgba(3,199,90,0.3)',
+          background: '#FEE500',
+          color: '#191919',
+          boxShadow: '0 4px 16px rgba(254,229,0,0.35)',
         }}>
-        <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="white">
-          <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" />
-        </svg>
-        네이버로 계속하기
+        {isLoading ? (
+          <Loader2 className="w-5 h-5 animate-spin text-gray-900" />
+        ) : (
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="#191919">
+            <path d="M12 3C6.477 3 2 6.477 2 10.771c0 2.766 1.83 5.197 4.613 6.554l-1.171 4.3c-.104.382.285.71.627.505l5.067-3.042c.287.025.577.039.864.039 5.523 0 10-3.477 10-7.771C22 6.477 17.523 3 12 3z" />
+          </svg>
+        )}
+        카카오로 계속하기
       </button>
     </div>
   );
 }
+

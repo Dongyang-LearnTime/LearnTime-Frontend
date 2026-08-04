@@ -1,6 +1,6 @@
 import { axiosInstance } from '../../../app/apiClient';
 
-export type SocialProvider = 'GOOGLE' | 'NAVER';
+export type SocialProvider = 'GOOGLE' | 'KAKAO';
 
 export interface SocialLoginRequest {
   provider: SocialProvider;
