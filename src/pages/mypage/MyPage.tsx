@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 import {
     getMyInfo, getMyPageSummary, updateMyName, updateMyPassword,
-    deleteMyAccount, getMyPosts, getMyComments, unlinkGoogleAccount
+    deleteMyAccount, getMyPosts, getMyComments, unlinkGoogleAccount,
+    unlinkKakaoAccount
 } from './api/mypageApi';
 import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostItem, MyCommentItem } from './types/myPageTypes';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
@@ -86,6 +87,7 @@ export default function MyPage() {
     const [showEditPw, setShowEditPw] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showUnlinkGoogle, setShowUnlinkGoogle] = useState(false);
+    const [showUnlinkKakao, setShowUnlinkKakao] = useState(false);
 
     // ── 폼 상태
     const [newName, setNewName] = useState('');
@@ -248,6 +250,78 @@ export default function MyPage() {
         triggerGoogleUnlink();
     };
 
+    // ── Kakao 연동 해제
+    const handleUnlinkKakaoSubmit = async (kakaoToken: string) => {
+        setFormLoading(true);
+        setFormError('');
+        try {
+            await unlinkKakaoAccount({
+                kakaoToken,
+                newPassword: unlinkPw,
+            });
+            toast.success('Kakao 연동이 해제되고 일반 계정으로 전환되었습니다.');
+            setInfo(prev => prev ? { ...prev, socialProvider: 'LOCAL' } : prev);
+            setShowUnlinkKakao(false);
+            setUnlinkPw('');
+            setUnlinkConfirmPw('');
+        } catch (e) {
+            setFormError(getApiErrorUtil(e, 'Kakao 연동 해제에 실패했습니다.'));
+        } finally {
+            setFormLoading(false);
+        }
+    };
+
+    const initKakaoSDK = () => {
+        if (typeof window !== 'undefined' && (window as any).Kakao) {
+            const kakaoKey = import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY || 'a9769cc494dae144014aa14bdfb5c6d3';
+            if (!(window as any).Kakao.isInitialized()) {
+                (window as any).Kakao.init(kakaoKey);
+            }
+            return true;
+        }
+        return false;
+    };
+
+    const handleStartUnlinkKakao = () => {
+        if (!unlinkPw || !unlinkConfirmPw) {
+            setFormError('새 비밀번호를 모두 입력해주세요.');
+            return;
+        }
+        if (unlinkPw !== unlinkConfirmPw) {
+            setFormError('새 비밀번호가 일치하지 않습니다.');
+            return;
+        }
+        const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_])(?!.*(.)\1\1).{8,30}$/;
+        if (!pwRegex.test(unlinkPw)) {
+            setFormError('비밀번호는 8~30자, 영문/숫자/특수문자를 포함하고 같은 문자를 3번 연속 사용할 수 없습니다.');
+            return;
+        }
+
+        if (!initKakaoSDK()) {
+            setFormError('Kakao SDK를 로드할 수 없습니다.');
+            return;
+        }
+
+        setFormError('');
+        setFormLoading(true);
+
+        (window as any).Kakao.Auth.login({
+            success: (authObj: { access_token: string }) => {
+                if (authObj?.access_token) {
+                    handleUnlinkKakaoSubmit(authObj.access_token);
+                } else {
+                    setFormError('Kakao 인증 토큰을 취득하지 못했습니다.');
+                    setFormLoading(false);
+                }
+            },
+            fail: (err: any) => {
+                console.error('Kakao Auth Failed:', err);
+                setFormError('Kakao 계정 인증에 실패했습니다.');
+                setFormLoading(false);
+            },
+        });
+    };
+
     // ── 정보 가져오는 중 스켈레톤
     const StatCard = ({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number | string; color: string }) => (
         <div className={`relative flex-1 min-w-32.5 rounded-2xl p-5 overflow-hidden border bg-white dark:bg-[#111] border-gray-100 dark:border-white/5 shadow-sm group hover:scale-[1.02] transition-all duration-300`}>
@@ -352,6 +426,7 @@ export default function MyPage() {
                                 { icon: <Edit3 size={15} />, label: '이름 변경', color: 'text-indigo-500', onClick: () => { setFormError(''); setNewName(''); setShowEditName(true); } },
                                 { icon: <Lock size={15} />, label: '비밀번호 변경', color: 'text-amber-500', onClick: () => { setFormError(''); setCurrentPw(''); setNewPw(''); setConfirmPw(''); setShowEditPw(true); }, hide: info?.socialProvider !== 'LOCAL' },
                                 { icon: <Link2Off size={15} />, label: 'Google 계정 연동 해제', color: 'text-rose-500', onClick: () => { setFormError(''); setUnlinkPw(''); setUnlinkConfirmPw(''); setShowUnlinkGoogle(true); }, hide: info?.socialProvider !== 'GOOGLE' },
+                                { icon: <Link2Off size={15} />, label: 'Kakao 계정 연동 해제', color: 'text-amber-500', onClick: () => { setFormError(''); setUnlinkPw(''); setUnlinkConfirmPw(''); setShowUnlinkKakao(true); }, hide: info?.socialProvider !== 'KAKAO' },
                                 { icon: <LogOut size={15} />, label: '로그아웃', color: 'text-gray-500', onClick: () => { clearAuth(); navigate('/'); } },
                             ].filter(m => !m.hide).map(menu => (
                                 <button
@@ -591,6 +666,41 @@ export default function MyPage() {
                             <button onClick={() => setShowUnlinkGoogle(false)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">취소</button>
                             <button onClick={handleStartUnlinkGoogle} disabled={formLoading} className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5">
                                 {formLoading ? '구글 인증 및 해제 중...' : 'Google 인증 및 연동 해제'}
+                            </button>
+                        </div>
+                    </ModalCard>
+                </ModalOverlay>
+            )}
+
+            {/* ══════════ Kakao 연동 해제 모달 ══════════ */}
+            {showUnlinkKakao && (
+                <ModalOverlay onClose={() => setShowUnlinkKakao(false)}>
+                    <ModalCard title="Kakao 계정 연동 해제" icon={<Link2Off size={16} className="text-amber-400" />}>
+                        <div className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-500/30 rounded-xl p-3 font-medium mb-4 space-y-1">
+                            <p className="font-bold">Kakao 소셜 연동을 해제하고 일반 이메일 계정으로 전환합니다.</p>
+                            <p>전환 후 일반 로그인 시 사용할 새로운 비밀번호를 설정해 주세요.</p>
+                        </div>
+                        <input
+                            id="unlink-kakao-new-pw"
+                            type="password"
+                            value={unlinkPw}
+                            onChange={e => setUnlinkPw(e.target.value)}
+                            placeholder="새 비밀번호 (8~30자, 영문/숫자/특수문자)"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 mb-2 transition-all"
+                        />
+                        <input
+                            id="unlink-kakao-confirm-pw"
+                            type="password"
+                            value={unlinkConfirmPw}
+                            onChange={e => setUnlinkConfirmPw(e.target.value)}
+                            placeholder="새 비밀번호 확인"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 mb-2 transition-all"
+                        />
+                        {formError && <p className="text-xs text-red-500 mt-1 mb-2 font-bold">{formError}</p>}
+                        <div className="flex gap-2 mt-5">
+                            <button onClick={() => setShowUnlinkKakao(false)} className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">취소</button>
+                            <button onClick={handleStartUnlinkKakao} disabled={formLoading} className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5">
+                                {formLoading ? '카카오 인증 및 해제 중...' : 'Kakao 인증 및 연동 해제'}
                             </button>
                         </div>
                     </ModalCard>

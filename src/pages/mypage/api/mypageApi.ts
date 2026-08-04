@@ -33,6 +33,15 @@ export const unlinkGoogleAccount = async (data: UnlinkGoogleRequest) => {
     await axiosInstance.post('/api/user/me/unlink-google', data);
 };
 
+export interface UnlinkKakaoRequest {
+    kakaoToken: string;
+    newPassword: string;
+}
+
+export const unlinkKakaoAccount = async (data: UnlinkKakaoRequest) => {
+    await axiosInstance.post('/api/user/me/unlink-kakao', data);
+};
+
 export const getMyPosts = async (page: number, size = 10): Promise<MyPostsResponse> => {
     const response = await axiosInstance.get<MyPostsResponse>('/api/user/me/posts', {
         params: { page, size, sort: 'createdAt,desc' },
