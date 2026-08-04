@@ -11,8 +11,8 @@ export function getAuthProviderLabel(provider?: string | null): string {
       return '일반 이메일 가입';
     case 'GOOGLE':
       return 'Google 소셜 연동';
-    case 'NAVER':
-      return 'Naver 소셜 연동';
+    case 'KAKAO':
+      return 'Kakao 소셜 연동';
     default:
       return provider;
   }

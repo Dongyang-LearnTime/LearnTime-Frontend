@@ -38,6 +38,11 @@ export default function SocialSignupPage() {
 
   // 소셜 토큰이 없다면 로그인 페이지로 리다이렉트 (최초 마운트 시 1회만 체크)
   useEffect(() => {
+    // 사용자가 이미 로그인에 성공해 인증된 상태라면 가드를 건너뀁니다.
+    if (useAuthStore.getState().isAuthenticated) {
+      return;
+    }
+
     const { socialToken: token, provider: p } = useSocialSignupStore.getState();
     if (!token || !p) {
       toast.error('소셜 인증 정보가 없습니다. 다시 로그인해 주세요.');
@@ -97,9 +102,9 @@ export default function SocialSignupPage() {
 
       setAccessToken(response.accessToken);
       localStorage.setItem('login_hint', 'true');
-      clearSocialAuthData();
       toast.success('회원가입 및 로그인이 완료되었습니다!');
       navigate('/', { replace: true });
+      clearSocialAuthData();
     } catch (error) {
       const msg = getApiErrorUtil(error);
       setSignupError(msg || '소셜 회원가입 처리 중 오류가 발생했습니다.');
