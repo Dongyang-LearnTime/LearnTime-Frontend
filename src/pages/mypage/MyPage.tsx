@@ -10,9 +10,10 @@ import {
 import {
     getMyInfo, getMyPageSummary, updateMyName, updateMyPassword,
     deleteMyAccount, getMyPosts, getMyComments, unlinkGoogleAccount,
-    unlinkKakaoAccount
+    unlinkKakaoAccount, updateMyTerms
 } from './api/mypageApi';
 import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostItem, MyCommentItem } from './types/myPageTypes';
+import type { Terms } from '../../types/userEnums';
 import { getApiErrorUtil } from '../../utils/getApiErrorUtil';
 import { getAuthProviderLabel } from '../../utils/authProviderUtil';
 import { toast } from '../../utils/toast';
@@ -322,6 +323,28 @@ export default function MyPage() {
         });
     };
 
+    // ── 약관 동의/철회 핸들러
+    const [termsLoading, setTermsLoading] = useState(false);
+    const handleToggleTerms = async (termKey: Terms, currentAgreed: boolean) => {
+        setTermsLoading(true);
+        try {
+            const nextAgreed = !currentAgreed;
+            await updateMyTerms(termKey, nextAgreed);
+            setInfo(prev => prev ? {
+                ...prev,
+                termsAgreements: {
+                    ...prev.termsAgreements,
+                    [termKey]: nextAgreed
+                }
+            } : prev);
+            toast.success(nextAgreed ? '신체 데이터 수집 약관에 동의했습니다.' : '신체 데이터 수집 약관 동의를 철회했습니다.');
+        } catch (e) {
+            toast.error(getApiErrorUtil(e, '약관 설정 변경에 실패했습니다.'));
+        } finally {
+            setTermsLoading(false);
+        }
+    };
+
     // ── 정보 가져오는 중 스켈레톤
     const StatCard = ({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number | string; color: string }) => (
         <div className={`relative flex-1 min-w-32.5 rounded-2xl p-5 overflow-hidden border bg-white dark:bg-[#111] border-gray-100 dark:border-white/5 shadow-sm group hover:scale-[1.02] transition-all duration-300`}>
@@ -438,6 +461,61 @@ export default function MyPage() {
                                     <ChevronRight size={14} className="text-gray-400" />
                                 </button>
                             ))}
+                        </div>
+
+                        {/* 약관 및 개인정보 동의 관리 */}
+                        <div className="bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm">
+                            <h2 className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <Shield size={14} /> 약관 및 개인정보 동의 관리
+                            </h2>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-white/5">
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">서비스 이용약관 (필수)</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500">서비스 기본 이용을 위한 필수 약관입니다.</p>
+                                    </div>
+                                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                                        동의 완료
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-white/5">
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white">개인정보 수집 및 이용 동의 (필수)</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500">회원 식별 및 서비스 운영을 위한 필수 동의입니다.</p>
+                                    </div>
+                                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                                        동의 완료
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center justify-between py-2">
+                                    <div>
+                                        <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                            신체 데이터 수집 및 이용 동의
+                                            <span className="text-[0.65rem] font-black text-rose-500 bg-rose-50 dark:bg-rose-500/10 px-2 py-0.5 rounded-md">
+                                                운동 랩 필수
+                                            </span>
+                                        </p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500">운동 기록, 신체 스펙 측정 및 AI 식단/운동 분석을 이용하려면 동의가 필요합니다.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        disabled={termsLoading}
+                                        onClick={() => handleToggleTerms('BODY_DATA_COLLECT', !!info?.termsAgreements?.['BODY_DATA_COLLECT'])}
+                                        aria-label="신체 데이터 수집 약관 동의 토글"
+                                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 ${
+                                            info?.termsAgreements?.['BODY_DATA_COLLECT'] ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
+                                        }`}
+                                    >
+                                        <span
+                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                info?.termsAgreements?.['BODY_DATA_COLLECT'] ? 'translate-x-5' : 'translate-x-0'
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         {/* 회원 탈퇴 */}

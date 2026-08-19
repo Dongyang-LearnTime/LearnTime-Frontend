@@ -1,17 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 // 운동 탭에 필요한 서브 섹션 컴포넌트 임포트
 import {
   TrainingSessionBox, ExerciseGuideBox, DietBox,
   BodyCompositionBox, ExerciseDashboardBox,
   ExerciseReportModal,
 } from './types/exerciseIndex';
+import { getMyInfo } from '../mypage/api/mypageApi';
 
 
 // 운동 랩 메인 페이지 컴포넌트
 export default function ExercisePage() {
+  const navigate = useNavigate();
+  const [isCheckingTerms, setIsCheckingTerms] = useState(true);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   // 운동 기록의 추가 및 삭제 이벤트를 그래프 컴포넌트에 동기화하기 위한 지역 키 상태
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    getMyInfo()
+      .then((info) => {
+        if (!isMounted) return;
+        if (!info.termsAgreements?.BODY_DATA_COLLECT) {
+          alert('신체 데이터 수집 및 이용 약관(선택)에 동의해야 이용할 수 있습니다.');
+          navigate('/mypage?tab=info', { replace: true });
+        } else {
+          setIsCheckingTerms(false);
+        }
+      })
+      .catch((error) => {
+        if (!isMounted) return;
+        console.error('약관 동의 여부 확인 실패:', error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate]);
+
+  if (isCheckingTerms) {
+    return null;
+  }
 
   const handleRefresh = () => {
     setRefreshKey(prev => prev + 1);
