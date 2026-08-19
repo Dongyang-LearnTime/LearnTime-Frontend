@@ -1,5 +1,6 @@
 import { axiosInstance } from '../../../app/apiClient';
 import type { MyPageInfoResponse, MyPageSummaryResponse, MyPostsResponse, MyCommentsResponse } from '../types/myPageTypes';
+import type { Terms } from '../../../types/userEnums';
 
 export const getMyInfo = async (): Promise<MyPageInfoResponse> => {
     const response = await axiosInstance.get<MyPageInfoResponse>('/api/user/me');
@@ -54,5 +55,9 @@ export const getMyComments = async (page: number, size = 10): Promise<MyComments
         params: { page, size, sort: 'createdAt,desc' },
     });
     return response.data;
+};
+
+export const updateMyTerms = async (terms: Terms, agreed: boolean): Promise<void> => {
+    await axiosInstance.patch('/api/user/me/terms', { terms, agreed });
 };
 
