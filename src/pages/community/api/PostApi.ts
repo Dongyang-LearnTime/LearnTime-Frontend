@@ -1,7 +1,14 @@
 import { axiosInstance } from "../../../app/apiClient";
 import imageCompression from "browser-image-compression";
 import type { PageResponse } from "../../../types/PaginationType";
-import type { PostCreateRequest, PostUpdateRequest, PostListResponse, PostUpdateDetailResponse, PostResponse } from "../types/PostTypes";
+import type { 
+    PostCreateRequest, 
+    PostUpdateRequest, 
+    PostListResponse, 
+    PostUpdateDetailResponse, 
+    PostResponse,
+    PostCategory 
+} from "../types/PostTypes";
 
 
 export const createPostApi = async (request: PostCreateRequest, images: File[]): Promise<number> => {
@@ -76,11 +83,15 @@ export const getPostApi = async (postId: number, lastCommentId?: number, size: n
 };
 
 // 게시글 목록
-export const getPostListApi = async (page: number, size: number = 10): Promise<PageResponse<PostListResponse>> => {
+export const getPostListApi = async (
+    page: number, 
+    size: number = 10,
+    category?: PostCategory
+): Promise<PageResponse<PostListResponse>> => {
     const response = await axiosInstance.get(
         `/api/community/post`,     
         {
-            params: { page, size }
+            params: { page, size, category }
         }
     );
     return response.data;

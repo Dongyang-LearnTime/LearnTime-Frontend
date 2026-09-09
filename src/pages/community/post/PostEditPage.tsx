@@ -7,12 +7,15 @@ import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 import PostForm, { type PostFormPayload } from '../components/PostForm';
 import { toast } from '../../../utils/toast';
 
+import type { PostCategory } from '../types/PostTypes';
+
 interface PostData {
     title: string;
     content: string;
     images: string[];
     studyId?: number;
     studyTitle?: string | null;
+    category?: PostCategory;
 }
 
 export default function PostEditPage() {
@@ -36,7 +39,8 @@ export default function PostEditPage() {
                     content: data.content,
                     images: data.images || [],
                     studyId: data.studyId,
-                    studyTitle: data.studyTitle
+                    studyTitle: data.studyTitle,
+                    category: data.category
                 });
             } catch (error) {
                 console.error('Failed to fetch post for edit:', error);
@@ -61,7 +65,8 @@ export default function PostEditPage() {
                 content: payload.content, 
                 isNotice: payload.isNotice, 
                 deletedImageUrls: payload.deletedImages,
-                studyId: payload.studyId
+                studyId: payload.studyId,
+                category: payload.category
             };
             await updatePostApi(Number(postId), request, payload.newImages);
             
@@ -105,6 +110,7 @@ export default function PostEditPage() {
                                 initialTitle={postData.title}
                                 initialContent={postData.content}
                                 initialImages={postData.images}
+                                initialCategory={postData.category}
                                 studyId={postData.studyId}
                                 studyTitle={postData.studyTitle}
                                 onSubmit={handleSubmit}

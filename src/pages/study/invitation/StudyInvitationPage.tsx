@@ -12,27 +12,38 @@ import {
     cancelInvitationApi,
     type StudyInvitationResponse
 } from '../api/studyInvitationApi';
+import {
+    getMyStudyJoinRequestsApi,
+    cancelStudyJoinRequestApi
+} from '../api/studyJoinRequestApi';
+import type { StudyJoinRequestResponse } from '../types/StudyTypes';
 
 export default function StudyInvitationPage() {
     usePageTitle("learn-time | 스터디 초대");
     
     const [searchParams, setSearchParams] = useSearchParams();
-    const currentTab = (searchParams.get('tab') as 'received' | 'sent') || 'received';
+    const currentTab = (searchParams.get('tab') as 'received' | 'sent' | 'join-requests') || 'received';
 
     const [invitations, setInvitations] = useState<StudyInvitationResponse[]>([]);
+    const [joinRequests, setJoinRequests] = useState<StudyJoinRequestResponse[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
     // 데이터 로딩
     useEffect(() => {
-        const fetchInvitations = async () => {
+        const fetchData = async () => {
             setIsLoading(true);
             setError('');
             try {
-                const data = currentTab === 'received'
-                    ? await getReceivedInvitationsApi()
-                    : await getSentInvitationsApi();
-                setInvitations(data);
+                if (currentTab === 'join-requests') {
+                    const data = await getMyStudyJoinRequestsApi();
+                    setJoinRequests(data);
+                } else {
+                    const data = currentTab === 'received'
+                        ? await getReceivedInvitationsApi()
+                        : await getSentInvitationsApi();
+                    setInvitations(data);
+                }
             } catch (err) {
                 setError(getApiErrorUtil(err));
             } finally {
@@ -40,11 +51,21 @@ export default function StudyInvitationPage() {
             }
         };
 
-        fetchInvitations();
+        fetchData();
     }, [currentTab]);
 
-    const handleTabClick = (tabName: 'received' | 'sent') => {
+    const handleTabClick = (tabName: 'received' | 'sent' | 'join-requests') => {
         setSearchParams({ tab: tabName });
+    };
+
+    const handleCancelJoinRequest = async (id: number) => {
+        try {
+            await cancelStudyJoinRequestApi(id);
+            toast.info('가입 신청이 취소되었습니다.');
+            setJoinRequests(prev => prev.map(r => r.studyJoinRequestId === id ? { ...r, status: 'CANCELED' } : r));
+        } catch (err) {
+            toast.error(getApiErrorUtil(err) || '가입 신청 취소에 실패했습니다.');
+        }
     };
 
     const handleAccept = async (id: number) => {
@@ -100,6 +121,16 @@ export default function StudyInvitationPage() {
                 >
                     보낸 초대
                 </button>
+                <button
+                    onClick={() => handleTabClick('join-requests')}
+                    className={`py-3 px-6 text-lg font-medium transition-colors ${
+                        currentTab === 'join-requests' 
+                        ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' 
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                    }`}
+                >
+                    내 가입 신청 내역
+                </button>
             </div>
 
             {/* 에러 메시지 */}
@@ -116,28 +147,64 @@ export default function StudyInvitationPage() {
                 </div>
             )}
 
-            {/* 초대 목록 */}
+            {/* 목록 영역 */}
             {!isLoading && !error && (
                 <div className="flex flex-col gap-4">
-                    {invitations.length === 0 ? (
-                        <div className="text-center py-12 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-100 dark:border-[#1a1a1a] text-gray-500 dark:text-gray-400">
-                            {currentTab === 'received' 
-                                ? '대기 중인 받은 스터디 초대가 없습니다.' 
-                                : '대기 중인 보낸 스터디 초대가 없습니다.'}
-                        </div>
+                    {currentTab === 'join-requests' ? (
+                        joinRequests.length === 0 ? (
+                            <div className="text-center py-12 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-100 dark:border-[#1a1a1a] text-gray-500 dark:text-gray-400">
+                                신청한 스터디 가입 내역이 없습니다.
+                            </div>
+                        ) : (
+                            joinRequests.map(req => (
+                                <div key={req.studyJoinRequestId} className="flex items-center justify-between p-5 rounded-2xl bg-white dark:bg-[#111] border border-gray-100 dark:border-[#1a1a1a] shadow-xs">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-base font-black text-gray-900 dark:text-white">{req.studyTitle}</span>
+                                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+                                                req.status === 'PENDING' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
+                                                req.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                                                req.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' :
+                                                'bg-gray-100 text-gray-500 dark:bg-[#222]'
+                                            }`}>
+                                                {req.status === 'PENDING' ? '대기 중' : req.status === 'APPROVED' ? '승인됨' : req.status === 'REJECTED' ? '거절됨' : '취소됨'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-gray-400 font-medium">신청일: {new Date(req.createdAt).toLocaleDateString()}</p>
+                                    </div>
+                                    {req.status === 'PENDING' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleCancelJoinRequest(req.studyJoinRequestId)}
+                                            className="px-3.5 py-1.5 rounded-xl border border-gray-200 dark:border-[#333] text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#222] transition-colors cursor-pointer"
+                                        >
+                                            신청 취소
+                                        </button>
+                                    )}
+                                </div>
+                            ))
+                        )
                     ) : (
-                        invitations.map(invitation => (
-                            <RequestListCard 
-                                key={invitation.studyInvitationId} 
-                                title={currentTab === 'received' ? `${invitation.userName}님의 초대` : `${invitation.userName}님에게 보낸 초대`}
-                                date={invitation.requestedAt}
-                                badgeText={invitation.studyTitle}
-                                type={currentTab}
-                                onAccept={() => handleAccept(invitation.studyInvitationId)}
-                                onReject={() => handleReject(invitation.studyInvitationId)}
-                                onCancel={() => handleCancel(invitation.studyInvitationId)}
-                            />
-                        ))
+                        invitations.length === 0 ? (
+                            <div className="text-center py-12 bg-gray-50 dark:bg-[#0a0a0a] rounded-lg border border-gray-100 dark:border-[#1a1a1a] text-gray-500 dark:text-gray-400">
+                                {currentTab === 'received' 
+                                    ? '대기 중인 받은 스터디 초대가 없습니다.' 
+                                    : '대기 중인 보낸 스터디 초대가 없습니다.'}
+                            </div>
+                        ) : (
+                            invitations.map(invitation => (
+                                <RequestListCard 
+                                    key={invitation.studyInvitationId} 
+                                    title={currentTab === 'received' ? `${invitation.userName}님의 초대` : `${invitation.userName}님에게 보낸 초대`}
+                                    date={invitation.requestedAt}
+                                    badgeText={invitation.studyTitle}
+                                    type={currentTab}
+                                    onAccept={() => handleAccept(invitation.studyInvitationId)}
+                                    onReject={() => handleReject(invitation.studyInvitationId)}
+                                    onCancel={() => handleCancel(invitation.studyInvitationId)}
+                                />
+                            ))
+                        )
                     )}
                 </div>
             )}

@@ -86,6 +86,9 @@ export const useNotificationSSE = (): void => {
     eventSource.addEventListener("study-invitation-received", handleNotificationEvent);
     eventSource.addEventListener("study-invitation-accepted", handleNotificationEvent);
     eventSource.addEventListener("study-invitation-rejected", handleNotificationEvent);
+    eventSource.addEventListener("study-join-request-received", handleNotificationEvent);
+    eventSource.addEventListener("study-join-request-approved", handleNotificationEvent);
+    eventSource.addEventListener("study-join-request-rejected", handleNotificationEvent);
     eventSource.addEventListener("message-received", handleNotificationEvent);
     
     // 테스트 발송 엔드포인트 전용 이벤트 등록

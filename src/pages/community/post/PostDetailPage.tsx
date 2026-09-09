@@ -9,6 +9,8 @@ import { usePageTitle } from '../../../hooks/usePageTitle';
 import UserPopover from '../../../components/common/UserPopover';
 import Avatar from '../../../components/common/Avatar';
 import { toast } from '../../../utils/toast';
+import { requestStudyJoinApi } from '../../study/api/studyJoinRequestApi';
+import { getApiErrorUtil } from '../../../utils/getApiErrorUtil';
 
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>();
@@ -21,6 +23,7 @@ export default function PostDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
 
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editCommentInput, setEditCommentInput] = useState('');
@@ -144,6 +147,28 @@ export default function PostDetailPage() {
     }
   };
 
+  const handleRequestJoin = async () => {
+    if (!isAuthenticated) {
+      toast.info('로그인이 필요한 기능입니다.');
+      navigate('/login');
+      return;
+    }
+    if (!post?.studyId || isJoining) return;
+    if (!confirm(`'${post.studyTitle}' 스터디에 참여 신청을 보내시겠습니까?`)) return;
+
+    setIsJoining(true);
+    try {
+      await requestStudyJoinApi(post.studyId);
+      toast.success('스터디 가입 신청이 성공적으로 전송되었습니다! 방장 승인 시 참여됩니다.');
+      await fetchPost(false);
+    } catch (err) {
+      const errMsg = getApiErrorUtil(err) || '스터디 가입 신청에 실패했습니다.';
+      toast.error(errMsg);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
   if (error) {
     return (
       <div className="flex flex-col h-screen items-center justify-center bg-gray-50 dark:bg-[#0a0a0a] gap-4">
@@ -227,6 +252,62 @@ export default function PostDetailPage() {
         </header>
         
         <div className="p-8 sm:p-10">
+          {/* 스터디 모집 배너 */}
+          {post.category === 'RECRUITMENT' && post.studyId && (
+            <div className="mb-8 p-6 sm:p-7 bg-linear-to-br from-violet-500/10 via-indigo-500/5 to-purple-500/10 border border-violet-200 dark:border-violet-900/40 rounded-3xl backdrop-blur-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-start gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/20 text-xl font-bold">
+                  📖
+                </span>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-black text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/40 px-2.5 py-0.5 rounded-md tracking-wider">
+                      스터디 모집
+                    </span>
+                    <span className={`text-xs font-black px-2 py-0.5 rounded-md ${
+                      post.isFull
+                        ? 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                        : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                    }`}>
+                      {post.isFull ? '정원 마감' : '모집 중'}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white">
+                    {post.studyTitle || '연동된 스터디'}
+                  </h3>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1">
+                    현재 참여 인원: <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">{post.currentMemberCount ?? 1}명</span> / 정원 4명
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                {isPostAuthor ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/study/${post.studyId}`)}
+                    className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-md transition-all cursor-pointer hover:scale-105"
+                  >
+                    내 스터디 스튜디오 &rarr;
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleRequestJoin}
+                    disabled={isJoining || !!post.isFull}
+                    className={`px-6 py-3 text-xs font-black rounded-xl transition-all shadow-md ${
+                      post.isFull
+                        ? 'bg-gray-200 dark:bg-[#1a1a1a] text-gray-400 cursor-not-allowed shadow-none'
+                        : 'bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-500/20 active:scale-95 cursor-pointer'
+                    }`}
+                  >
+                    {post.isFull ? '모집이 마감되었습니다' : isJoining ? '신청 중...' : '스터디 참여 신청하기'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-8 leading-tight">
             {post.title}
           </h1>

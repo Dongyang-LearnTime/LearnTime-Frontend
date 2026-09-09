@@ -26,6 +26,7 @@ export interface StudyPlanResponse {
   understandingScore: number | null; // 이해도 점수 
   studyMemberId: number;        // 조회한 사용자의 스터디 멤버 ID
   allStudyMemberIds: number[];  // 모든 스터디 멤버 ID 목록
+  isPublic?: boolean;           // 스터디 공개 여부
 }
 
 // 최근 일주일 일일 학습 상태 응답
@@ -127,3 +128,32 @@ export interface UpdateStudyRestScheduleRequest {
   restDays: string[];
   restDates: string[];
 }
+
+// 스터디 생성 상태 응답
+export type StudyGenerationStatus = 'PLANNING' | 'READY' | 'FAILED';
+
+export interface StudyStatusResponse {
+  studyId: number;
+  status: StudyGenerationStatus;
+  isPublic?: boolean;
+}
+
+// 스터디 공개 여부 변경 요청
+export interface UpdateStudyVisibilityRequest {
+  isPublic: boolean;
+}
+
+// 스터디 가입 요청 상태
+export type StudyJoinRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELED';
+
+// 스터디 가입 요청 응답
+export interface StudyJoinRequestResponse {
+  studyJoinRequestId: number;
+  studyId: number;
+  studyTitle: string;
+  requesterUserId: number;
+  requesterName: string;
+  status: StudyJoinRequestStatus;
+  createdAt: string;
+}
+

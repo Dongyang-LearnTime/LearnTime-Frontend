@@ -13,6 +13,7 @@ export default function CreatePostPage() {
 
     const studyIdParam = searchParams.get('studyId');
     const studyTitleParam = searchParams.get('studyTitle');
+    const categoryParam = searchParams.get('category') === 'RECRUITMENT' ? 'RECRUITMENT' : 'FREE';
     const studyId = studyIdParam ? Number(studyIdParam) : undefined;
 
     const [ postError , setPostError ] = useState<string>('');
@@ -29,7 +30,8 @@ export default function CreatePostPage() {
                 title: payload.title, 
                 content: payload.content, 
                 isNotice: payload.isNotice,
-                studyId: payload.studyId
+                studyId: payload.studyId,
+                category: payload.category
             };
             const postId = await createPostApi(request, payload.newImages);
             
@@ -72,6 +74,7 @@ export default function CreatePostPage() {
                         error={postError}
                         studyId={studyId}
                         studyTitle={studyTitleParam}
+                        initialCategory={categoryParam}
                     />
                 </div>
             </div>

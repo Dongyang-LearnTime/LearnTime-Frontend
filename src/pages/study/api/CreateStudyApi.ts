@@ -7,6 +7,7 @@ export type StudyGenerationStatus = 'PLANNING' | 'READY' | 'FAILED';
 export interface StudyStatusResponse {
   studyId: number;
   status: StudyGenerationStatus;
+  isPublic?: boolean;
 }
 
 export interface FriendResponse {
@@ -59,7 +60,8 @@ export const createStudyPlanApi = async (
       restDays: studyForm.restDays,
       restDates: studyForm.restDates,
       tocList: bookToc,
-      studyMemberList: studyMemberList
+      studyMemberList: studyMemberList,
+      isPublic: studyForm.isPublic
     }
   );
 

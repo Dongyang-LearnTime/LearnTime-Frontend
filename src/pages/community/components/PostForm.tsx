@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { toast } from '../../../utils/toast';
+import type { PostCategory } from '../types/PostTypes';
 
 export interface PostFormPayload {
     title: string;
     content: string;
     isNotice: boolean;
+    category: PostCategory;
     newImages: File[];
     deletedImages: string[];
     studyId?: number;
@@ -16,6 +18,7 @@ interface PostFormProps {
     initialTitle?: string;
     initialContent?: string;
     initialIsNotice?: boolean;
+    initialCategory?: PostCategory;
     initialImages?: string[];
     studyId?: number;
     studyTitle?: string | null;
@@ -32,6 +35,7 @@ export default function PostForm({
     initialTitle = '',
     initialContent = '',
     initialIsNotice = false,
+    initialCategory = 'FREE',
     initialImages = DEFAULT_IMAGES,
     studyId,
     studyTitle,
@@ -47,6 +51,7 @@ export default function PostForm({
     const [ title, setTitle ] = useState<string>(initialTitle);
     const [ content, setContent ] = useState<string>(initialContent);
     const [ isNotice, setIsNotice ] = useState<boolean>(initialIsNotice);
+    const [ category, setCategory ] = useState<PostCategory>(initialCategory);
     const [ newImages, setNewImages ] = useState<File[]>([]);
     const [ existingImages, setExistingImages ] = useState<string[]>(initialImages);
     const [ deletedImages, setDeletedImages ] = useState<string[]>([]);
@@ -60,11 +65,12 @@ export default function PostForm({
         setTitle(initialTitle);
         setContent(initialContent);
         setIsNotice(initialIsNotice);
+        setCategory(initialCategory);
         setExistingImages(initialImages);
         setDeletedImages([]);
         setNewImages([]);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialTitle, initialContent, initialIsNotice, JSON.stringify(initialImages)]);
+    }, [initialTitle, initialContent, initialIsNotice, initialCategory, JSON.stringify(initialImages)]);
 
     useEffect(() => {
         const urls = newImages.map(file => URL.createObjectURL(file));
@@ -112,10 +118,16 @@ export default function PostForm({
             return;
         }
 
+        if (category === 'RECRUITMENT' && !studyId) {
+            toast.warning('스터디원 모집글을 작성하려면 본인이 방장인 공개 스터디와 연동되어야 합니다.');
+            return;
+        }
+
         onSubmit({
             title,
             content,
             isNotice,
+            category,
             newImages,
             deletedImages,
             studyId
@@ -127,11 +139,56 @@ export default function PostForm({
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             
+            {/* 카테고리 선택 */}
+            <div className="flex flex-col gap-2">
+                <label className="font-bold text-gray-900 dark:text-gray-200 text-sm">게시글 분류</label>
+                <div className="grid grid-cols-2 gap-3">
+                    <button
+                        type="button"
+                        onClick={() => setCategory('FREE')}
+                        className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                            category === 'FREE'
+                                ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-500 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                                : 'bg-gray-50/50 dark:bg-gray-900/30 border-gray-200 dark:border-[#222] text-gray-500 hover:border-gray-300'
+                        }`}
+                    >
+                        자유·공부인증
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setCategory('RECRUITMENT')}
+                        className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
+                            category === 'RECRUITMENT'
+                                ? 'bg-violet-50 dark:bg-violet-950/30 border-violet-500 text-violet-600 dark:text-violet-400 shadow-xs'
+                                : 'bg-gray-50/50 dark:bg-gray-900/30 border-gray-200 dark:border-[#222] text-gray-500 hover:border-gray-300'
+                        }`}
+                    >
+                        스터디원 모집
+                    </button>
+                </div>
+            </div>
+
             {studyTitle && (
-                <div className="flex items-center gap-3.5 p-4.5 bg-indigo-500/5 dark:bg-indigo-500/10 border border-indigo-500/20 dark:border-indigo-500/30 rounded-2xl transition-all duration-300">
-                    <span className="text-xs font-black bg-indigo-600 dark:bg-indigo-500 text-white px-2.5 py-1.5 rounded-xl uppercase tracking-wider">공부 인증 연동</span>
+                <div className={`flex items-center gap-3.5 p-4.5 rounded-2xl border transition-all duration-300 ${
+                    category === 'RECRUITMENT'
+                        ? 'bg-violet-500/5 dark:bg-violet-500/10 border-violet-500/20 dark:border-violet-500/30'
+                        : 'bg-indigo-500/5 dark:bg-indigo-500/10 border-indigo-500/20 dark:border-indigo-500/30'
+                }`}>
+                    <span className={`text-xs font-black text-white px-2.5 py-1.5 rounded-xl uppercase tracking-wider ${
+                        category === 'RECRUITMENT' ? 'bg-violet-600 dark:bg-violet-500' : 'bg-indigo-600 dark:bg-indigo-500'
+                    }`}>
+                        {category === 'RECRUITMENT' ? '스터디원 모집 연동' : '공부 인증 연동'}
+                    </span>
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{studyTitle}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 font-bold ml-auto hidden sm:inline">글 등록 시 스터디 핵심 지표 스냅샷이 게시글에 첨부됩니다.</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-bold ml-auto hidden sm:inline">
+                        {category === 'RECRUITMENT' ? '이 스터디의 모집글로 등록됩니다.' : '스터디 핵심 지표 스냅샷이 첨부됩니다.'}
+                    </span>
+                </div>
+            )}
+
+            {!studyTitle && category === 'RECRUITMENT' && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-2xl text-xs font-bold text-amber-800 dark:text-amber-300">
+                    ⚠️ 스터디원 모집글은 본인이 방장인 공개 스터디와 연동되어야 합니다. 스터디 스튜디오(방장)의 "모집글 작성" 버튼을 통해 작성해 주세요.
                 </div>
             )}
 
