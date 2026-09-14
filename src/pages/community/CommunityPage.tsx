@@ -4,7 +4,7 @@ import { PostCard } from './components/PostCard';
 import { getPostListApi, searchPostListApi, getWeeklyPopularPostsApi, getNoticePostsApi } from './api/PostApi';
 import { getRankingApi } from './api/communityApi';
 import { useAuthStore } from '../../store/useAuthStore';
-import type { PostListResponse, PointRankingResponse } from './types/PostTypes';
+import type { PostListResponse, PointRankingResponse, PostCategory } from './types/PostTypes';
 import { useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../hooks/usePageTitle';
 import { toast } from '../../utils/toast';
@@ -21,6 +21,7 @@ export default function CommunityPage() {
   const [ searchInput, setSearchInput ] = useState('');
   const [ searchKeyword, setSearchKeyword ] = useState('');
   const [ searchType, setSearchType ] = useState<'CONTENT' | 'AUTHOR'>('CONTENT');
+  const [ selectedCategory, setSelectedCategory ] = useState<'ALL' | PostCategory>('ALL');
 
   const [ postsPage, setPostsPage ] = useState(0);
   const [ hasMorePosts, setHasMorePosts ] = useState(true);
@@ -48,7 +49,7 @@ export default function CommunityPage() {
     return () => { isMounted = false; };
   }, []);
 
-  // 검색어, 검색타입, 페이지 변화 감지 시 자동으로 데이터 갱신 (선언형 아키텍처)
+  // 검색어, 검색타입, 카테고리, 페이지 변화 감지 시 자동으로 데이터 갱신 (선언형 아키텍처)
   useEffect(() => {
     let isMounted = true;
     const loadPosts = async () => {
@@ -58,7 +59,8 @@ export default function CommunityPage() {
         if (searchKeyword.trim()) {
           response = await searchPostListApi(searchKeyword, postsPage, searchType);
         } else {
-          response = await getPostListApi(postsPage);
+          const categoryParam = selectedCategory === 'ALL' ? undefined : selectedCategory;
+          response = await getPostListApi(postsPage, 10, categoryParam);
         }
 
         if (isMounted) {
@@ -84,7 +86,7 @@ export default function CommunityPage() {
     };
     loadPosts();
     return () => { isMounted = false; };
-  }, [searchKeyword, searchType, postsPage, hasMorePosts]);
+  }, [searchKeyword, searchType, selectedCategory, postsPage, hasMorePosts]);
 
   // 엔터/클릭 시 검색어 상태만 업데이트하여 선언형 이벤트를 유도
   const triggerSearch = () => {
@@ -190,7 +192,46 @@ export default function CommunityPage() {
           )}
 
           <div className="space-y-6">
-            <h3 className="text-lg font-black tracking-tight mb-4 flex items-center gap-2 text-gray-500">최신 게시글</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+              <h3 className="text-lg font-black tracking-tight flex items-center gap-2 text-gray-500">최신 게시글</h3>
+              
+              {/* 카테고리 필터 탭 */}
+              <div className="flex items-center gap-1.5 p-1 bg-gray-100 dark:bg-[#111] border border-gray-200/60 dark:border-[#222] rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => { setSelectedCategory('ALL'); setPostsPage(0); }}
+                  className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    selectedCategory === 'ALL'
+                      ? 'bg-white dark:bg-[#222] text-indigo-600 dark:text-indigo-400 shadow-xs'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  }`}
+                >
+                  전체
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedCategory('FREE'); setPostsPage(0); }}
+                  className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    selectedCategory === 'FREE'
+                      ? 'bg-white dark:bg-[#222] text-indigo-600 dark:text-indigo-400 shadow-xs'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  }`}
+                >
+                  자유·인증
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedCategory('RECRUITMENT'); setPostsPage(0); }}
+                  className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                    selectedCategory === 'RECRUITMENT'
+                      ? 'bg-white dark:bg-[#222] text-indigo-600 dark:text-indigo-400 shadow-xs'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  }`}
+                >
+                  스터디원 모집
+                </button>
+              </div>
+            </div>
             
             {/* 공지글 목록 렌더링 */}
             {notices.length > 0 && notices.map(post => (

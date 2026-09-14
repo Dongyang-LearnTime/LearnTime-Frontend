@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getStudyMemberListApi, getStudyOwnerFriendListApi, inviteStudyMemberApi, changeStudyOwnerApi, leaveStudyApi, kickStudyMemberApi } from "../api/studyStudioApi";
-import type { StudyMemberResponse, StudyMemberFriendResponse } from "../types/StudyTypes";
+import { getStudyStatusApi } from "../api/CreateStudyApi";
+import { 
+  getPendingStudyJoinRequestsApi, 
+  approveStudyJoinRequestApi, 
+  rejectStudyJoinRequestApi, 
+  updateStudyVisibilityApi 
+} from "../api/studyJoinRequestApi";
+import type { StudyMemberResponse, StudyMemberFriendResponse, StudyJoinRequestResponse } from "../types/StudyTypes";
 import { Card, CardTitle } from "../../../components/common/Card";
 import { UsersIcon, PlusIcon, XIcon } from "../../../components/ui/Icons";
 import { useAuthStore } from "../../../store/useAuthStore";
@@ -14,15 +22,22 @@ interface StudyMemberListProps {
 }
 
 export default function StudyMemberList({ studyId }: StudyMemberListProps) {
+  const navigate = useNavigate();
   const userId = useAuthStore((state) => state.userId);
   const [members, setMembers] = useState<StudyMemberResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [isPublic, setIsPublic] = useState<boolean>(false);
+
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [friends, setFriends] = useState<StudyMemberFriendResponse[]>([]);
   const [isFriendsLoading, setIsFriendsLoading] = useState(false);
   const [friendSearchTerm, setFriendSearchTerm] = useState("");
+
+  const [isPendingModalOpen, setIsPendingModalOpen] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState<StudyJoinRequestResponse[]>([]);
+  const [isPendingLoading, setIsPendingLoading] = useState(false);
 
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaveInput, setLeaveInput] = useState("");
@@ -46,6 +61,66 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
 
     fetchMembers();
   }, [studyId]);
+
+  useEffect(() => {
+    const fetchStudyStatus = async () => {
+      try {
+        const res = await getStudyStatusApi(Number(studyId));
+        if (typeof res.isPublic === 'boolean') {
+          setIsPublic(res.isPublic);
+        }
+      } catch (err) {
+        console.error("Failed to fetch study status:", err);
+      }
+    };
+    fetchStudyStatus();
+  }, [studyId]);
+
+  const handleToggleVisibility = async () => {
+    try {
+      const next = !isPublic;
+      await updateStudyVisibilityApi(Number(studyId), next);
+      setIsPublic(next);
+      toast.success(next ? "스터디가 공개로 전환되었습니다." : "스터디가 비공개로 전환되었습니다.");
+    } catch (err) {
+      toast.error(getApiErrorUtil(err) || "스터디 공개 설정 변경에 실패했습니다.");
+    }
+  };
+
+  const handleOpenPendingModal = async () => {
+    setIsPendingModalOpen(true);
+    setIsPendingLoading(true);
+    try {
+      const data = await getPendingStudyJoinRequestsApi(Number(studyId));
+      setPendingRequests(data);
+    } catch (err) {
+      toast.error(getApiErrorUtil(err) || "가입 요청 목록을 불러오지 못했습니다.");
+    } finally {
+      setIsPendingLoading(false);
+    }
+  };
+
+  const handleApproveRequest = async (requestId: number) => {
+    try {
+      await approveStudyJoinRequestApi(requestId);
+      toast.success("가입 요청을 승인했습니다.");
+      setPendingRequests(prev => prev.filter(r => r.studyJoinRequestId !== requestId));
+      const updated = await getStudyMemberListApi(studyId);
+      setMembers(updated);
+    } catch (err) {
+      toast.error(getApiErrorUtil(err) || "가입 승인 처리에 실패했습니다.");
+    }
+  };
+
+  const handleRejectRequest = async (requestId: number) => {
+    try {
+      await rejectStudyJoinRequestApi(requestId);
+      toast.info("가입 요청을 거절했습니다.");
+      setPendingRequests(prev => prev.filter(r => r.studyJoinRequestId !== requestId));
+    } catch (err) {
+      toast.error(getApiErrorUtil(err) || "가입 거절 처리에 실패했습니다.");
+    }
+  };
 
   const handleChangeOwner = async (newOwnerMemberId: number, newOwnerName: string) => {
     if (!window.confirm(`${newOwnerName} 님에게 방장 권한을 위임하시겠습니까?`)) {
@@ -162,18 +237,51 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
               </button>
             )}
             {isOwner && (
-              <button
-                onClick={handleOpenInviteModal}
-                disabled={!canInvite}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all shadow-sm ${
-                  canInvite 
-                    ? "bg-linear-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-400 hover:to-violet-400 hover:-translate-y-0.5 hover:shadow-indigo-500/30 cursor-pointer" 
-                    : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 cursor-not-allowed"
-                }`}
-                title={!canInvite ? "최대 활성화 멤버 4명을 초과할 수 없습니다." : "친구 초대"}
-              >
-                <PlusIcon size={16} /> 새로운 멤버 초대
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={handleToggleVisibility}
+                  className={`px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
+                    isPublic
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800'
+                      : 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-[#1a1a1a] dark:text-gray-400 dark:border-[#333]'
+                  }`}
+                  title="스터디 공개 상태를 전환합니다"
+                >
+                  {isPublic ? '🌐 공개' : '🔒 비공개'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleOpenPendingModal}
+                  className="px-3 py-2 rounded-xl text-xs font-black transition-all bg-violet-50 text-violet-700 hover:bg-violet-100 dark:bg-violet-950/30 dark:text-violet-300 cursor-pointer border border-violet-200 dark:border-violet-800"
+                >
+                  가입 신청
+                </button>
+
+                {isPublic && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/community/post/create?studyId=${studyId}&category=RECRUITMENT`)}
+                    className="px-3 py-2 rounded-xl text-xs font-black transition-all bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:text-indigo-300 cursor-pointer border border-indigo-200 dark:border-indigo-800"
+                  >
+                    모집글 작성
+                  </button>
+                )}
+
+                <button
+                  onClick={handleOpenInviteModal}
+                  disabled={!canInvite}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black transition-all shadow-sm ${
+                    canInvite 
+                      ? "bg-linear-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-400 hover:to-violet-400 hover:-translate-y-0.5 hover:shadow-indigo-500/30 cursor-pointer" 
+                      : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 cursor-not-allowed"
+                  }`}
+                  title={!canInvite ? "최대 활성화 멤버 4명을 초과할 수 없습니다." : "친구 초대"}
+                >
+                  <PlusIcon size={16} /> 새로운 멤버 초대
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -379,6 +487,57 @@ export default function StudyMemberList({ studyId }: StudyMemberListProps) {
                 {isLeaving ? "처리 중..." : "탈퇴하기"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 가입 신청 관리 모달 */}
+      {isPendingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white dark:bg-[#0a0a0a] rounded-4xl border border-gray-100 dark:border-[#1a1a1a] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                가입 신청 대기자 관리
+              </h3>
+              <button onClick={() => setIsPendingModalOpen(false)} className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-full transition-colors cursor-pointer">
+                <XIcon size={18} />
+              </button>
+            </div>
+
+            {isPendingLoading ? (
+              <div className="py-12 text-center text-xs font-bold text-gray-400">
+                대기 목록을 불러오는 중...
+              </div>
+            ) : pendingRequests.length === 0 ? (
+              <div className="py-12 text-center text-sm font-bold text-gray-400">
+                대기 중인 가입 신청이 없습니다.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-1">
+                {pendingRequests.map(req => (
+                  <div key={req.studyJoinRequestId} className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-[#111] border border-gray-100 dark:border-[#1a1a1a]">
+                    <div>
+                      <p className="text-sm font-black text-gray-900 dark:text-white leading-tight mb-0.5">{req.requesterName}</p>
+                      <p className="text-[10px] font-bold text-gray-400">{new Date(req.createdAt).toLocaleDateString()} 신청</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleApproveRequest(req.studyJoinRequestId)}
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm"
+                      >
+                        승인
+                      </button>
+                      <button
+                        onClick={() => handleRejectRequest(req.studyJoinRequestId)}
+                        className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-[#222] dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      >
+                        거절
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

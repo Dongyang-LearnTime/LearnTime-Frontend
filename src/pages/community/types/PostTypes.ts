@@ -1,9 +1,12 @@
 import type { StudyTotalInfoResponse } from "../../study/types/StudyTypes";
 
+export type PostCategory = 'FREE' | 'RECRUITMENT';
+
 export interface PostCreateRequest {
   title: string;
   content: string;
   studyId?: number;
+  category?: PostCategory;
   isNotice: boolean;
 }
 
@@ -11,8 +14,9 @@ export interface PostUpdateRequest {
     title: string; 
     content: string; 
     deletedImageUrls: string[]; 
-    isNotice: boolean; 
+    isNotice?: boolean; 
     studyId?: number;
+    category?: PostCategory;
 }
 
 export interface PostResponse {
@@ -33,6 +37,11 @@ export interface PostResponse {
     comments: CommentResponse[]; // 게시글 댓글 목록
     studyTotalIndicator: StudyTotalInfoResponse | null; // 연관된 스터디 핵심 지표, 없으면 null
     isNotice: boolean; // 공지사항 여부
+    studyId?: number | null; // 연동된 스터디 ID
+    studyTitle?: string | null; // 연동된 스터디 제목
+    currentMemberCount?: number | null; // 현재 스터디 참여 인원 수
+    isFull?: boolean | null; // 스터디 정원 마감 여부
+    category: PostCategory; // 게시글 카테고리 (FREE, RECRUITMENT)
 }
 
 // 게시글 목록
@@ -48,6 +57,11 @@ export interface PostListResponse {
     commentCount: number;
     createdAt: string; 
     isNotice: boolean;
+    studyId?: number | null;
+    studyTitle?: string | null;
+    currentMemberCount?: number | null;
+    isFull?: boolean | null;
+    category: PostCategory;
 }
 
 // 댓글 아이템
@@ -69,6 +83,7 @@ export interface PostUpdateDetailResponse {
     images: string[];
     studyId?: number;
     studyTitle?: string | null;
+    category?: PostCategory;
 }
 
 

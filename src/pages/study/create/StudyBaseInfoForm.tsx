@@ -142,6 +142,56 @@ export default function StudyBaseInfoForm({
                     />
                 </div>
 
+                {/* 스터디 공개 여부 설정 */}
+                <div className="flex flex-col gap-2 md:col-span-2">
+                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">스터디 공개 설정</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setStudyForm(prev => ({ ...prev, isPublic: false }))}
+                            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                                !studyForm.isPublic
+                                    ? 'bg-indigo-50/70 dark:bg-indigo-950/20 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-xs'
+                                    : 'bg-gray-50/50 dark:bg-[#111] border-gray-200 dark:border-[#222] text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-[#333]'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="font-black text-sm flex items-center gap-1.5">
+                                    🔒 비공개 스터디
+                                </span>
+                                {!studyForm.isPublic && (
+                                    <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400"></span>
+                                )}
+                            </div>
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                                친구에게만 초대를 보낼 수 있으며, 커뮤니티에 모집글이 노출되지 않습니다.
+                            </p>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setStudyForm(prev => ({ ...prev, isPublic: true }))}
+                            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                                studyForm.isPublic
+                                    ? 'bg-indigo-50/70 dark:bg-indigo-950/20 border-indigo-500 text-indigo-900 dark:text-indigo-200 shadow-xs'
+                                    : 'bg-gray-50/50 dark:bg-[#111] border-gray-200 dark:border-[#222] text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-[#333]'
+                            }`}
+                        >
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="font-black text-sm flex items-center gap-1.5">
+                                    🌐 공개 스터디
+                                </span>
+                                {studyForm.isPublic && (
+                                    <span className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400"></span>
+                                )}
+                            </div>
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-relaxed">
+                                커뮤니티에 모집글을 등록해 일반 사용자들의 참여 신청을 받을 수 있습니다.
+                            </p>
+                        </button>
+                    </div>
+                </div>
+
                 {/* 쉬는 요일 */}
                 <div className="flex flex-col gap-2 md:col-span-2 mt-2">
                     <label className="text-sm font-bold text-gray-700 dark:text-gray-300">정기 휴무일 (반복되는 쉬는 요일)</label>

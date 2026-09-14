@@ -23,6 +23,7 @@ export interface StudyForm {
     endDate: string;
     restDays: string[];     // 예: ['MONDAY', 'WEDNESDAY']
     restDates: string[];    // 예: ['2026-05-01', '2026-05-05']
+    isPublic: boolean;      // 스터디 공개 여부 (true: 공개, false: 비공개)
 }
 
 export const dayMap: Record<string, number> = {
@@ -62,7 +63,8 @@ function CreateStudyPageInner() {
         startDate: '',
         endDate: '',
         restDays: [],
-        restDates: []
+        restDates: [],
+        isPublic: false
     });
     const [ tempRestDate, setTempRestDate ] = useState<string>(''); 
 
