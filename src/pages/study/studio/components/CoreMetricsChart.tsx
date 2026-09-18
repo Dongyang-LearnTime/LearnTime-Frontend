@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
 import type { StudyTotalInfoResponse } from "../../types/StudyTypes";
 import { Card } from "../../../../components/common/Card";
 import { ProgressBar } from "../../../../components/common/ProgressBar";
 
 interface CoreMetricsChartProps {
   data: StudyTotalInfoResponse;
+  /** 카드 제목 옆에 표시할 보조 동작입니다. 좁은 화면에서는 다음 줄로 배치합니다. */
+  headerAction?: ReactNode;
 }
 
 // 초 단위를 시/분/초 한국어 문자열로 바꾸는 헬퍼 함수
@@ -20,7 +23,7 @@ const formatFocusedTime = (totalSeconds: number): string => {
   return parts.join(" ");
 };
 
-export default function CoreMetricsChart({ data }: CoreMetricsChartProps) {
+export default function CoreMetricsChart({ data, headerAction }: CoreMetricsChartProps) {
   const {
     studyCompletionRate,
     studySuccessRate,
@@ -38,7 +41,10 @@ export default function CoreMetricsChart({ data }: CoreMetricsChartProps) {
   return (
     <Card className="h-full flex flex-col relative overflow-hidden group border-0 shadow-none bg-white dark:bg-[#050505] rounded-3xl p-6">
       <div className="mb-6 relative z-10">
-        <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">핵심 지표</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <h3 className="text-xl font-black text-gray-900 dark:text-white">핵심 지표</h3>
+          {headerAction}
+        </div>
         <p className="text-xs font-medium text-gray-500">스터디의 전반적인 달성도를 확인합니다.</p>
       </div>
 

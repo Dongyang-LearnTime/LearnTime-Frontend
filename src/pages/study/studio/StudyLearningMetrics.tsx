@@ -4,15 +4,18 @@ import type { StudyRecentWeekInfoResponse, StudyStudioSummaryResponse, StudyTota
 import RecentWeekChart from "./components/RecentWeekChart";
 import CoreMetricsChart from "./components/CoreMetricsChart";
 import { TodayProgressBox } from "./components/TodayProgressBox";
+import { SparklesIcon } from "../../../components/ui/Icons";
 
 
 interface StudyLearningMetricsProps {
   studyId: string;
   summary?: StudyStudioSummaryResponse | null;
   isSummaryLoading?: boolean;
+  onGenerateFeedback: () => Promise<void>;
+  isGeneratingFeedback: boolean;
 }
 
-export default function StudyLearningMetrics({ studyId, summary, isSummaryLoading = false }: StudyLearningMetricsProps) {
+export default function StudyLearningMetrics({ studyId, summary, isSummaryLoading = false, onGenerateFeedback, isGeneratingFeedback }: StudyLearningMetricsProps) {
   // 1. 최근 일주일 공부 지표 상태 관리
   const [ recentData, setRecentData ] = useState<StudyRecentWeekInfoResponse[] | null>(null);
   const [ isRecentLoading, setIsRecentLoading ] = useState<boolean>(true);
@@ -139,7 +142,23 @@ export default function StudyLearningMetrics({ studyId, summary, isSummaryLoadin
               <span className="text-sm font-bold text-rose-500">{totalError}</span>
             </div>
           ) : totalData ? (
-            <CoreMetricsChart data={totalData} />
+            <CoreMetricsChart
+              data={totalData}
+              headerAction={
+                <button
+                  type="button"
+                  onClick={onGenerateFeedback}
+                  disabled={isGeneratingFeedback}
+                  aria-busy={isGeneratingFeedback}
+                  className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 transition-colors hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-70 disabled:cursor-wait focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                >
+                  {isGeneratingFeedback ? (
+                    <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : <SparklesIcon size={16} />}
+                  {isGeneratingFeedback ? "분석 중..." : "AI 진도 분석"}
+                </button>
+              }
+            />
           ) : (
             <div className="flex items-center justify-center h-full bg-gray-50/50 dark:bg-[#050505]/50 border border-gray-100 dark:border-[#1a1a1a] rounded-4xl">
               <span className="text-sm font-bold text-gray-400">데이터가 없습니다.</span>
