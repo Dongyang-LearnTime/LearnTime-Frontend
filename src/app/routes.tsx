@@ -41,6 +41,7 @@ const MyPage = lazy(() => import("../pages/mypage/MyPage"));
 const StudyRedirector = lazy(() => import("../pages/study/studio/StudyRedirector"));
 const StudyEmptyPage = lazy(() => import("../pages/study/studio/StudyEmptyPage"));
 const StudyStudioPage = lazy(() => import("../pages/study/studio/StudyStudioPage"));
+const StudyForumPage = lazy(() => import("../pages/study/forum/StudyForumPage"));
 
 // 관리자 페이지 지연 로딩
 const AdminDashboardPage = lazy(() => import("../pages/admin/AdminDashboardPage"));
@@ -115,6 +116,7 @@ export const routes = [
         children: [
           { path: "/study/empty", element: <StudyEmptyPage /> },
           { path: "/study/:studyId", element: <StudyStudioPage /> },
+          { path: "/study/forum/:studyId", element: <StudyForumPage /> },
           { path: "/study/invitation", element: <StudyInvitationPage /> },
           { path: "/study/plan/create", element: <CreateStudyPage /> },
           { path: "/study/notes/write/:studyId", element: <NotesWritePage /> },

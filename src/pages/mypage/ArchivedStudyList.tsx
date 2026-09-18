@@ -55,9 +55,8 @@ export default function ArchivedStudyList() {
             ) : (
                 <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {studies.map(study => (
-                        <button
+                        <article
                             key={study.studyId}
-                            onClick={() => navigate(`/study/${study.studyId}`)}
                             className="text-left w-full flex flex-col p-5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 hover:shadow-sm transition-all group"
                         >
                             <div className="flex items-center gap-2 mb-2">
@@ -77,12 +76,17 @@ export default function ArchivedStudyList() {
                                 )}
                             </div>
                             <h3 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
-                                {study.studyTitle}
+                                <button type="button" onClick={() => navigate(`/study/${study.studyId}`)}>{study.studyTitle}</button>
                             </h3>
                             <p className="text-xs font-bold text-gray-400 mt-auto pt-2 flex items-center gap-1">
                                 <Users size={12} /> {fmt(study.joinedAt)} 가입
                             </p>
-                        </button>
+                            {(study.status === 'ACTIVE' || study.status === 'COMPLETED') && (
+                                <button type="button" onClick={() => navigate(`/study/forum/${study.studyId}`)} className="mt-4 text-sm font-bold text-indigo-600 dark:text-indigo-400 underline self-start">
+                                    {study.status === 'COMPLETED' ? '토론 기록 보기' : '토론방'}
+                                </button>
+                            )}
+                        </article>
                     ))}
                 </div>
             )}

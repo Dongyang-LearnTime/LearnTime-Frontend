@@ -226,7 +226,7 @@ export default function PasswordResetPage() {
           {step === 'REQUEST' && (
             <form className="space-y-5 mt-2" onSubmit={handleSendCode}>
               <div className="space-y-1.5 sm:space-y-2">
-                <label htmlFor="reset-email" className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 flex items-center gap-1.5">
+                <label htmlFor="reset-email" className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1 items-center gap-1.5">
                   <Mail size={16} className="text-indigo-500" /> 이메일 주소
                 </label>
                 <input
@@ -245,11 +245,10 @@ export default function PasswordResetPage() {
               <button
                 type="submit"
                 disabled={loading || !email}
-                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-200 text-sm sm:text-base flex items-center justify-center gap-2 ${
-                  loading || !email
+                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-200 text-sm sm:text-base flex items-center justify-center gap-2 ${loading || !email
                     ? 'bg-gray-300 dark:bg-[#222] text-gray-500 cursor-not-allowed'
                     : 'bg-linear-to-r from-indigo-600 to-purple-600 hover:scale-[1.01] active:scale-[0.99] hover:shadow-indigo-200'
-                }`}
+                  }`}
               >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : '인증 코드 발송'}
               </button>
@@ -316,11 +315,10 @@ export default function PasswordResetPage() {
               <button
                 type="submit"
                 disabled={loading || code.length !== 6 || timer === 0}
-                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-200 text-sm sm:text-base flex items-center justify-center gap-2 ${
-                  loading || code.length !== 6 || timer === 0
+                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-200 text-sm sm:text-base flex items-center justify-center gap-2 ${loading || code.length !== 6 || timer === 0
                     ? 'bg-gray-300 dark:bg-[#222] text-gray-500 cursor-not-allowed'
                     : 'bg-linear-to-r from-emerald-500 to-teal-500 hover:scale-[1.01] active:scale-[0.99] hover:shadow-emerald-200'
-                }`}
+                  }`}
               >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : '인증 완료'}
               </button>
@@ -393,9 +391,8 @@ export default function PasswordResetPage() {
                   {passwordRules.map((rule, idx) => (
                     <div
                       key={idx}
-                      className={`flex items-center gap-1.5 font-medium transition-colors ${
-                        rule.pass ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'
-                      }`}
+                      className={`flex items-center gap-1.5 font-medium transition-colors ${rule.pass ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'
+                        }`}
                     >
                       {rule.pass ? <Check size={13} className="shrink-0" /> : <X size={13} className="shrink-0" />}
                       <span>{rule.label}</span>
@@ -414,11 +411,10 @@ export default function PasswordResetPage() {
               <button
                 type="submit"
                 disabled={loading || !isPasswordValid}
-                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-200 text-sm sm:text-base flex items-center justify-center gap-2 ${
-                  loading || !isPasswordValid
+                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-200 text-sm sm:text-base flex items-center justify-center gap-2 ${loading || !isPasswordValid
                     ? 'bg-gray-300 dark:bg-[#222] text-gray-500 cursor-not-allowed'
                     : 'bg-linear-to-r from-indigo-600 to-purple-600 hover:scale-[1.01] active:scale-[0.99] hover:shadow-indigo-200'
-                }`}
+                  }`}
               >
                 {loading ? <Loader2 className="animate-spin" size={20} /> : '비밀번호 변경하기'}
               </button>

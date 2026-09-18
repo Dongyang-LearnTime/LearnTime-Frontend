@@ -128,7 +128,8 @@ export default function StudyStudioPage() {
             </h2>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={() => navigate(`/study/forum/${studyId}`)} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm">토론방</button>
           {/* 오늘의 진도 시작/상태 버튼 */}
           {!isTodayLoading && todayPlan && todayPlan.studyDailyPlanId && (
             <>
