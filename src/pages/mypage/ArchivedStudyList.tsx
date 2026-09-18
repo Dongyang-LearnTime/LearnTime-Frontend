@@ -54,22 +54,25 @@ export default function ArchivedStudyList() {
                 </div>
             ) : (
                 <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {studies.map(study => (
+                    {studies.map(study => {
+                        const status = study.myStatus ?? study.status;
+                        const role = study.myRole ?? study.role;
+                        return (
                         <article
                             key={study.studyId}
                             className="text-left w-full flex flex-col p-5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 hover:shadow-sm transition-all group"
                         >
                             <div className="flex items-center gap-2 mb-2">
                                 <span className={`px-2 py-1 rounded-md text-[10px] font-black tracking-widest uppercase ${
-                                    study.status === 'WITHDRAWN' 
+                                    status === 'WITHDRAWN' 
                                         ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' 
-                                        : study.status === 'COMPLETED'
+                                        : status === 'COMPLETED'
                                             ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
                                             : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
                                 }`}>
-                                    {study.status === 'WITHDRAWN' ? '탈퇴함' : study.status === 'COMPLETED' ? '수료함' : '활동 중'}
+                                    {status === 'WITHDRAWN' ? '탈퇴함' : status === 'COMPLETED' ? '수료함' : '활동 중'}
                                 </span>
-                                {study.role === 'OWNER' && (
+                                {role === 'OWNER' && (
                                     <span className="px-2 py-1 rounded-md bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black tracking-widest uppercase">
                                         방장
                                     </span>
@@ -81,13 +84,14 @@ export default function ArchivedStudyList() {
                             <p className="text-xs font-bold text-gray-400 mt-auto pt-2 flex items-center gap-1">
                                 <Users size={12} /> {fmt(study.joinedAt)} 가입
                             </p>
-                            {(study.status === 'ACTIVE' || study.status === 'COMPLETED') && (
+                            {(status === 'ACTIVE' || status === 'COMPLETED') && (
                                 <button type="button" onClick={() => navigate(`/study/forum/${study.studyId}`)} className="mt-4 text-sm font-bold text-indigo-600 dark:text-indigo-400 underline self-start">
-                                    {study.status === 'COMPLETED' ? '토론 기록 보기' : '토론방'}
+                                    {status === 'COMPLETED' ? '토론 기록 보기' : '토론방'}
                                 </button>
                             )}
                         </article>
-                    ))}
+                    );
+                    })}
                 </div>
             )}
         </div>

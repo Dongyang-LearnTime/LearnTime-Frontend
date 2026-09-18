@@ -20,12 +20,29 @@ export const getTodayPlans = async (): Promise<TodayStudyPlanResponse[]> => {
 export interface StudyArchiveResponse {
     studyId: number;
     studyTitle: string;
-    role: string;
-    status: string;
+    bookTitle?: string;
+    startDate?: string;
+    endDate?: string;
+    myRole?: string;
+    myStatus?: string;
+    role?: string;
+    status?: string;
     joinedAt: string;
 }
 
+export const normalizeStudyArchive = (study: StudyArchiveResponse): StudyArchiveResponse => {
+    const status = study.myStatus ?? study.status ?? '';
+    const role = study.myRole ?? study.role ?? '';
+    return {
+        ...study,
+        status,
+        role,
+        myStatus: status,
+        myRole: role,
+    };
+};
+
 export const getMyArchivedStudiesApi = async (): Promise<StudyArchiveResponse[]> => {
     const response = await axiosInstance.get<StudyArchiveResponse[]>('/api/study/archive');
-    return response.data;
+    return response.data.map(normalizeStudyArchive);
 };

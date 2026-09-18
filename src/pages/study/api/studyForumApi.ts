@@ -1,6 +1,6 @@
 import { axiosInstance } from '../../../app/apiClient';
 import type { CursorResponse } from '../../../types/PaginationType';
-import type { StudyArchiveResponse } from './studyApi';
+import { normalizeStudyArchive, type StudyArchiveResponse } from './studyApi';
 import type { StudyForumMessage } from '../types/StudyForumTypes';
 
 const config = (signal: AbortSignal) => ({ signal, timeout: 15_000, handleForbiddenLocally: true });
@@ -8,7 +8,8 @@ const messagesPath = (studyId: number) => `/api/study/${studyId}/forum/messages`
 
 export async function getForumMembership(studyId: number, signal: AbortSignal) {
   const { data } = await axiosInstance.get<StudyArchiveResponse[]>('/api/study/archive', config(signal));
-  return data.find(study => study.studyId === studyId) ?? null;
+  const found = data.find(study => study.studyId === studyId);
+  return found ? normalizeStudyArchive(found) : null;
 }
 
 export async function getForumMessages(studyId: number, signal: AbortSignal, beforeId?: number) {

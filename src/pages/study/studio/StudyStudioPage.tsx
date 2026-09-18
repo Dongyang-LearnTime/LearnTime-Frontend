@@ -28,6 +28,7 @@ export default function StudyStudioPage() {
   const [todayPlan, setTodayPlan] = useState<StudyPlanResponse | null>(null);
   const [studioSummary, setStudioSummary] = useState<StudyStudioSummaryResponse | null>(null);
   const [isTodayLoading, setIsTodayLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isStartingToday, setIsStartingToday] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -47,6 +48,7 @@ export default function StudyStudioPage() {
     if (!studyId) return;
     let isMounted = true;
     setIsTodayLoading(true);
+    setSummaryError(null);
 
     getStudyStudioSummaryApi(studyId, getTodayString())
       .then((data) => {
@@ -64,7 +66,10 @@ export default function StudyStudioPage() {
         }
       })
       .catch((err: unknown) => {
-        if (isMounted) console.error("Failed to load study studio summary:", err);
+        if (isMounted) {
+          console.error("Failed to load study studio summary:", err);
+          setSummaryError("스터디 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+        }
       })
       .finally(() => {
         if (isMounted) setIsTodayLoading(false);
@@ -130,8 +135,13 @@ export default function StudyStudioPage() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => navigate(`/study/forum/${studyId}`)} className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm">토론방</button>
-          {/* 오늘의 진도 시작/상태 버튼 */}
-          {!isTodayLoading && todayPlan && todayPlan.studyDailyPlanId && (
+          {!isTodayLoading && todayPlan?.memberStatus === "COMPLETED" && (
+            <p role="status" className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+              스터디 수료 완료
+            </p>
+          )}
+          {/* 전체 수료 상태는 오늘 계획의 유무와 관계없이 표시합니다. */}
+          {!isTodayLoading && todayPlan?.memberStatus === "ACTIVE" && todayPlan.studyDailyPlanId && (
             <>
               {todayPlan.progressStatus === "NOT_STARTED" && (
                 <button
@@ -184,6 +194,7 @@ export default function StudyStudioPage() {
           </button>
         </div>
       </header>
+      {summaryError && <p role="alert">{summaryError}</p>}
 
       {/* 탭 헤더 영역 (Pill 디자인 적용) */}
       <div className="flex gap-2 mb-6 bg-gray-50/50 dark:bg-[#111] p-1.5 rounded-full w-fit border border-gray-100 dark:border-[#222]">
@@ -233,7 +244,7 @@ export default function StudyStudioPage() {
       </div>
 
       {/* 플로팅 스톱워치 */}
-      <FloatingStopwatch />
+      {todayPlan?.memberStatus === "ACTIVE" && <FloatingStopwatch />}
     </div>
   );
 }

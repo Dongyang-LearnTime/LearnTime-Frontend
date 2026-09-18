@@ -19,7 +19,7 @@ axiosInstance.defaults.adapter = async config => {
     throw new AxiosError(message, undefined, config, undefined, { ...response, status: httpStatus, data: { errorCode: code, message } });
   };
   if (failed) reject('TEST', '연결에 실패했습니다. 다시 시도해 주세요.', 500);
-  if (config.url === '/api/study/archive') return { ...response, data: [{ studyId: 1, studyTitle: '자료구조 함께 공부하기', status, role: 'MEMBER' }] };
+  if (config.url === '/api/study/archive') return { ...response, data: [{ studyId: 1, studyTitle: '자료구조 함께 공부하기', myStatus: status, myRole: 'MEMBER', status, role: 'MEMBER' }] };
   if (status === 'WITHDRAWN') reject('STUDY-FORUM-001', '접근 권한이 없습니다.', 403);
   if (config.method === 'post') {
     if (status === 'COMPLETED') reject('STUDY-FORUM-002', '수료한 스터디는 읽기 전용입니다.', 403);

@@ -33,7 +33,7 @@ export function useStudyForum(studyId: number) {
     if (axios.isCancel(cause)) return;
     const code = getApiErrorCode(cause);
     if (code === 'STUDY-FORUM-002') {
-      setMembership(previous => previous ? { ...previous, status: 'COMPLETED' } : previous);
+      setMembership(previous => previous ? { ...previous, status: 'COMPLETED', myStatus: 'COMPLETED' } : previous);
     } else if (code === 'STUDY-FORUM-001' || (axios.isAxiosError(cause)
       && cause.response?.status === 403 && code !== 'STUDY-FORUM-004')) {
       blocked.current = true;
@@ -69,7 +69,8 @@ export function useStudyForum(studyId: number) {
     const member = await getForumMembership(studyId, signal);
     if (signal.aborted) return;
     setMembership(member);
-    if (!member || !['ACTIVE', 'COMPLETED'].includes(member.status)) {
+    const status = member?.status ?? member?.myStatus;
+    if (!member || !status || !['ACTIVE', 'COMPLETED'].includes(status)) {
       blocked.current = true;
       setDenied(true);
       commit(emptyPage);

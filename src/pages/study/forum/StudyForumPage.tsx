@@ -49,7 +49,7 @@ function ForumRoom({ studyId, userId }: { studyId: number; userId: number | null
       ) : forum.loading ? <p role="status" className="p-6">토론방을 불러오는 중입니다…</p> : forum.membership && (
         <div className="flex flex-col h-[70dvh] min-h-96 bg-white dark:bg-[#111] border border-gray-100 dark:border-white/5 rounded-2xl shadow-sm">
           <ForumMessageList messages={forum.page.content} userId={userId} busy={busy} hasNext={forum.page.hasNext} onOlder={forum.loadOlder} onDelete={setDeleting} />
-          {forum.membership.status === 'ACTIVE' ? <ForumComposer busy={busy} sending={forum.operation === 'send'} onSend={async content => {
+          {(forum.membership.status === 'ACTIVE' || forum.membership.myStatus === 'ACTIVE') ? <ForumComposer busy={busy} sending={forum.operation === 'send'} onSend={async content => {
             const sent = await forum.send(content);
             if (sent) void forum.refresh();
             return sent;
