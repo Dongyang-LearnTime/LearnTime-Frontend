@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { getStudyPlanApi, startStudyDailyPlanApi, getStudyDailyPlansApi, deleteStudyApi, getStudyMemberListApi, updateStudyTitleApi, updateStudyBookTitleApi, updateStudyRestScheduleApi } from "../api/studyStudioApi";
-import { getMyStudyProgresses } from "../api/studyApi";
 import type { StudyPlanResponse, StudyDailyPlanResponse } from "../types/StudyTypes";
 import DailyProgress from "./components/DailyProgress";
 import BaseModal from "../../../components/common/BaseModal";
@@ -86,15 +85,13 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
     let isMounted = true;
     Promise.all([
       getStudyDailyPlansApi(studyId),
-      getStudyMemberListApi(studyId),
-      getMyStudyProgresses()
-    ]).then(([plansData, membersData, progressesData]) => {
+      getStudyMemberListApi(studyId)
+    ]).then(([plansData, membersData]) => {
       if (!isMounted) return;
       setAllPlans(plansData);
       const owner = membersData.some(m => Number(m.userId) === Number(userId) && m.studyMemberRole === "OWNER");
       setIsOwner(owner);
-      const title = progressesData.find(p => Number(p.studyId) === Number(studyId))?.studyTitle || "스터디 제목";
-      setStudyTitle(title);
+
     }).catch(err => {
       if (isMounted) console.error("Failed to fetch additional study info:", err);
     });
@@ -111,6 +108,7 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
       .then((data) => {
         if (isMounted) {
           setProgressData(data);
+          setStudyTitle(data.studyTitle);
           setIsLoading(false);
         }
       })
@@ -157,6 +155,8 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
   };
 
   const handleCompleteSuccess = () => {
+    // 마지막 진도 완료 시 사이드바의 활동 중인 스터디 목록도 갱신합니다.
+    void fetchProgresses();
     setProgressData((prev) => prev ? { ...prev, progressStatus: "COMPLETED" } : null);
     if (onRefreshToday) {
       onRefreshToday();
@@ -281,14 +281,14 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
             <div className="flex-1 bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-[#1f1f1f] rounded-3xl p-6 mb-6 shadow-sm">
               <DailyProgress
                 data={progressData}
-                isOwner={isOwner}
+                isOwner={isOwner && progressData.memberStatus === "ACTIVE"}
                 onUpdateTitle={handleUpdateTitleDirect}
               />
             </div>
             
             {progressData.studyDailyPlanId && (
               <div className="flex justify-end mt-auto pt-4 border-t border-gray-100 dark:border-[#1a1a1a] gap-3">
-                {isOwner && (
+                {isOwner && progressData.memberStatus === "ACTIVE" && (
                   <button
                     onClick={() => setIsRescheduleModalOpen(true)}
                     className="px-6 py-3 bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] text-gray-800 dark:text-gray-200 font-bold rounded-2xl flex items-center gap-2 hover:border-indigo-500 transition-all shadow-sm cursor-pointer"
@@ -297,7 +297,7 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
                     진도 재조정
                   </button>
                 )}
-                {progressData.progressStatus === "NOT_STARTED" && (
+                {progressData.memberStatus === "ACTIVE" && progressData.progressStatus === "NOT_STARTED" && (
                   <button
                     onClick={handleStartPlan}
                     disabled={isStarting}
@@ -317,7 +317,7 @@ export default function StudyProgressInfo({ studyId, refreshTrigger, onRefreshTo
                   </button>
                 )}
 
-                {progressData.progressStatus === "IN_PROGRESS" && (
+                {progressData.memberStatus === "ACTIVE" && progressData.progressStatus === "IN_PROGRESS" && (
                   <button
                     onClick={() => setIsModalOpen(true)}
                     className="px-8 py-3 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black rounded-2xl shadow-md shadow-emerald-500/20 transition-all hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"

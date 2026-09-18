@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MessageSquare } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { PlusIcon, SettingsIcon, BookIcon, NoteIcon, BrainIcon, ChevronRightIcon } from '../ui/Icons';
 import { useStudyStore } from '../../store/useStudyStore';
@@ -174,6 +175,14 @@ export function StudySidebarLayout({ children }: StudySidebarLayoutProps) {
                     {isExpanded && isOpen && (
                       <div className="ml-5 pl-3 border-l border-gray-100 dark:border-[#1f1f1f] mt-0.5 mb-1 space-y-0.5">
                         {/* 필기 목록 */}
+                        <button
+                          onClick={() => { navigate(`/study/forum/${study.studyId}`); if (window.innerWidth < 1024) setIsExpanded(false); }}
+                          aria-current={location.pathname === `/study/forum/${study.studyId}` ? 'page' : undefined}
+                          className={`flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${location.pathname === `/study/forum/${study.studyId}` ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-indigo-600 dark:hover:text-indigo-400'}`}
+                        >
+                          <MessageSquare size={13} className="shrink-0" />
+                          토론방
+                        </button>
                         <button
                           onClick={() => navigate(`/study/notes/list/${study.studyId}`)}
                           className="flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-xs font-bold text-gray-500 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#111] hover:text-indigo-600 dark:hover:text-indigo-400 transition-all cursor-pointer"

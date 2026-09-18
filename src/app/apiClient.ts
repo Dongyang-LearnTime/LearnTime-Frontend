@@ -1,6 +1,13 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    /** 토론방처럼 화면 안에서 권한 오류를 안내해야 하는 요청에 사용합니다. */
+    handleForbiddenLocally?: boolean;
+  }
+}
+
 export const API_BASE_URL = import.meta.env.DEV 
   ? import.meta.env.VITE_LOCAL_API_URL 
   : import.meta.env.VITE_PRODUCTION_API_URL;
@@ -79,7 +86,7 @@ axiosInstance.interceptors.response.use(
     }
 
     // 403 Forbidden 글로벌 처리
-    if (response?.status === 403) {
+    if (response?.status === 403 && !originalRequest.handleForbiddenLocally) {
       window.dispatchEvent(new CustomEvent('forbidden-error'));
       return Promise.reject(error);
     }

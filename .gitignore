@@ -24,6 +24,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Gemini
+# LLM
 GEMINI.md
+AGENTS.md
 .antigravitycli

@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { generateStudyFeedback } from "../api/studyFeedbackApi";
 import StudyLearningMetrics from "./StudyLearningMetrics";
 import StudyProgressInfo from "./StudyProgressInfo";
 import StudyMemberList from "./StudyMemberList";
-import { SparklesIcon, PlayIcon, RocketIcon } from "../../../components/ui/Icons";
+import { PlayIcon, RocketIcon } from "../../../components/ui/Icons";
 import { usePageTitle } from "../../../hooks/usePageTitle";
 import { 
   getStudyStudioSummaryApi,
@@ -28,8 +28,34 @@ export default function StudyStudioPage() {
   const [todayPlan, setTodayPlan] = useState<StudyPlanResponse | null>(null);
   const [studioSummary, setStudioSummary] = useState<StudyStudioSummaryResponse | null>(null);
   const [isTodayLoading, setIsTodayLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isStartingToday, setIsStartingToday] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const moreActionsRef = useRef<HTMLDetailsElement>(null);
+  const displayTitle = todayPlan?.studyTitle || studyTitle;
+
+  // 기본 details 키보드 동작을 유지하면서 바깥 클릭과 Escape로 닫습니다.
+  useEffect(() => {
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      const menu = moreActionsRef.current;
+      if (event.target instanceof Node && menu && !menu.contains(event.target)) {
+        menu.open = false;
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      const menu = moreActionsRef.current;
+      if (event.key === "Escape" && menu?.open) {
+        menu.open = false;
+        menu.querySelector("summary")?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
 
   usePageTitle(studyTitle ? `학습 스튜디오 - ${studyTitle}` : "학습 스튜디오");
 
@@ -47,6 +73,7 @@ export default function StudyStudioPage() {
     if (!studyId) return;
     let isMounted = true;
     setIsTodayLoading(true);
+    setSummaryError(null);
 
     getStudyStudioSummaryApi(studyId, getTodayString())
       .then((data) => {
@@ -64,7 +91,10 @@ export default function StudyStudioPage() {
         }
       })
       .catch((err: unknown) => {
-        if (isMounted) console.error("Failed to load study studio summary:", err);
+        if (isMounted) {
+          console.error("Failed to load study studio summary:", err);
+          setSummaryError("스터디 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+        }
       })
       .finally(() => {
         if (isMounted) setIsTodayLoading(false);
@@ -107,7 +137,7 @@ export default function StudyStudioPage() {
   // 공부 내용 커뮤니티에 공유하기
   const handleShareStudy = () => {
     if (!studyId) return;
-    const titleParam = studyTitle ? `&studyTitle=${encodeURIComponent(studyTitle)}` : "";
+    const titleParam = displayTitle ? `&studyTitle=${encodeURIComponent(displayTitle)}` : "";
     navigate(`/community/post/create?studyId=${studyId}${titleParam}`);
   };
 
@@ -118,71 +148,87 @@ export default function StudyStudioPage() {
   return (
     <div className="w-full max-w-7xl mx-auto py-2">
       {/* 상단 헤더 영역 */}
-      <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
+      <header className="mb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div className="min-w-0">
           <h1 className="text-3xl sm:text-4xl font-black tracking-tightest mb-2 border-l-8 border-indigo-600 pl-6 text-gray-900 dark:text-white">학습 스튜디오</h1>
           <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium ml-2 mb-8">AI와 함께하는 스마트한 학습 몰입 환경을 경험하세요.</p>
-          {studyTitle && (
-            <h2 className="ml-2 text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 border-l-4 border-gray-300 dark:border-gray-600 pl-4">
-              {studyTitle}
-            </h2>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          {/* 오늘의 진도 시작/상태 버튼 */}
-          {!isTodayLoading && todayPlan && todayPlan.studyDailyPlanId && (
-            <>
-              {todayPlan.progressStatus === "NOT_STARTED" && (
-                <button
-                  onClick={handleStartTodayPlan}
-                  disabled={isStartingToday}
-                  className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-emerald-200/50 dark:shadow-emerald-900/30 cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${isStartingToday ? 'opacity-70 cursor-wait' : ''}`}
-                >
-                  <PlayIcon size={16} fill="white" /> 일일 진도 시작
-                </button>
-              )}
-              {todayPlan.progressStatus === "IN_PROGRESS" && (
-                <div className="px-5 sm:px-6 py-2.5 sm:py-3 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-300 rounded-2xl font-bold text-sm flex items-center gap-1.5 shadow-xs select-none">
-                  <span className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full"></span>
-                  오늘 공부 진행 중
-                </div>
-              )}
-              {todayPlan.progressStatus === "COMPLETED" && (
-                <div className="px-5 sm:px-6 py-2.5 sm:py-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 rounded-2xl font-bold text-sm flex items-center gap-1.5 shadow-xs select-none">
-                  <span className="w-2 h-2 bg-emerald-600 dark:bg-emerald-400 rounded-full"></span>
-                  오늘 공부 완료됨
-                </div>
-              )}
-            </>
-          )}
-
-          {/* 공부 공유 버튼 */}
-          <button
-            onClick={handleShareStudy}
-            className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <RocketIcon size={16} /> 공부 공유하기
-          </button>
-
-          {/* AI 진도 분석 버튼 */}
-          <button
-            onClick={handleGenerateFeedback}
-            disabled={isGeneratingFeedback}
-            className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white rounded-2xl font-bold text-sm transition-all shadow-lg shadow-indigo-200/50 dark:shadow-indigo-900/30 ${isGeneratingFeedback ? 'opacity-70 cursor-wait' : 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]'}`}
-          >
-            {isGeneratingFeedback ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                분석 중...
-              </>
-            ) : (
-              <>
-                <SparklesIcon size={16} /> AI 진도 분석
-              </>
+          <div className="ml-2 flex flex-wrap items-center gap-3">
+            {displayTitle && (
+              <h2 className="min-w-0 break-words text-lg sm:text-xl font-bold text-gray-700 dark:text-gray-300 border-l-4 border-gray-300 dark:border-gray-600 pl-4">
+                {displayTitle}
+              </h2>
             )}
+            {/* 상태는 행동 버튼과 분리하고 수료 상태를 우선 표시합니다. */}
+            {!isTodayLoading && !summaryError && todayPlan?.memberStatus === "COMPLETED" ? (
+              <span role="status" className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+                스터디 수료 완료
+              </span>
+            ) : !isTodayLoading && !summaryError && todayPlan?.memberStatus === "ACTIVE" && todayPlan.studyDailyPlanId && (
+              todayPlan.progressStatus === "IN_PROGRESS" ? (
+                <span role="status" className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+                  오늘 공부 진행 중
+                </span>
+              ) : todayPlan.progressStatus === "COMPLETED" ? (
+                <span role="status" className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+                  오늘 공부 완료
+                </span>
+              ) : null
+            )}
+          </div>
+        </div>
+        <div className="flex w-full lg:w-auto shrink-0 flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => navigate(`/study/forum/${studyId}`)}
+            className="px-5 py-2.5 border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#111] hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-xl font-bold text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          >
+            토론방
           </button>
+          {!isTodayLoading && !summaryError && todayPlan?.memberStatus === "ACTIVE" && todayPlan.studyDailyPlanId && todayPlan.progressStatus === "NOT_STARTED" && (
+            <button
+              type="button"
+              onClick={handleStartTodayPlan}
+              disabled={isStartingToday}
+              className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-70 disabled:cursor-wait focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              <PlayIcon size={16} fill="white" />
+              {isStartingToday ? "시작 중..." : "일일 진도 시작"}
+            </button>
+          )}
+          <details
+            ref={moreActionsRef}
+            className="relative"
+            onBlur={(event) => {
+              // Tab으로 메뉴를 벗어나면 닫아 다음 포커스를 가리지 않습니다.
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                event.currentTarget.open = false;
+              }
+            }}
+          >
+            <summary aria-label="스터디 더보기" className="flex h-11 w-11 list-none items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 [&::-webkit-details-marker]:hidden">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+              </svg>
+            </summary>
+            <div className="absolute right-0 z-20 mt-2 w-48 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#111] p-1.5 shadow-lg">
+              <button
+                type="button"
+                onClick={() => {
+                  if (moreActionsRef.current) moreActionsRef.current.open = false;
+                  handleShareStudy();
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-indigo-500"
+              >
+                <RocketIcon size={16} /> 공부 공유하기
+              </button>
+            </div>
+          </details>
         </div>
       </header>
+      {summaryError && <p role="alert">{summaryError}</p>}
 
       {/* 탭 헤더 영역 (Pill 디자인 적용) */}
       <div className="flex gap-2 mb-6 bg-gray-50/50 dark:bg-[#111] p-1.5 rounded-full w-fit border border-gray-100 dark:border-[#222]">
@@ -220,7 +266,7 @@ export default function StudyStudioPage() {
 
       {/* 탭 본문 영역 */}
       <div>
-        {activeTab === "metrics" && <StudyLearningMetrics studyId={studyId} summary={studioSummary} isSummaryLoading={isTodayLoading} />}
+        {activeTab === "metrics" && <StudyLearningMetrics studyId={studyId} summary={studioSummary} isSummaryLoading={isTodayLoading} onGenerateFeedback={handleGenerateFeedback} isGeneratingFeedback={isGeneratingFeedback} />}
         {activeTab === "progress" && (
           <StudyProgressInfo 
             studyId={studyId} 
@@ -232,7 +278,7 @@ export default function StudyStudioPage() {
       </div>
 
       {/* 플로팅 스톱워치 */}
-      <FloatingStopwatch />
+      {todayPlan?.memberStatus === "ACTIVE" && <FloatingStopwatch />}
     </div>
   );
 }

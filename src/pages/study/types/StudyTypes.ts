@@ -24,6 +24,7 @@ export interface StudyPlanResponse {
   progressStatus: ProgressStatus | null; // 진행 상태 
   completionStatus: CompletionStatus | null; // 완료 상태 
   understandingScore: number | null; // 이해도 점수 
+  memberStatus: StudyMemberStatus; // 일일 진도와 구분되는 내 스터디 참여 상태
   studyMemberId: number;        // 조회한 사용자의 스터디 멤버 ID
   allStudyMemberIds: number[];  // 모든 스터디 멤버 ID 목록
   isPublic?: boolean;           // 스터디 공개 여부
